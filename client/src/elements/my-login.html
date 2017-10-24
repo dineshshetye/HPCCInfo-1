@@ -1,0 +1,78 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html" >
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+
+<dom-module id="my-login">
+	
+	<template>
+			<style>
+					.loginBtnDiv {
+						display: inline-flex;
+					}
+			
+					.signoutBtn {
+						background-color: #4caf50; 
+						color: white; 
+						text-transform: none;
+						height: 25px;
+						font-size: 13px;
+						margin-top: 30px;
+					}
+			
+					.SignInText {
+						color: #767676;
+						margin-top: 30px;
+						padding: 5px;
+					}
+			
+				</style>
+		<app-location route="{{route}}"></app-location>
+
+		<template is="dom-if" if="{{signedIn}}">
+            <div class="loginBtnDiv">
+                <h6 class="SignInText">Welcome {{user.displayName}}</h6>
+                <paper-button raised class="signoutBtn" on-tap="logout">Sign-Out</paper-button>
+            </div>
+        </template>
+        <template is="dom-if" if="{{!signedIn}}">
+            <div class="loginBtnDiv">
+                <h6 class="SignInText">Welcome</h6>
+                <paper-button raised class="signoutBtn" on-tap="logout">Sign-In</paper-button>
+            </div>
+        </template>
+	</template>
+	<script type="text/javascript">
+	class MyLogin extends Polymer.Element {
+			static get is() {return 'my-login'; }
+			
+			static get properties() { return {
+		
+				user: {
+                    type: Object,
+                    notify: true
+                },
+
+                signedIn: {
+                  type: Boolean,
+                  notify: true,
+                  value: false
+                }
+			}
+			}
+
+			logout(e) {
+				if(e.target.innerText === 'Sign-Out') {
+					this.fire('sign-out');
+				}
+
+								
+				var infoBox = document.querySelector('#infobox');
+				infoBox.clearWorkBook();
+				
+                this.set('route.path', '/');
+            }
+		}
+		customElements.define(MyLogin.is, MyLogin);
+	</script>
+</dom-module>

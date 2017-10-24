@@ -1,0 +1,411 @@
+<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-menu-button/paper-menu-button.html">
+<!--<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">-->
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../bower_components/iron-icons/social-icons.html">
+
+<link rel="import" href="info-plugin-dialog.html">
+
+<!-- Import Custom Plugins here -->
+<link rel="import" href="plugins/input/editor.html">
+<link rel="import" href="plugins/input/view.html">
+<link rel="import" href="plugins/filter/editor.html">
+<link rel="import" href="plugins/filter/view.html">
+<link rel="import" href="plugins/sort/editor.html">
+<link rel="import" href="plugins/sort/view.html">
+<link rel="import" href="plugins/aggregate/editor.html">
+<link rel="import" href="plugins/aggregate/view.html">
+<link rel="import" href="plugins/sample/editor.html">
+<link rel="import" href="plugins/sample/view.html">
+<link rel="import" href="export-project-dialog.html">
+
+<dom-module id="info-box">
+    <template>
+        <style>
+            paper-tabs {
+                font-family: 'Roboto', 'Noto', sans-serif;
+                -webkit-font-smoothing: antialiased;
+                width: 100%;
+                text-transform: uppercase;
+                color: #767676;
+                --paper-tabs-selection-bar-color: white;
+            }
+    
+            paper-tab.iron-selected {
+                color: white;
+                font-weight: bold;
+                text-transform: uppercase;
+            }
+            
+            app-toolbar {
+                    background-color: #FF7043;
+                    height: 50px;
+                    color: #fff;
+                }
+    
+            paper-icon-button {
+                    --paper-icon-button: {
+                        width: 40px;
+                        height: 40px;
+                    }
+                }
+        </style>
+        <app-toolbar>
+            <paper-tabs id="tabs" selected="{{selected}}"></paper-tabs>
+
+            <paper-icon-button id="btnEditPlugin" disabled="true" icon="create" on-tap="_pluginEditOpenHandler"></paper-icon-button>
+            <paper-tooltip for="btnEditPlugin" offset="0">Edit Worksheet</paper-tooltip>
+            
+            
+            <paper-menu-button horizontal-align="right" disabled="true" id="pluginMenu">
+                <paper-icon-button id="btnAddPlugin" icon="add" class="dropdown-trigger"></paper-icon-button>
+                <!--<paper-menu id="pluginmenu" class="dropdown-content"> </paper-menu>-->
+                <paper-dropdown-menu label="Dinosaurs">
+                    <paper-listbox id="pluginmenu" slot="dropdown-content" selected="1">
+                        
+                    </paper-listbox>
+                </paper-dropdown-menu>
+           </paper-menu-button>
+             <paper-tooltip for="btnAddPlugin" offset="0">Plugin List</paper-tooltip>   
+
+            <paper-icon-button id="btnExportProject" disabled="true"
+                                    icon="social:share" 
+                                    on-tap="_projectExportOpenHandler">                       
+            </paper-icon-button>
+            <paper-tooltip for="btnExportProject" disabled="true" offset="0">Share Project</paper-tooltip>
+
+        </app-toolbar>
+        <export-project-dialog id="export-project-dialog"></export-project-dialog>
+        <iron-pages id="pages" selected="{{selected}}"></iron-pages>
+        <info-plugin-dialog id="plugininfo"></info-plugin-dialog>
+
+    </template>
+    <script>
+        class InfoBox extends Polymer.Element {
+			static get is() {return 'info-box'; }
+			
+            //listeners : {
+            //    'iron-select' : 'handleTabTap'
+            //},
+			static get properties() { return {
+           
+                viewList: {
+                    type: Array
+                },
+                pluginList: {
+                    type: Array
+                },
+                selected: {
+                    type: Number,
+                    value: 0
+                },
+                cluster_address : {
+                    type : String,
+                    value : ''
+                },
+                cluster_name : {
+                    type : String,
+                    value : ''
+                },
+                clusterid : {
+                    type : String,
+                    value : ''
+                },
+                port : {
+                    type : String,
+                    value : ''
+                },
+                httpSecured : {
+                    type : Boolean,
+                    value : false
+                },
+                username : {
+                    type :  String,
+                    value : ''
+                
+                },
+                password  : {
+                    type : String,
+                    value : ''
+                },
+                projectid  : {
+                    type : String,
+                    value : ''
+                },
+                title : {
+                    type : String,
+                    value : ''
+                },
+                updatedby : {
+                    type : String,
+                    value : ''
+                },
+                dateupdated : {
+                    type : Date,
+                    value : null
+                }, 
+                file : {
+                    type : String,
+                    value : ''
+                } ,
+                fieldDtls :{
+                    type : Map,
+                    value : {}
+
+                }
+
+            }
+            }
+            constructor(){
+                super();
+            }
+            ready() {
+                super.ready();
+                this.addEventListener('iron-select', (e)=>this.handleTabTap(e));
+                this.addPlugin("common-filter", "Filter", "common");
+                this.addPlugin("common-aggregate", "Aggregate", "common");
+                this.addPlugin("common-sort", "Sort", "common");
+                this.addPlugin("common-sample", "Data Sampling", "common");
+            }
+            handleTabTap(e){
+                console.log(e);
+                if(e.detail.item.editor != undefined){
+                    if(e.detail.item.shadowRoot.querySelector('.projectworksheet').items.length === 0){
+                        e.detail.item.editor.loadgrid();
+                    }
+                }
+            }
+            attached() {
+                this.listen(this.$.plugininfo, 'complete', '_pluginNewTabHandler');
+            }
+
+            addPlugin(id, label, category) {
+                var item = document.createElement("paper-item");
+                item.id = "item_" + id;
+                item.textContent = label;
+                Polymer.dom(this.$.pluginmenu).appendChild(item);
+                this.addEventListener('tap', (e)=>this._pluginMenuTapHandler(e));
+                //this.listen(item, 'tap', '_pluginMenuTapHandler');
+                if (this.pluginList == null) {
+                    this.pluginList = [];
+                }
+                var plugin = new Plugin(id, label, category);
+                this.pluginList.push(plugin);
+            }
+
+            clearWorkBook(){
+
+                //document.querySelector('#btnExportProject').disabled = true;
+                //document.querySelector('#export-project-dialog').disabled = true;
+                this.shadowRoot.querySelector('#btnExportProject').disabled = true;
+                this.shadowRoot.querySelector('#export-project-dialog').disabled = true;
+                
+
+                this.cluster_name = '';
+                this.cluster_address = '';
+                this.port = '';
+                this.username = '';
+                this.password = '';
+                this.httpSecured = '';
+                this.file = '';
+                this.pluginList = [];
+                this.pluginList = [];
+                this.httpSecured = '';
+
+                var tabitems = Polymer.dom(this.$.tabs);
+                var pageitems = Polymer.dom(this.$.pages);
+                var cnt = 0;
+               // tabitems._clear();
+                this.$.tabs.items = [];
+               // pageitems._clear(); 
+                if(this.viewList === undefined ||  this.viewList.length > 0){
+
+                    if(this.viewList != undefined ){
+                        var listsize = this.viewList.length;
+                        for(var cnt =0; cnt < listsize; cnt++){
+                            this.viewList.pop();
+                        }
+                    }
+
+                    if(this.$.tabs != undefined ){
+                        var listsize = this.$.tabs.length;
+                        for(var cnt =0; cnt < listsize; cnt++){
+                            this.$.tabs.pop();
+                        }
+                    }
+                }
+            }
+            
+            addTab(id, label, pluginId, reload = false) {
+
+               if(pluginId === "common-input"){
+
+                   //document.querySelector('#export-project-dialog').disabled = true;
+                   this.shadowRoot.querySelector('#export-project-dialog').disabled = true;
+
+
+                   
+                   var tabitems = Polymer.dom(this.$.tabs);
+                   var pageitems = Polymer.dom(this.$.pages);
+                   var cnt = 0;
+                    //tabitems._clear();
+                    this.$.tabs.items = [];
+                   // pageitems._clear(); 
+                    if(this.viewList === undefined ||  this.viewList.length > 0){
+
+                        if(this.viewList != undefined ){
+                            var listsize = this.viewList.length;
+                            for(var cnt =0; cnt < listsize; cnt++){
+                                this.viewList.pop();
+                            }
+                        }
+
+                        if(this.$.tabs != undefined ){
+                            var listsize = this.$.tabs.length;
+                            for(var cnt =0; cnt < listsize; cnt++){
+                                this.$.tabs.pop();
+                            }
+                        }
+                    }
+
+                var pluginMenu = this.shadowRoot.querySelector('#pluginMenu')
+                pluginMenu.disabled = true;
+               }
+                var view = document.createElement(pluginId + "-view");
+                var editor = document.createElement(pluginId + "-editor");
+                var tab = document.createElement("paper-tab");
+                tab.id = id;
+                tab.textContent = label;
+                
+                view.id = id;
+                editor.id = id + '_editor_' + Math.random().toString(36).substr(2, 9);
+                view.pluginId = pluginId;
+                view.label = label;
+                view.tab = tab; 
+                view.editor = editor;
+                Polymer.dom(this.$.tabs).appendChild(tab);
+                Polymer.dom(this.$.pages).appendChild(view);
+                Polymer.dom(this.$.tabs).appendChild(editor);
+                //document.querySelector('#pages').items.push(view);
+                //document.querySelector('#tabs').items.push(editor);
+                this.shadowRoot.querySelector('#pages').items.push(view);
+                this.shadowRoot.querySelector('#tabs').items.push(editor);
+                
+
+                this.addEventListener(editor, 'complete', '_pluginEditCompleteHandler');
+                
+                if (this.viewList == null) {
+                    this.viewList = [];
+                };
+                this.viewList.push(view);
+                if(reload){
+                    editor.deSerialize(label);
+                }else{
+                    this.$.tabs.selectIndex(pluginId == "common-input" ? 0 : this.$.tabs.items.length -1);//Select the new tab
+                    
+                	setTimeout(function (that) {
+				            that.shadowRoot.querySelector('#btnEditPlugin').fire('click');
+			        }, 2000,this);
+                }
+
+
+            }
+
+
+            getView (id) {
+                if (this.viewList == null) {
+                    return null;
+                } else {
+                    for (var i = 0; i < this.viewList.length; i++) {
+                        var view = this.viewList[i];
+                        if (view.id == id) {
+                            return view;
+                        }
+                    }
+                    return null;
+                }
+            }
+
+            getPlugin (id) {
+                if (this.pluginList == null) {
+                    return null;
+                } else {
+                    for (var i = 0; i < this.pluginList.length; i++) {
+                        var item = this.pluginList[i];
+                        if (item.id == id) {
+                            return item;
+                        }
+                    }
+                    return null;
+                }
+            }
+
+            getActiveView() {
+                var view = this.getView(this.$.tabs.selectedItem.id);
+                return view;
+            }
+
+            getGeneralProperties() {
+
+            }
+
+            setGeneralProperties() {
+
+            }
+
+
+            getViewPropertiesList() {
+
+            }
+
+            setViewPropertiesList() {
+
+            }
+
+            _pluginMenuTapHandler(e) {
+                var pluginId = e.target.id.substring(5);
+                this.$.plugininfo.pluginId = pluginId;
+                this.$.plugininfo.plugintitle = pluginId.substring(7);
+                //Create a dialog to accept just the id and label
+                this.$.plugininfo.open();
+            }
+            
+            // This handler is called when the user adds a new plugin.
+            // Called on 'OK' button of the dialog
+            _pluginNewTabHandler(e) {
+                var pluginId = e.target.pluginId;
+                var label = e.target.getLabel();
+                //Add a new tab
+                this.addTab((pluginId + '_' + Math.random().toString(36).substr(2, 9)), label, pluginId); //TODO: Need to generate an unique id for the tab
+            }
+
+            // This handler is called when the user clicks on any plugins 'Edit' button.
+            _pluginEditOpenHandler(e) {
+                var view = this.getActiveView();
+                view.editor.open();
+            }
+
+            // This handler is called when the user clicks on any editors 'OK' button.
+            // Fired from editors _okHandler method.
+            _pluginEditCompleteHandler(e) {
+                var view = this.getActiveView();
+                // view.setViewProperties(tab.editor.getViewProperties());
+            }
+
+            _projectExportOpenHandler(e) {
+                var dialog = document.querySelector('#export-project-dialog');
+                dialog.open();
+            }
+
+        }
+        customElements.define(InfoBox.is, InfoBox);
+    </script>
+
+</dom-module>

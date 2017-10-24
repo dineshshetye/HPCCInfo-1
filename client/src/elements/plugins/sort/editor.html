@@ -1,0 +1,256 @@
+<link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../../bower_components/paper-styles/color.html">
+<link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../../bower_components/iron-label/iron-label.html">
+<link rel="import" href="../../../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
+<link rel="import" href="../../shared-styles.html">
+
+<dom-module id="common-sort-editor">
+    <template>
+    	<style include="shared-dialog-styles"></style>
+        <paper-dialog id="dialog" modal>
+        		<iron-label>
+		            <div class="headerDiv">
+		                <span>Apply a Sort</span>
+		        	</div>
+		        </iron-label>
+		        <paper-dialog-scrollable>
+		            <paper-input id='TabTitle' label="Title" required auto-validate error-message="Title is Required"></paper-input>
+		            <paper-input id='sortoutputlimit' allowed-pattern="[\d]" label="Output Limit" value="10000"></paper-input>
+		            <vaadin-combo-box id='sortInputtab' on-value-changed='changeSortInput' required label="Input Dataset"></vaadin-combo-box>
+		            <vaadin-combo-box id='sortfield' required label="Field"></vaadin-combo-box>
+		            <vaadin-combo-box id='fieldOrder' required label="Field Order" items='["ASC", "DSC"]'></vaadin-combo-box>
+		            <!-- 
+		            	style="justify-content: left;     
+		            	justify-content: left;
+	    				margin-left: 0px;
+	    				padding-left: 0px;"-->
+		            <paper-button class="addBtn" on-tap="ADDFunction">Add</paper-button>
+		            <paper-input id='sortformulas' label="Value"></paper-input>
+	            </paper-dialog-scrollable>
+
+	            <div class="buttons">
+	                <paper-button dialog-confirm raised class="indigo" on-tap="_okHandler">Ok</paper-button>
+	                <paper-button dialog-dismiss raised class="green">Cancel</paper-button>
+	            </div>
+        </paper-dialog>
+    </template>
+    <script>
+		class CommonSortEditor extends Polymer.Element {
+			static get is() {return 'common-sort-editor'; }
+			
+			static get properties() { return {
+				eclcode : String,
+				inputeclcode : String,
+				outputdsname : String,
+				inputdsname : String,
+				eclIP : String,
+				hpccuser : String,
+				displayFields : String,
+				expression : String,
+				title : String,
+				inputTab : String
+			}
+			}
+			constructor(){
+                super();
+            }
+			ready(){
+				console.log("Ready function");
+				var infoBox = document.querySelector('#infobox');
+				var selpage = document.querySelector("#pages").querySelector("#common-input");
+				var username = infoBox.properties.username;
+				var password = infoBox.properties.password;
+				var credentials = username === null || username === "" ? "" : (
+					password === null || password === "" ?  (username + '@') :
+					(username + ':' + password + '@')               
+				);
+				var eclIP = (infoBox.properties.isHpccSecured === "true" ? "https://" : "http://") +  infoBox.properties.cluster_address +
+					":" + infoBox.properties.port;
+				this.eclIP = eclIP;
+				this.hpccuser = username;
+
+				this.displayFields = '';
+				this.eclcode = '';
+				this.inputeclcode = '';
+				this.$.TabTitle.value = '';
+				this.inputdsname = '';
+				this.outputdsname = '';
+				this.expression = '';
+				this.inputTab = '';
+				// setTimeout(function () {
+				// 	document.querySelector('#btnEditPlugin').fire('click');
+				// }, 2000);
+			}
+			serialize (){
+				var jsonStr = '{';
+				jsonStr += '\"displayFields\" : \"' + this.displayFields + '\",';
+				jsonStr += '\"eclcode\" : \"' + this.eclcode.replace(/[\r\n]/g, '') + '\",';
+				jsonStr += '\"inputdsname\" :\" ' + this.inputdsname + '\",';
+				jsonStr += '\"outputdsname\" : \"' + this.outputdsname + '\",';
+				jsonStr += '\"expression\" : \"' + this.expression + '\",';
+				jsonStr += '\"title\" : \"' + this.title.trim() + '\",';
+				jsonStr += '\"inputTab\" : \"' + this.inputTab.trim() + '\",';	
+				jsonStr += '\"pluginId\" : \"' + 'common-sort' + '\"}';
+
+				return jsonStr;
+			}
+
+			deSerialize(tabTtitle){
+				console.log(tabTtitle);
+
+				var jsonTabContent  = null;
+
+				var infoBox = document.querySelector('#infobox');
+
+				var tabs = infoBox.properties.tabsdata.Tabs;
+
+				for(var cnt = 0; cnt < tabs.length; cnt++){
+					if( tabTtitle === tabs[cnt].title){
+						jsonTabContent = tabs[cnt];
+						this.displayFields = jsonTabContent.displayFields;
+						this.$.sortfield.items = this.displayFields.split(',');
+						this.$.TabTitle.value = jsonTabContent.title;
+						this.eclcode = jsonTabContent.eclcode;
+						this.inputeclcode = jsonTabContent.eclcode;
+						this.inputdsname = jsonTabContent.inputdsname;
+						this.outputdsname = jsonTabContent.outputdsname;
+						this.pluginId = jsonTabContent.pluginId;
+						this.title = jsonTabContent.title;                            
+						this.expression = jsonTabContent.expression;
+						this.inputTab = jsonTabContent.inputTab;
+						this.$.sortformulas.value = jsonTabContent.expression;
+						this.$.sortInputtab.value = jsonTabContent.inputdsname;
+						break;
+					}
+				}
+				for(var cnt = 0; cnt < tabs.length; cnt++){
+					if( this.inputdsname  === tabs[cnt].title){
+						this.$.aggregatefield.items = tabs[cnt].displayFields.split(",");
+					}
+				}
+			}
+
+			loadgrid(tabTtitle){
+				var QueryStr1 =  this.eclcode;
+				if(QueryStr1.trim() === ''){
+					return;
+				}               
+				var QueryStr1 =  this.eclcode;
+				var QueryStr =  QueryStr1 +  "\n OUTPUT(" + this.outputdsname + ");";
+
+				this.$.dialog.close();
+
+				return loadGridwithEcl(QueryStr, 1000);
+			}
+
+			open() {
+
+				this.$.TabTitle.value =  document.querySelector("#tabs").selectedItem.textContent;
+
+				var pages = document.querySelector("#tabs");
+
+				var tabnames = "";
+
+				var inputidx = 0;
+
+				for(var cnt =0 ; cnt < document.getElementsByTagName("paper-tab").length; cnt++){
+					if(pages.selectedItem.id === document.getElementsByTagName("paper-tab")[cnt].id){
+						break;
+					}
+					tabnames += (tabnames === "" ? "" : ",") + document.getElementsByTagName("paper-tab")[cnt].textContent.trim();
+					if(this.inputTab === document.getElementsByTagName("paper-tab")[cnt].textContent.trim()){
+						inputidx = cnt;
+
+					}				
+				}
+				sortInputtab.items = tabnames.split(",");
+
+				this.$.sortInputtab.selectedItem = tabnames.split(",")[inputidx].trim();			
+
+				this.$.dialog.open();
+			}
+			_okHandler(e) {
+
+				document.querySelector("#tabs").selectedItem.textContent = this.$.TabTitle.value;
+				var currentPage = document.querySelector("#pages").selectedItem;
+				this.title  = this.$.TabTitle.value;
+
+				currentPage.properties.outputdsname = 'sortdsName'  + '_' +  Math.random().toString(36).substr(2, 4);
+
+				var infoBox = document.querySelector('#infobox');
+			
+				this.outputdsname = currentPage.properties.outputdsname;
+
+				var QueryStr1 =  this.inputeclcode + "\n" +  currentPage.properties.outputdsname + " := " + " SORT(" +
+								this.inputdsname + "," + 
+
+								this.$.sortformulas.value +
+
+								")" + " : PERSIST(\'" + currentPage.properties.outputdsname + "_persist\', EXPIRE(1));";
+
+				var QueryStr =    QueryStr1 +  "\n OUTPUT(" + currentPage.properties.outputdsname  + ");";
+
+				this.expression = this.$.sortformulas.value;
+
+				this.inputTab = this.$.sortInputtab.value;
+
+				currentPage.properties.eclcode = QueryStr1;
+				this.eclcode = QueryStr1;
+
+				return loadGridwithEcl(QueryStr, this.$.sortoutputlimit.value);
+			}
+			changeSortInput(e){
+
+				var tabid = "";
+
+				for(var cnt =0 ; cnt < document.getElementsByTagName("paper-tab").length; cnt++){
+					if(event.currentTarget.value === document.getElementsByTagName("paper-tab")[cnt].textContent.trim()){
+						tabid =  document.getElementsByTagName("paper-tab")[cnt].id;
+						break;
+					}
+				}
+
+				if(tabid === ''){
+					return;
+				}
+
+				var selpage = document.querySelector("#pages").querySelector("#" + tabid);
+
+				this.eclcode = selpage.editor.eclcode;
+
+				this.inputeclcode = selpage.editor.eclcode;
+
+				this.inputdsname = selpage.editor.outputdsname;
+
+				this.$.sortfield.items = selpage.editor.displayFields.split(",");
+
+				return;
+			}
+
+			ADDFunction(e) {
+				this.$.sortformulas.value = this.$.sortformulas.value + (this.$.sortformulas.value.length > 0 ? " , " : "") + (this.$.fieldOrder.value === "ASC" ? "+" : "-") + this.$.sortfield.value;
+			}
+
+			_cancelHandler(e) {
+				this.fire('cancel');
+			}
+
+			setGeneralProperties(properties) {
+
+			}
+
+			setViewProperties(properties) {
+
+			} 
+
+			getViewProperties() {
+
+			}	
+		}
+		customElements.define(CommonSortEditor.is, CommonSortEditor);	
+    </script>
+</dom-module>

@@ -1,0 +1,69 @@
+<link rel="import" href="../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
+
+<!--- ---------------------------------------------dialog button element------------------------------------------------>
+
+<dom-module id="dialog-button">
+    
+    <template>
+            <custom-style>
+                    <style >
+                        paper-icon-button {
+                            width: 35px;
+                            height: 35px;
+                            color: var(--paper-indigo-500);
+                            border-radius: 50%;
+                        }
+                
+                        paper-icon-button:hover {
+                            background-color: var(--paper-indigo-500);
+                            color: white;
+                        }
+                    </style>
+                    </custom-style>
+        <paper-icon-button id=[[id]] icon="[[icon]]" title=[[title]] disabled=[[disabled]] on-tap="clickHandler"></paper-icon-button>
+    </template>
+    <script>
+        class DialogButton extends Polymer.Element {
+            static get is() {return 'dialog-button'; }
+			
+		    static get properties() { return {
+                dialogId: {
+                    type: String
+                },
+                disabled : {
+                    type : Boolean,
+                    value : false
+                },
+                /* Button ID */
+                id: String,
+
+                /* Tooltip Text */
+                title: String,
+                icon: {
+                    type: String
+                }
+            }
+            }
+            constructor(){
+                super();
+            }
+            ready(){
+                super.ready();
+            }
+            clickHandler(e) {
+               if(this.id) {
+                     // Get Dialog Element and Open
+                     var dialog = document.querySelector(this.id);
+                      dialog.open();
+                } else {
+                    console.log("dialog " + this.id + " does not exist")
+                }
+            }
+        }
+        customElements.define(DialogButton.is, DialogButton);
+    </script>
+</dom-module>

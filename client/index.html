@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>HPCCInfo</title>
+  <script src="src/scripts/info-objects.js"></script>
+  <link rel="import" href="src/elements/my-app.html">
+  <link rel="import" href="bower_components/polymerfire/firebase-app.html">
+  <!-- Required for JSONP calls. Will be removed in future releases -->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <style>    
+    body {
+      font-family: sans-serif;
+      background-color: #FFFFFF;
+      margin: 0px;
+    }
+  </style>
+</head>
+<body class="fullbleed vertical layout">
+
+  <firebase-app
+    auth-domain="fir-app-28eec.firebaseapp.com"
+    database-url="https://fir-app-28eec.firebaseio.com"
+    api-key="AIzaSyBq-X_E9AlxGpR4VzhDupNKILO4nkA9GHc">
+</firebase-app>
+
+  <my-app></my-app>
+</body>
+</html>
