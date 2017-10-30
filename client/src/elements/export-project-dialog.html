@@ -71,6 +71,12 @@
                 }
             }
             }
+            constructor(){
+                super();
+            }
+            ready() {
+                super.ready();
+            }
             open(e) {
                this.$.dialog.open();
             }

@@ -10,6 +10,7 @@
 <link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
 <link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../../bower_components/iron-icons/social-icons.html">
+<link rel="import" href="../../bower_components/neon-animation/web-animations.html">
 
 <link rel="import" href="info-plugin-dialog.html">
 
@@ -65,15 +66,12 @@
             
             
             <paper-menu-button horizontal-align="right" disabled="true" id="pluginMenu">
-                <paper-icon-button id="btnAddPlugin" icon="add" class="dropdown-trigger"></paper-icon-button>
-                <!--<paper-menu id="pluginmenu" class="dropdown-content"> </paper-menu>-->
-                <paper-dropdown-menu label="Dinosaurs">
-                    <paper-listbox id="pluginmenu" slot="dropdown-content" selected="1">
-                        
-                    </paper-listbox>
-                </paper-dropdown-menu>
-           </paper-menu-button>
-             <paper-tooltip for="btnAddPlugin" offset="0">Plugin List</paper-tooltip>   
+                <paper-icon-button id="btnAddPlugin" icon="add" slot="dropdown-trigger"></paper-icon-button>
+                <paper-dropdown-menu >
+                <paper-listbox id="pluginmenu" slot="dropdown-content"> </paper-listbox>
+            </paper-dropdown-menu>
+            </paper-menu-button>
+            <paper-tooltip for="btnAddPlugin" offset="0">Plugin List</paper-tooltip>   
 
             <paper-icon-button id="btnExportProject" disabled="true"
                                     icon="social:share" 
@@ -191,7 +189,7 @@
                 item.id = "item_" + id;
                 item.textContent = label;
                 Polymer.dom(this.$.pluginmenu).appendChild(item);
-                this.addEventListener('tap', (e)=>this._pluginMenuTapHandler(e));
+                this.addEventListener(item,'tap', (e)=>this._pluginMenuTapHandler(e));
                 //this.listen(item, 'tap', '_pluginMenuTapHandler');
                 if (this.pluginList == null) {
                     this.pluginList = [];
@@ -201,12 +199,8 @@
             }
 
             clearWorkBook(){
-
-                //document.querySelector('#btnExportProject').disabled = true;
-                //document.querySelector('#export-project-dialog').disabled = true;
                 this.shadowRoot.querySelector('#btnExportProject').disabled = true;
-                this.shadowRoot.querySelector('#export-project-dialog').disabled = true;
-                
+                this.shadowRoot.querySelector('#export-project-dialog').disabled = true;              
 
                 this.cluster_name = '';
                 this.cluster_address = '';

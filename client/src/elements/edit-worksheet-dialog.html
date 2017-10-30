@@ -22,7 +22,7 @@
             <template is="dom-if" if={{loading}}>
                 <paper-progress indeterminate="true" style="width: 90%; margin-top: 2px;"></paper-progress>
             </template>
-            
+
             <iron-label>
                 <div class="headerDiv">
                     <span>
@@ -32,22 +32,21 @@
             </iron-label>
 
             <paper-dialog-scrollable>
-                <paper-input id='worksheettitle' label="Workbook Title" 
-                            required auto-validate error-message="Please enter workbook title"></paper-input>
+                <paper-input id='worksheettitle' label="Workbook Title" required auto-validate error-message="Please enter workbook title"></paper-input>
 
-                <h2><iron-label>Cluster Details</iron-label></h2>
-                <paper-input id='cluster_name' label="Cluster Name" value="[[clustername]]" 
-                            required auto-validate error-message="Please enter cluster name"></paper-input>
-                <paper-input id='cluster_address' on-change = "disableClusternames" label="Cluster Address" value="[[clusteraddress]]" 
-                                required auto-validate error-message="Please enter cluster address"></paper-input>
-                <paper-input id='port' label="Port" value="[[port]]"  on-change = "disableClusternames"  allowed-pattern="[0-9]" 
-                                required auto-validate error-message="Please enter a valid port number"></paper-input>
-                <paper-input id='username' label="Username"  on-change = "disableClusternames"  value="[[username]]" 
-                                required auto-validate error-message="Please enter username"></paper-input>
-                <paper-input id='password' label="Password"  on-change = "disableClusternames"  type="password" value="[[password]]" 
-                                required auto-validate error-message="Please enter password"></paper-input>
-                <vaadin-combo-box id='clusternames' on-selected-item-changed="addSelCluster" class='clusternames' 
-                                required label="Choose Cluster" items='[]'></vaadin-combo-box>
+                <h2>
+                    <iron-label>Cluster Details</iron-label>
+                </h2>
+                <paper-input id='cluster_name' label="Cluster Name" value="[[clustername]]" required auto-validate error-message="Please enter cluster name"></paper-input>
+                <paper-input id='cluster_address' on-change="disableClusternames" label="Cluster Address" value="[[clusteraddress]]" required
+                    auto-validate error-message="Please enter cluster address"></paper-input>
+                <paper-input id='port' label="Port" value="[[port]]" on-change="disableClusternames" allowed-pattern="[0-9]" required auto-validate
+                    error-message="Please enter a valid port number"></paper-input>
+                <paper-input id='username' label="Username" on-change="disableClusternames" value="[[username]]" required auto-validate error-message="Please enter username"></paper-input>
+                <paper-input id='password' label="Password" on-change="disableClusternames" type="password" value="[[password]]" required
+                    auto-validate error-message="Please enter password"></paper-input>
+                <vaadin-combo-box id='clusternames' on-selected-item-changed="addSelCluster" class='clusternames' required label="Choose Cluster"
+                    items='[]'></vaadin-combo-box>
                 <br>
                 <paper-toggle-button class="toggleBtn" id="httpSecured">
                     <iron-label class="headerLabels">HTTP Secured</iron-label>
@@ -64,38 +63,45 @@
     </template>
     <script>
         class EditWorksheetDialog extends Polymer.Element {
-			static get is() {return 'edit-worksheet-dialog'; }
-			
-			static get properties() { return {
-               pluginId: {
-                    type: String,
-                    value: 'common-input'
-                },
-                loading: {
-                    type: Boolean,
-                    value: false,
-                    notify: true
+            static get is() { return 'edit-worksheet-dialog'; }
+
+            static get properties() {
+                return {
+                    pluginId: {
+                        type: String,
+                        value: 'common-input'
+                    },
+                    loading: {
+                        type: Boolean,
+                        value: false,
+                        notify: true
+                    }
                 }
             }
+            constructor() {
+                super();
             }
-             disableClusternames (e) {
-               if(this.$.cluster_name.value != '' && this.$.cluster_address.value != '' && this.$.port.value != '' && this.$.username.value != '' && this.$.password.value != ''){
-                var eclIP = (this.$.httpSecured.value === "true" ? "https://" : "http://") + 
-                                    // (infoBox.properties.username != '' ? infoBox.properties.username + ':' + infoBox.properties.password + '@' : '')  +
-                                     this.$.cluster_address.value +
-                                     ":" + this.$.port.value;
+            ready() {
+                super.ready();
+            }
+            disableClusternames(e) {
+                if (this.$.cluster_name.value != '' && this.$.cluster_address.value != '' && this.$.port.value != '' && this.$.username.value != '' && this.$.password.value != '') {
+                    var eclIP = (this.$.httpSecured.value === "true" ? "https://" : "http://") +
+                        // (infoBox.properties.username != '' ? infoBox.properties.username + ':' + infoBox.properties.password + '@' : '')  +
+                        this.$.cluster_address.value +
+                        ":" + this.$.port.value;
 
-                var username =  this.$.username.value;
-                var password = this.$.password.value;
-                var that = this;
-                 getThorList(eclIP, username, password).then(function(data) {
+                    var username = this.$.username.value;
+                    var password = this.$.password.value;
+                    var that = this;
+                    getThorList(eclIP, username, password).then(function (data) {
                         console.log(data);
                         that.$.toast.close();
                         var vallist = [];
-                        for(var cnt = 0 ; cnt < data.TpListTargetClustersResponse.TargetClusters.TpClusterNameType.length; cnt++){
-                           vallist.push(data.TpListTargetClustersResponse.TargetClusters.TpClusterNameType[cnt].Name);
+                        for (var cnt = 0; cnt < data.TpListTargetClustersResponse.TargetClusters.TpClusterNameType.length; cnt++) {
+                            vallist.push(data.TpListTargetClustersResponse.TargetClusters.TpClusterNameType[cnt].Name);
                         }
-                        if(vallist.length === 0){
+                        if (vallist.length === 0) {
                             that.loading = false;
                             that.$.toast.text = "Cluster details provided are invalid! Please check";
                             that.$.toast.open();
@@ -106,60 +112,60 @@
                         that.$.clusternames.selectedItem = vallist[0];
                         that.$.clusternames.disabled = false;
                         return;
-                    }, function(error) {
-                            that.loading = false;
-                            that.$.toast.text = "Cluster details provided are invalid! Please check";
-                            that.$.toast.open();
-                            return;
-                    return;
-                }); 
+                    }, function (error) {
+                        that.loading = false;
+                        that.$.toast.text = "Cluster details provided are invalid! Please check";
+                        that.$.toast.open();
+                        return;
+                        return;
+                    });
                 }
 
-             }
-             addSelCluster (e){
+            }
+            addSelCluster(e) {
                 var infoBox = Polymer.dom(Polymer.dom(this).parentNode).querySelector('#infobox');
 
-                if(this.$.clusternames.items === undefined || this.$.clusternames.items.length === 0){
+                if (this.$.clusternames.items === undefined || this.$.clusternames.items.length === 0) {
                     return;
                 }
-                infoBox.properties.clusterid =  this.$.clusternames.selectedItem.toString();
+                infoBox.clusterid = this.$.clusternames.selectedItem.toString();
             }
             open(e) {
-                document.querySelector('#drawer').toggle();
-                
+                this.parentNode.querySelector('#drawer').toggle();
+
                 // Invalidate all form fields so that the auto-validation does not happen after user reopens the dialog
                 //this.invalidateFormFields();
 
                 var infoBox = Polymer.dom(Polymer.dom(this).parentNode).querySelector('#infobox');
 
-                this.$.cluster_name.value = infoBox.properties.cluster_name ;
-                this.$.cluster_address.value = infoBox.properties.cluster_address; 
-                this.$.port.value = infoBox.properties.port;
-                this.$.username.value = infoBox.properties.username;
-                this.$.password.value = infoBox.properties.password;
-                this.$.httpSecured.value = infoBox.properties.httpSecured;
-                var chosenclusterid = infoBox.properties.clusterid;
+                this.$.cluster_name.value = infoBox.cluster_name;
+                this.$.cluster_address.value = infoBox.cluster_address;
+                this.$.port.value = infoBox.port;
+                this.$.username.value = infoBox.username;
+                this.$.password.value = infoBox.password;
+                this.$.httpSecured.value = infoBox.httpSecured;
+                var chosenclusterid = infoBox.clusterid;
 
-                var eclIP = (this.$.httpSecured.value === "true" ? "https://" : "http://") + 
-                                    // (infoBox.properties.username != '' ? infoBox.properties.username + ':' + infoBox.properties.password + '@' : '')  +
-                                     this.$.cluster_address.value +
-                                     ":" + this.$.port.value;
+                var eclIP = (this.$.httpSecured.value === "true" ? "https://" : "http://") +
+                    // (infoBox.properties.username != '' ? infoBox.properties.username + ':' + infoBox.properties.password + '@' : '')  +
+                    this.$.cluster_address.value +
+                    ":" + this.$.port.value;
                 var that = this;
-                getThorList(eclIP, this.$.username.value , this.$.password.value).then(function(data) {
-                        console.log(data);
-                        var vallist = [];
-                        var clusterIdx = 0;
-                        for(var cnt = 0 ; cnt < data.TpListTargetClustersResponse.TargetClusters.TpClusterNameType.length; cnt++){
-                           vallist.push(data.TpListTargetClustersResponse.TargetClusters.TpClusterNameType[cnt].Name);
-                           if(data.TpListTargetClustersResponse.TargetClusters.TpClusterNameType[cnt].Name === chosenclusterid){
-                                 clusterIdx = cnt;
-                           }
+                getThorList(eclIP, this.$.username.value, this.$.password.value).then(function (data) {
+                    console.log(data);
+                    var vallist = [];
+                    var clusterIdx = 0;
+                    for (var cnt = 0; cnt < data.TpListTargetClustersResponse.TargetClusters.TpClusterNameType.length; cnt++) {
+                        vallist.push(data.TpListTargetClustersResponse.TargetClusters.TpClusterNameType[cnt].Name);
+                        if (data.TpListTargetClustersResponse.TargetClusters.TpClusterNameType[cnt].Name === chosenclusterid) {
+                            clusterIdx = cnt;
                         }
-                        that.$.clusternames.items = vallist;
-                        that.$.clusternames.selectedItem = vallist[clusterIdx];
-                        that.$.clusternames.disabled = false;
-                        return;
-                    });
+                    }
+                    that.$.clusternames.items = vallist;
+                    that.$.clusternames.selectedItem = vallist[clusterIdx];
+                    that.$.clusternames.disabled = false;
+                    return;
+                });
 
                 var projecttitlediv = Polymer.dom(Polymer.dom(this).parentNode).querySelector('#projecttitle');
 
@@ -170,25 +176,25 @@
                     this.$.worksheettitle.value = projecttitlediv.textContent.substring(9);
                 } else {
                     this.$.worksheettitle.value = projecttitlediv.textContent ;
-                } */              
+                } */
                 this.$.worksheettitle.value = projecttitlediv.textContent
                 this.$.dialog.open();
             }
-            _editWorkbook (act){
-                if(!this.validate()) {
+            _editWorkbook(act) {
+                if (!this.validate()) {
                     return;
                 }
 
                 this.loading = true;
-                
+
                 var infoBox = Polymer.dom(Polymer.dom(this).parentNode).querySelector('#infobox');
 
-                infoBox.properties.cluster_name = this.$.cluster_name.value;
-                infoBox.properties.cluster_address = this.$.cluster_address.value;
-                infoBox.properties.port = this.$.port.value;
-                infoBox.properties.username = this.$.username.value;
-                infoBox.properties.password = this.$.password.value;
-                infoBox.properties.httpSecured = this.$.httpSecured.value;
+                infoBox.cluster_name = this.$.cluster_name.value;
+                infoBox.cluster_address = this.$.cluster_address.value;
+                infoBox.port = this.$.port.value;
+                infoBox.username = this.$.username.value;
+                infoBox.password = this.$.password.value;
+                infoBox.httpSecured = this.$.httpSecured.value;
 
                 var projecttitlediv = Polymer.dom(Polymer.dom(this).parentNode).querySelector('#projecttitle');
 
@@ -200,17 +206,17 @@
                     titleval = 'HPCCInfo-' + this.$.worksheettitle.value;
                 }*/
 
-                var eclIP =     (infoBox.properties.isHpccSecured === "true" ? "https://" : "http://") + 
-                // (infoBox.properties.username != '' ? infoBox.properties.username + ':' + infoBox.properties.password + '@' : '')  +
-                    infoBox.properties.cluster_address +
-                    ":" + infoBox.properties.port;
+                var eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") +
+                    // (infoBox.properties.username != '' ? infoBox.properties.username + ':' + infoBox.properties.password + '@' : '')  +
+                    infoBox.cluster_address +
+                    ":" + infoBox.port;
 
                 var that = this;
 
-                hostReachable(eclIP, infoBox.properties.username, infoBox.properties.password).then(function(response) {
-                    projecttitlediv.textContent = titleval ;
-                    infoBox.properties.title = titleval;
-                    document.querySelector('#btnEditPlugin').disabled = false;
+                hostReachable(eclIP, infoBox.username, infoBox.password).then(function (response) {
+                    projecttitlediv.textContent = titleval;
+                    infoBox.title = titleval;
+                    infoBox.shadowRoot.querySelector('#btnEditPlugin').disabled = false;
 
                     that.$.clusternames.disabled = false;
                     that.loading = false;
@@ -222,7 +228,7 @@
                     }, 1500);
                     return;
 
-                }, function(error) {
+                }, function (error) {
                     that.loading = false;
                     that.$.toast.text = "Cluster details provided are invalid! Please check";
                     that.$.toast.open();
@@ -233,12 +239,12 @@
             handleCancel() {
                 //  this.toggleAppDrawer();
             }
- 
+
             toggleAppDrawer() {
-                 Polymer.dom(Polymer.dom(this).parentNode).querySelector('#drawer').toggle();
+                Polymer.dom(Polymer.dom(this).parentNode).querySelector('#drawer').toggle();
             }
 
-            validate () {
+            validate() {
                 const isValidWorksheettitle = this.$.worksheettitle.validate();
                 const isValidClusterName = this.$.cluster_name.validate();
                 const isValidClusterAddress = this.$.cluster_address.validate();
@@ -247,7 +253,7 @@
                 const isValidPassword = this.$.password.validate();
                 const isValidclusterid = this.$.clusternames.validate() || this.$.clusternames.disabled === true;
 
-                if(isValidWorksheettitle && isValidClusterName && isValidClusterAddress 
+                if (isValidWorksheettitle && isValidClusterName && isValidClusterAddress
                     && isValidPort && isValidUsername && isValidPassword && isValidclusterid) {
                     console.log('returning true');
                     return true;
@@ -267,10 +273,9 @@
                 this.$.httpSecured.invalid = false;
                 this.$.clusternames.invalid = false;
             }
- 
+
         }
         customElements.define(EditWorksheetDialog.is, EditWorksheetDialog);
-
     </script>
 
 

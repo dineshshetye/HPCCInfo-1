@@ -1,0 +1,21 @@
+{"level":"info","message":"Listening on port 3000","timestamp":"10/30/2017, 2:01:01 AM"}
+{"level":"info","message":"REQUEST URL: /checkConnection, REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/30/2017, 2:14:16 AM"}
+{"level":"info","message":"REQUEST URL: /checkConnection, REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/30/2017, 2:14:45 AM"}
+{"level":"info","message":"REQUEST URL: /checkConnection, REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/30/2017, 2:16:31 AM"}
+{"level":"info","message":"Listening on port 3000","timestamp":"10/30/2017, 2:22:32 AM"}
+{"level":"info","message":"Listening on port 3000","timestamp":"10/30/2017, 3:01:02 AM"}
+{"level":"info","message":"Listening on port 3000","timestamp":"10/30/2017, 3:06:33 AM"}
+{"level":"info","message":"REQUEST URL: /checkConnection, REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/30/2017, 3:07:49 AM"}
+{"level":"info","message":"Listening on port 3000","timestamp":"10/30/2017, 3:30:57 AM"}
+{"level":"info","message":"REQUEST URL: /checkConnection, REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/30/2017, 3:33:08 AM"}
+{"level":"info","message":"Listening on port 3000","timestamp":"10/30/2017, 9:10:47 AM"}
+{"level":"error","message":"REQUEST URL: /polymerdemo2017@gmail.com , REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/30/2017, 9:19:45 AM"}
+{"level":"error","message":"ERROR MESSAGE: Error: ER_ACCESS_DENIED_ERROR: Access denied for user 'root'@'localhost' (using password: YES)","timestamp":"10/30/2017, 9:19:45 AM"}
+{"level":"info","message":"REQUEST URL: /checkConnection, REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/30/2017, 10:02:02 AM"}
+{"level":"info","message":"REQUEST URL: /checkConnection, REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/30/2017, 10:22:37 AM"}
+{"level":"info","message":"REQUEST URL: /checkConnection, REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/30/2017, 10:24:00 AM"}
+{"level":"info","message":"REQUEST URL: /checkConnection, REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/30/2017, 10:30:51 AM"}
+{"level":"info","message":"Listening on port 3000","timestamp":"10/30/2017, 10:40:37 AM"}
+{"level":"info","message":"Listening on port 3000","timestamp":"10/30/2017, 10:42:14 AM"}
+{"level":"info","message":"Listening on port 3000","timestamp":"10/30/2017, 10:47:24 AM"}
+{"level":"info","message":"Listening on port 3000","timestamp":"10/30/2017, 10:48:35 AM"}

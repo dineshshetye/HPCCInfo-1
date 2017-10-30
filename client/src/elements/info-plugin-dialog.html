@@ -39,7 +39,12 @@
                 }
             }
             }
-
+            constructor(){
+                super();
+            }
+            ready() {
+                super.ready();
+            }
             open() {
                 this.$.label.value = '';
                 this.$.dialog.open();

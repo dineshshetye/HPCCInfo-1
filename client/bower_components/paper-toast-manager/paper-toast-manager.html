@@ -1,0 +1,43 @@
+<link rel="import" href="../paper-toast/paper-toast.html">
+<!--
+An easier way to generate paper-toasts at runtime.
+
+Example:
+
+    <paper-toast-manager></paper-toast-manager>
+    paperToastManager.toast('Hello, world!');
+
+@group Paper Elements
+@element paper-toast-manager
+@demo demo/index.html
+@hero hero.svg
+-->
+<dom-module id="paper-toast-manager">
+  <style>
+    /* TODO: https://github.com/PolymerElements/paper-toast/issues/14 */
+    paper-toast {
+        z-index: 99;
+    }
+  </style>
+  <template>
+    <paper-toast id="toast1"></paper-toast>
+    <paper-toast id="toast2"></paper-toast>
+  </template>
+  <script>
+    Polymer({
+      is: 'paper-toast-manager',
+      attached: function () {
+        this.toast1 = this.$.toast1;
+        this.toast2 = this.$.toast2;
+        window.paperToastManager = this;
+      },
+      toast: function (text) {
+        var t = this.toast1;
+        t.text = text;
+        t.show();
+        this.toast1 = this.toast2;
+        this.toast2 = t;
+      }
+    });
+  </script>
+</dom-module>

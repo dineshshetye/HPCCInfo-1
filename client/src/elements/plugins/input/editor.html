@@ -11,7 +11,6 @@
         --paper-toast-background-color: red;
         --paper-toast-color: white;
       }
-
     </style>
 
     <paper-dialog id="dialog" modal>
@@ -22,10 +21,8 @@
       </iron-label>
       <paper-dialog-scrollable>
         <!-- User cannot enter title value beginning with a number -->
-        <paper-input id='TabTitle' label="Title" 
-          required auto-validate allowed-pattern="^[a-zA-Z](.*[a-zA-Z0-9 ])?$" 
-          error-message="Title is Required"></paper-input>
-        <paper-input id='scope' on-change = "_loadFilesOnScopeChange" label="File Scope" ></paper-input>
+        <paper-input id='TabTitle' label="Title" required auto-validate allowed-pattern="^[a-zA-Z](.*[a-zA-Z0-9 ])?$" error-message="Title is Required"></paper-input>
+        <paper-input id='scope' on-change="_loadFilesOnScopeChange" label="File Scope"></paper-input>
         <vaadin-combo-box id='subfilesgrid' class='subfilesgrid' required label="File" items='[]'></vaadin-combo-box>
         <paper-input id='filteroutputlimit' allowed-pattern="[\d]" label="Output Limit" value="10000"></paper-input>
       </paper-dialog-scrollable>
@@ -38,38 +35,35 @@
   </template>
   <script>
     class CommonInputEditor extends Polymer.Element {
-		  static get is() {return 'common-input-editor'; }
-			
-			static get properties() { return {
-      // listeners: {
-      //   'scope.change': '_loadFilesOnScopeChange'
-      // },
-        eclcode : String,
-        outputdsname : String,
-        inputdsname : String,
-        eclIP : String,
-        hpccuser : String,
-        displayFields : String,
-        expression : String,
-        title : String
+      static get is() { return 'common-input-editor'; }
+
+      static get properties() {
+        return {
+          eclcode: String,
+          outputdsname: String,
+          inputdsname: String,
+          eclIP: String,
+          hpccuser: String,
+          displayFields: String,
+          expression: String,
+          title: String
+        }
       }
-      }
-      constructor(){
+      constructor() {
         super();
       }
       ready(e) {
         super.ready();
-        //this.addEventListener('scope.change',this._loadFilesOnScopeChange(e));
         //var infoBox = document.querySelector("#infobox");
-        var infoBox=document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
+        var infoBox = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
         var username = infoBox.username;
         var password = infoBox.password;
         var credentials = username === null || username === "" ? "" : (
-            password === null || password === "" ?  (username + '@') :
-                (username + ':' + password + '@'));
+          password === null || password === "" ? (username + '@') :
+            (username + ':' + password + '@'));
 
-        var eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") +  infoBox.cluster_address +
-        ":" + infoBox.port;
+        var eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") + infoBox.cluster_address +
+          ":" + infoBox.port;
         this.eclIP = eclIP;
         this.hpccuser = username;
 
@@ -82,80 +76,89 @@
         this.title = '';
       }
 
-      serialize(){
+      serialize() {
         var jsonStr = '{';
-        jsonStr += '\"displayFields\" : \"' + this.properties.displayFields + '\",';
-        jsonStr += '\"eclcode\" : \"' + this.properties.eclcode.replace(/[\r\n]/g, '') + '\",';
-        jsonStr += '\"inputdsname\" :\" ' + this.properties.inputdsname + '\",';
-        jsonStr += '\"outputdsname\" : \"' + this.properties.outputdsname + '\",';
-        jsonStr += '\"expression\" : \"' + this.properties.expression + '\",';
-        jsonStr += '\"title\" : \"' + this.properties.title.trim() + '\",';
+        jsonStr += '\"displayFields\" : \"' + this.displayFields + '\",';
+        jsonStr += '\"eclcode\" : \"' + this.eclcode.replace(/[\r\n]/g, '') + '\",';
+        jsonStr += '\"inputdsname\" :\" ' + this.inputdsname + '\",';
+        jsonStr += '\"outputdsname\" : \"' + this.outputdsname + '\",';
+        jsonStr += '\"expression\" : \"' + this.expression + '\",';
+        jsonStr += '\"title\" : \"' + this.title.trim() + '\",';
         jsonStr += '\"pluginId\" : \"' + 'common-input' + '\"}';
 
         return jsonStr;
       }
 
-      deSerialize(tabTtitle){
+      deSerialize(tabTtitle) {
         console.log(tabTtitle);
-            
-        var jsonTabContent  = null;
 
-        var infoBox = document.querySelector('#infobox');
+        var jsonTabContent = null;
 
-        var tabs = infoBox.properties.tabsdata.Tabs;
+        var infoBox = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
 
-        for(var cnt = 0; cnt < tabs.length; cnt++){
-          if( tabTtitle === tabs[cnt].title){
+        var tabs = infoBox.tabsdata.Tabs;
+
+        for (var cnt = 0; cnt < tabs.length; cnt++) {
+          if (tabTtitle === tabs[cnt].title) {
             jsonTabContent = tabs[cnt];
-            this.properties.displayFields = jsonTabContent.displayFields;
-            this.properties.eclcode = jsonTabContent.eclcode;
+            this.displayFields = jsonTabContent.displayFields;
+            this.eclcode = jsonTabContent.eclcode;
             this.$.TabTitle.value = jsonTabContent.title;
-            this.properties.inputdsname = jsonTabContent.inputdsname;
-            this.properties.pluginId = jsonTabContent.pluginId;
-            this.properties.title = jsonTabContent.title;
-            this.properties.outputdsname = jsonTabContent.outputdsname;
-            this.properties.expression = jsonTabContent.expression;
+            this.inputdsname = jsonTabContent.inputdsname;
+            this.pluginId = jsonTabContent.pluginId;
+            this.title = jsonTabContent.title;
+            this.outputdsname = jsonTabContent.outputdsname;
+            this.expression = jsonTabContent.expression;
             this.$.subfilesgrid.selectedItem = jsonTabContent.expression;
-            var eclIP = (infoBox.properties.isHpccSecured === "true" ? "https://" : "http://") + 
-                      // (this.properties.hpccuser != '' ? this.properties.hpccuser + ':' + this.properties.password + '@' : '')  +
-                        infoBox.properties.cluster_address +
-                        ":" + infoBox.properties.port;
-            callForFileDetails(eclIP, jsonTabContent.expression, jsonTabContent.expression,  infoBox.properties.username, infoBox.properties.password, 1000);
+            var eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") +
+              // (this.properties.hpccuser != '' ? this.properties.hpccuser + ':' + this.properties.password + '@' : '')  +
+              infoBox.cluster_address +
+              ":" + infoBox.port;
+            callForFileDetails(eclIP, jsonTabContent.expression, jsonTabContent.expression, infoBox.username, infoBox.password, 1000);
             break;
           }
         }
       }
-      loadgrid (){
-          // console.log(' On Tap event of Tab : ' + tabTtitle);
+      loadgrid() {
+        // console.log(' On Tap event of Tab : ' + tabTtitle);
         //var infoBox = document.querySelector('#infobox');
         var infoBox = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
 
-        if( infoBox.file === ''){
+        if (infoBox.file === '') {
           return;
         }
 
-        if(infoBox.file.value === ""){
+        if (infoBox.file.value === "") {
           return;
         }
         //var infoBox = document.querySelector('#infobox');
         var infoBox = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
-        var eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") + 
-                              // (this.properties.hpccuser != '' ? this.properties.hpccuser + ':' + this.properties.password + '@' : '')  +
-                                infoBox.cluster_address +
-                                ":" + infoBox.port;
-        var currentPage = document.querySelector("#pages").selectedItem;
+        var eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") +
+          // (this.properties.hpccuser != '' ? this.properties.hpccuser + ':' + this.properties.password + '@' : '')  +
+          infoBox.cluster_address +
+          ":" + infoBox.port;
+        //var currentPage = document.querySelector("#pages").selectedItem;
+        var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
 
         //Set paper-progress when the grid is being loaded
         currentPage.loading = true;
 
         var grid = currentPage.querySelector(".projectworksheet");
 
-        var getFileData = new Promise(function(resolve, reject) {
-          callForFileDetails(eclIP,  infoBox.properties.file, infoBox.properties.file,  infoBox.properties.username, infoBox.properties.password, 1000).then(function(resData){
+        var getFileData = new Promise(function (resolve, reject) {
+         
+          var infoBox = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
+          var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
+          var grid = currentPage.shadowRoot.querySelector(".projectworksheet");
+          
+          callForFileDetails(eclIP, infoBox.file, infoBox.file, infoBox.username, infoBox.password, 1000).then(function (resData) {
             resolve(resData);
           });
         });
-        getFileData.then(function(ajaxResp) {
+        var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
+          var grid = currentPage.shadowRoot.querySelector(".projectworksheet");
+          var infoBox = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
+        getFileData.then(function (ajaxResp) {
 
           infoBox.getActiveView().editor.eclcode = ajaxResp.querystr;
 
@@ -164,35 +167,58 @@
           var obj = ajaxResp.Result.Row[0];
           var cnt = 0;
 
-          var cols = grid.columns;    
+          // var cols = grid.columns;
           var colArray = [];
-          for(;cols.length > 0;){
-            console.log(cols[0].name);
-            grid.removeColumn(cols[0].name);
-          }
+          // for (; cols.length > 0;) {
+          //   console.log(cols[0].name);
+          //   grid.removeColumn(cols[0].name);
+          // }
 
           var fieldnames = "";
-          Object.keys(obj).forEach(function(key) {
-          grid.addColumn({name: key, resizable:true});
-          if(fieldnames === ""){
-            fieldnames += key;
-          }else{
-            fieldnames += "," + key;
-          }
-          colArray[cnt] = key;
-          cnt++;
+          Object.keys(obj).forEach(function (key) {
+            //grid.addColumn({ name: key, resizable: true });
+            if (fieldnames === "") {
+              fieldnames += key;
+            } else {
+              fieldnames += "," + key;
+            }
+            colArray[cnt] = key;
+            cnt++;
           });
 
-          document.querySelector('#pluginMenu').disabled = false;
-          document.querySelector('#export-project-dialog').disabled = false;
+          for (var i = 0; i < cnt; i++) {
+
+            var headerTemplate = document.createElement('template');
+            headerTemplate.classList.add('header');
+            headerTemplate.innerHTML = colArray[i];
+
+            var body = "[[item." + colArray[i] + "]]";
+            var bodyTemplate = document.createElement('template');
+            bodyTemplate.innerHTML = body;
+            var column = document.createElement('vaadin-grid-column');
+            column.appendChild(headerTemplate);
+            column.appendChild(bodyTemplate);
+            grid.appendChild(column);
+          }
+          grid.items = ajaxResp.Result.Row;
+
+
+          infoBox.shadowRoot.querySelector('#pluginMenu').disabled = false;
+          infoBox.shadowRoot.querySelector('#export-project-dialog').disabled = false;
 
           currentPage.editor.displayFields = fieldnames;
 
           sessionStorage.setItem('gridColumns', colArray);
           // Add some example data as an array.
-          grid.items = ajaxResp.Result.Row;
-          if(grid.items.length === 0){
-            grid.addColumn({name: "<b>There are no records for your Filter Query</b>"});
+          //grid.items = ajaxResp.Result.Row;
+          if (grid.items.length === 0) {
+            var bodyTemplate = document.createElement('template');
+            bodyTemplate.innerHTML = "<b>There are no records for your Filter Query</b>";
+            var column = document.createElement('vaadin-grid-column');
+            //column.appendChild(headerTemplate);
+            column.appendChild(bodyTemplate);
+            grid.appendChild(column);
+            //grid.addColumn({ name: "<b>There are no records for your Filter Query</b>" });
           }
 
           currentPage.loading = false;
@@ -205,81 +231,101 @@
       }
 
       _okHandler(e) {
-            //document.querySelector("#tabs").selectedItem.textContent = this.$.TabTitle.value;
-            this.parentNode.selectedItem.textContent=this.$.TabTitle.value;
-            //var infoBox = document.querySelector('#infobox');
-            var infoBox = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
-            this.title  = this.$.TabTitle.value;
-            var selectedFile = this.$.subfilesgrid.value;
-            this.expression = selectedFile;
-             infoBox.file = selectedFile;
-            sessionStorage.setItem('FilterCriteria', '');
-            sessionStorage.setItem('selecteFile', selectedFile);
+        //document.querySelector("#tabs").selectedItem.textContent = this.$.TabTitle.value;
+        this.parentNode.selectedItem.textContent = this.$.TabTitle.value;
+        //var infoBox = document.querySelector('#infobox');
+        var infoBox = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
+        this.title = this.$.TabTitle.value;
+        var selectedFile = this.$.subfilesgrid.value;
+        this.expression = selectedFile;
+        infoBox.file = selectedFile;
+        sessionStorage.setItem('FilterCriteria', '');
+        sessionStorage.setItem('selecteFile', selectedFile);
 
-              //var infoBox = document.querySelector('#infobox');
-              var infoBox = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
-              var eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") + 
-                                    // (this.properties.hpccuser != '' ? this.properties.hpccuser + ':' + this.properties.password + '@' : '')  +
-                                     infoBox.cluster_address +
-                                     ":" + infoBox.port;
-			      //var currentPage = document.querySelector("#pages").selectedItem;
-            var currentPage =document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox').shadowRoot.querySelector('#pages').selectedItem;
-            //Set paper-progress when the grid is being loaded
-            currentPage.loading = true;
+        //var infoBox = document.querySelector('#infobox');
+        var infoBox = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
+        var eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") +
+          // (this.properties.hpccuser != '' ? this.properties.hpccuser + ':' + this.properties.password + '@' : '')  +
+          infoBox.cluster_address +
+          ":" + infoBox.port;
+        //var currentPage = document.querySelector("#pages").selectedItem;
+        var currentPage = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox').shadowRoot.querySelector('#pages').selectedItem;
+        //Set paper-progress when the grid is being loaded
+        currentPage.loading = true;
 
-			      var grid = currentPage.shadowRoot.querySelector(".projectworksheet");
+        var grid = currentPage.shadowRoot.querySelector(".projectworksheet");
 
-            var recLimit =  this.$.filteroutputlimit.value;
-            
-            var getFileData = new Promise(function(resolve, reject) {
-                callForFileDetails(eclIP, selectedFile, selectedFile, infoBox.username, infoBox.password, recLimit).then(function(resData){
-                resolve(resData);
-                });
-            });
-            getFileData.then(function(ajaxResp) {
+        var recLimit = this.$.filteroutputlimit.value;
 
-              infoBox.getActiveView().editor.eclcode = ajaxResp.querystr;
+        var getFileData = new Promise(function (resolve, reject) {
+          callForFileDetails(eclIP, selectedFile, selectedFile, infoBox.username, infoBox.password, recLimit).then(function (resData) {
+            resolve(resData);
+          });
+        });
+        getFileData.then(function (ajaxResp) {
 
-              infoBox.getActiveView().editor.outputdsname = ajaxResp.outputdsname;
+          infoBox.getActiveView().editor.eclcode = ajaxResp.querystr;
 
-              var obj = ajaxResp.Result.Row[0];
-              var cnt = 0;
+          infoBox.getActiveView().editor.outputdsname = ajaxResp.outputdsname;
 
-              var cols = grid.columns;    
-              var colArray = [];
-              for(;cols.length > 0;){
-                console.log(cols[0].name);
-                grid.removeColumn(cols[0].name);
-              }
+          var obj = ajaxResp.Result.Row[0];
+          var cnt = 0;
 
-              var fieldnames = "";
-              Object.keys(obj).forEach(function(key) {
-              grid.addColumn({name: key, resizable:true});
-              if(fieldnames === ""){
-                fieldnames += key;
-              }else{
-                fieldnames += "," + key;
-              }
-              colArray[cnt] = key;
-              cnt++;
-              });
+          // var cols = grid.columns;    
+          var colArray = [];
+          // for(;cols.length > 0;){
+          //   console.log(cols[0].name);
+          //   grid.removeColumn(cols[0].name);
+          // }
 
-              currentPage.editor.displayFields = fieldnames;
+          var fieldnames = "";
+          Object.keys(obj).forEach(function (key) {
+            //grid.addColumn({name: key, resizable:true});
+            if (fieldnames === "") {
+              fieldnames += key;
+            } else {
+              fieldnames += "," + key;
+            }
+            colArray[cnt] = key;
+            cnt++;
+          });
 
-              sessionStorage.setItem('gridColumns', colArray);
+          for (var i = 0; i < cnt; i++) {
 
-              //document.querySelector('#pluginMenu').disabled = false;
-              infoBox.shadowRoot.querySelector('#pluginMenu').disabled = false;
+            var headerTemplate = document.createElement('template');
+            headerTemplate.classList.add('header');
+            headerTemplate.innerHTML = colArray[i];
 
-              // Add some example data as an array.
-              grid.items = ajaxResp.Result.Row;
-              if(grid.items.length === 0){
-                grid.addColumn({name: "<b>There are no records for your Filter Query</b>"});
-              }
-
-              currentPage.loading = false;
-              // this.fire('complete');
+            var body = "[[item." + colArray[i] + "]]";
+            var bodyTemplate = document.createElement('template');
+            bodyTemplate.innerHTML = body;
+            var column = document.createElement('vaadin-grid-column');
+            column.appendChild(headerTemplate);
+            column.appendChild(bodyTemplate);
+            grid.appendChild(column);
           }
+          grid.items = ajaxResp.Result.Row;
+
+          currentPage.editor.displayFields = fieldnames;
+
+          sessionStorage.setItem('gridColumns', colArray);
+
+          //document.querySelector('#pluginMenu').disabled = false;
+          infoBox.shadowRoot.querySelector('#pluginMenu').disabled = false;
+
+          if (grid.items.length === 0) {
+            var bodyTemplate = document.createElement('template');
+            bodyTemplate.innerHTML = "<b>There are no records for your Filter Query</b>";
+            var column = document.createElement('vaadin-grid-column');
+            //column.appendChild(headerTemplate);
+            column.appendChild(bodyTemplate);
+            grid.appendChild(column);
+            //grid.addColumn({ name: "<b>There are no records for your Filter Query</b>" });
+          }
+
+          currentPage.loading = false;
+          // this.fire('complete');
+        }
         );
       }
       _cancelHandler(e) {
@@ -299,70 +345,70 @@
       }
 
       _loadFilesOnScopeChange(event) {
-              //var infoBox = document.querySelector('#infobox');
-              var infoBox = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
+        //var infoBox = document.querySelector('#infobox');
+        var infoBox = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
 
-              this.eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") + 
-                                    // (this.properties.hpccuser != '' ? this.properties.hpccuser + ':' + this.properties.password + '@' : '')  +
-                                     infoBox.cluster_address +
-                                     ":" + infoBox.port;
+        this.eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") +
+          // (this.properties.hpccuser != '' ? this.properties.hpccuser + ':' + this.properties.password + '@' : '')  +
+          infoBox.cluster_address +
+          ":" + infoBox.port;
 
-             // var infoBox = document.querySelector('#infobox');
-             var infoBox = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
-              var eclIP =     (infoBox.isHpccSecured === "true" ? "https://" : "http://") + 
-                                    // (infoBox.properties.username != '' ? infoBox.properties.username + ':' + infoBox.properties.password + '@' : '')  +
-                                     infoBox.cluster_address +
-                                     ":" + infoBox.port;
-              var that = this;
-              var subfilesgrid= this.shadowRoot.querySelector('#subfilesgrid');
-              subfilesgrid.items = [];
-              subfilesgrid.selectedItem = '';
-              
-              getFileListForSearch(eclIP, event.currentTarget.value, infoBox.username, infoBox.password, infoBox.clusterid, 'FLAT').then(function(data) {
+        // var infoBox = document.querySelector('#infobox');
+        var infoBox = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
+        var eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") +
+          // (infoBox.properties.username != '' ? infoBox.properties.username + ':' + infoBox.properties.password + '@' : '')  +
+          infoBox.cluster_address +
+          ":" + infoBox.port;
+        var that = this;
+        var subfilesgrid = this.shadowRoot.querySelector('#subfilesgrid');
+        subfilesgrid.items = [];
+        subfilesgrid.selectedItem = '';
 
-              if((data.DFUQueryResponse.NumFiles + subfilesgrid.items.length) === 0) {
-                  that.$.toast.text = "No logical files matched for the given filescope, please try with different value";
-                  that.$.toast.open();
-                    return;
-              }
+        getFileListForSearch(eclIP, event.currentTarget.value, infoBox.username, infoBox.password, infoBox.clusterid, 'FLAT').then(function (data) {
 
-              var subfiles =  data.DFUQueryResponse.DFULogicalFiles.DFULogicalFile;
-              var subfilesstrnames = "";
+          if ((data.DFUQueryResponse.NumFiles + subfilesgrid.items.length) === 0) {
+            that.$.toast.text = "No logical files matched for the given filescope, please try with different value";
+            that.$.toast.open();
+            return;
+          }
 
-
-              var fileArray = [];
-              for(var cnt = 0; cnt < subfiles.length; cnt++){
-              subfilesstrnames = subfilesstrnames + "," +subfiles[cnt].Name;
-              fileArray[cnt] = subfiles[cnt].Name;
-              }
-
-              subfilesgrid.items = fileArray;
-              subfilesgrid.selectedItem = fileArray[0];
+          var subfiles = data.DFUQueryResponse.DFULogicalFiles.DFULogicalFile;
+          var subfilesstrnames = "";
 
 
-           
+          var fileArray = [];
+          for (var cnt = 0; cnt < subfiles.length; cnt++) {
+            subfilesstrnames = subfilesstrnames + "," + subfiles[cnt].Name;
+            fileArray[cnt] = subfiles[cnt].Name;
+          }
+
+          subfilesgrid.items = fileArray;
+          subfilesgrid.selectedItem = fileArray[0];
+
+
+
         });
 
-        getFileListForSearch(eclIP, event.currentTarget.value, infoBox.username, infoBox.password, infoBox.clusterid, 'THOR').then(function(data) {
-              console.log(data);
+        getFileListForSearch(eclIP, event.currentTarget.value, infoBox.username, infoBox.password, infoBox.clusterid, 'THOR').then(function (data) {
+          console.log(data);
 
-              var subfiles =  data.DFUQueryResponse.DFULogicalFiles.DFULogicalFile;
-              var subfilesstrnames = "";
-              var fileArray = subfilesgrid.items;
-              for(var cnt = 0; cnt < subfiles.length; cnt++){
-              subfilesstrnames = subfilesstrnames + "," +subfiles[cnt].Name;
-              fileArray.push(subfiles[cnt].Name);
-              }
+          var subfiles = data.DFUQueryResponse.DFULogicalFiles.DFULogicalFile;
+          var subfilesstrnames = "";
+          var fileArray = subfilesgrid.items;
+          for (var cnt = 0; cnt < subfiles.length; cnt++) {
+            subfilesstrnames = subfilesstrnames + "," + subfiles[cnt].Name;
+            fileArray.push(subfiles[cnt].Name);
+          }
 
-              subfilesgrid.items = fileArray;
-              subfilesgrid.selectedItem = fileArray[0];
-           
+          subfilesgrid.items = fileArray;
+          subfilesgrid.selectedItem = fileArray[0];
+
         });
- 
+
 
       }
-            
-      selectfilename (event) {
+
+      selectfilename(event) {
         sessionStorage.setItem("selecteFile", subfilesgrid.value);
         var filterText = document.querySelector('#filterformulas');
         filterText.value = "";
@@ -372,12 +418,11 @@
         divtag.innerText = title.value;
         var grid = document.querySelector('#worksheet');
         grid.fire('tap');
-      }  
-      
+      }
+
     }
     customElements.define(CommonInputEditor.is, CommonInputEditor);
   </script>
-  <script src="https://code.jquery.com/jquery-3.2.1.min.js"
-                integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-                crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+    crossorigin="anonymous"></script>
 </dom-module>

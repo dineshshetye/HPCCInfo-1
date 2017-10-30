@@ -1,0 +1,6 @@
+{"level":"info","message":"Listening on port 3000","timestamp":"10/11/2017, 2:39:48 AM"}
+{"level":"info","message":"REQUEST URL: /checkConnection, REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/11/2017, 2:53:25 AM"}
+{"level":"info","message":"REQUEST URL: /checkConnection, REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/11/2017, 4:27:49 AM"}
+{"level":"info","message":"REQUEST URL: /checkConnection, REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/11/2017, 5:52:06 AM"}
+{"level":"info","message":"Listening on port 3000","timestamp":"10/11/2017, 7:44:18 AM"}
+{"level":"info","message":"REQUEST URL: /checkConnection, REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/11/2017, 7:45:44 AM"}

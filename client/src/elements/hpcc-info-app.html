@@ -328,11 +328,11 @@
         }
 
         saveProjectDtls(event){
-            var infoBox = this.$$('#infobox');
-            var projectid = infobox.projectid;
+            var infoBox = this.shadowRoot.querySelector('#infobox');
+            var projectid = infoBox.projectid;
             this.$.ajaxRetrieveProjectByName.url = 'http://' + window.location.hostname + ':' + window.location.port + '/projectDetails/' + projectid;
-            document.querySelector('#infobox').parentNode.querySelector('#drawer').toggle();
-            document.querySelector('#btnExportProject').disabled = false;
+            this.shadowRoot.querySelector('#drawer').toggle();
+            this.shadowRoot.querySelector('#infobox').shadowRoot.querySelector('app-toolbar').querySelector('#btnExportProject').disabled = false;
             this.$.ajaxRetrieveProjectByName.generateRequest();
             
         }
@@ -340,7 +340,7 @@
         exportProjectDtls (exportTo){
             // document.querySelector('#drawer').toggle();
             this.$.exportTo =  exportTo;
-            var infoBox = this.$$('#infobox');
+            var infoBox = this.shadowRoot.querySelector('#infobox');
             var projectid = infobox.projectid;
             this.$.ajaxRetrieveProjectByName.url = 'http://' + window.location.hostname + ':' + window.location.port + '/projectDetails/' + projectid;
             this.$.ajaxRetrieveProjectByName.generateRequest();
@@ -348,7 +348,7 @@
         }
 
         ajaxRetrieveProjectByNameResponse (eve){
-            var infoBox = this.$$('#infobox');
+            var infoBox = this.shadowRoot.querySelector('#infobox');
 
             var insterOrUpdate = (this.$.ajaxRetrieveProjectByName.lastResponse.length > 0 ? 
                                     (( this.$.exportTo === undefined ||  this.$.exportTo === null || this.$.exportTo === '') ? false : true) : true);
@@ -360,9 +360,9 @@
             // infoBox.properties.password = this.$.password.value;
             // infoBox.properties.httpSecured = this.$.httpSecured.value;
 
-            var tabs = infobox.querySelector('#tabs');
+            var tabs = infoBox.querySelector('#tabs');
 
-            var projectid = ( this.$.exportTo === undefined ||  this.$.exportTo === null || this.$.exportTo === '') ? infobox.properties.projectid : 'projectid' + '_' +  Math.random().toString(36).substr(2, 4);
+            var projectid = ( this.$.exportTo === undefined ||  this.$.exportTo === null || this.$.exportTo === '') ? infoBox.projectid : 'projectid' + '_' +  Math.random().toString(36).substr(2, 4);
             //  infobox.properties.projectid;
 
             var title = this.$.projecttitle.textContent;
@@ -373,7 +373,7 @@
                 title = this.$.projecttitle.textContent;
             } */  
 
-            var updatedby = ( this.$.exportTo === undefined ||  this.$.exportTo === null || this.$.exportTo === '') ? infobox.properties.updatedby :  this.$.exportTo;
+            var updatedby = ( this.$.exportTo === undefined ||  this.$.exportTo === null || this.$.exportTo === '') ? infoBox.updatedby :  this.$.exportTo;
 
             var forExportAction = ( this.$.exportTo === undefined ||  this.$.exportTo === null || this.$.exportTo === '') === false;
 
@@ -386,7 +386,7 @@
 
             if(forExportAction === false){
                 
-                infobox.properties.updatedby = updatedby;
+                infoBox.updatedby = updatedby;
                 
                 responseMsg = "Workbook Details are saved successfully!!!";
                 
@@ -394,22 +394,22 @@
                 responseMsg = "Workbook Details are exported to " + this.$.exportTo + " successfully!!!";
             }
 
-            var dateupdated = infobox.properties.dateupdated;
+            var dateupdated = infoBox.dateupdated;
 
-            var file = infobox.properties.file;
+            var file = infoBox.file;
 
 
             var projectJsonStr = '{\"updatedby\": \"' + updatedby + '\", \"projectdata\" : \"{\\"cluster_details\\":{';
 
             var projectJsonStr1 = '';
 
-            projectJsonStr1 += '\"ip\" : \"' + infoBox.properties.cluster_address + '\",';
-            projectJsonStr1 += '\"name\" :\"' + infoBox.properties.cluster_name + '\",';
-            projectJsonStr1 += '\"port\" :\"' + infoBox.properties.port + '\",';
-            projectJsonStr1 += '\"username\" :\"' + infoBox.properties.username + '\",';
-            projectJsonStr1 += '\"password\" :\"' + infoBox.properties.password + '\",';
-            projectJsonStr1 += '\"clusterid\" :\"' + infoBox.properties.clusterid + '\",';
-            projectJsonStr1 += '\"hpccsecured\" :\"' + infoBox.properties.httpSecured + '\"}, \"Tabs\":[';
+            projectJsonStr1 += '\"ip\" : \"' + infoBox.cluster_address + '\",';
+            projectJsonStr1 += '\"name\" :\"' + infoBox.cluster_name + '\",';
+            projectJsonStr1 += '\"port\" :\"' + infoBox.port + '\",';
+            projectJsonStr1 += '\"username\" :\"' + infoBox.username + '\",';
+            projectJsonStr1 += '\"password\" :\"' + infoBox.password + '\",';
+            projectJsonStr1 += '\"clusterid\" :\"' + infoBox.clusterid + '\",';
+            projectJsonStr1 += '\"hpccsecured\" :\"' + infoBox.httpSecured + '\"}, \"Tabs\":[';
             for(var cnt = 0 ; cnt < infoBox.viewList.length; cnt++){
                 projectJsonStr1 += infoBox.viewList[cnt].editor.serialize() + (cnt < infoBox.viewList.length -1 ? ',' : '');
             }
@@ -450,14 +450,14 @@
 
         addAllToSession  (event){
 
-            var infoBox = this.$$('#infobox');
+            var infoBox = this.shadowRoot.querySelector('#infobox');
 
-            infoBox.properties.cluster_name = this.$.cluster_name.value;
-            infoBox.properties.cluster_address = this.$.cluster_address.value;
-            infoBox.properties.port = this.$.port.value;
-            infoBox.properties.username = this.$.username.value;
-            infoBox.properties.password = this.$.password.value;
-            infoBox.properties.httpSecured = this.$.httpSecured.value;
+            infoBox.cluster_name = this.$.cluster_name.value;
+            infoBox.cluster_address = this.$.cluster_address.value;
+            infoBox.port = this.$.port.value;
+            infoBox.username = this.$.username.value;
+            infoBox.password = this.$.password.value;
+            infoBox.httpSecured = this.$.httpSecured.value;
             
         }
 
@@ -467,12 +467,12 @@
         }
 
         _openWorkbook(e) {
-            var dialog = document.querySelector('#openwork');
+            var dialog = this.shadowRoot.querySelector('#openwork')
             dialog.open();
         }
 
         _editWorkbook(e) {
-            var dialog = document.querySelector('#editwork');
+            var dialog = this.shadowRoot.querySelector('#editwork');
             dialog.open();
         }
     }
