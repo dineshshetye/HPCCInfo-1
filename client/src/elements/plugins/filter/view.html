@@ -15,31 +15,33 @@
     </template>
     <script>
         class CommonFilterView extends Polymer.Element {
-			static get is() {return 'common-filter-view'; }
-			
-			static get properties() { return {
-                pluginId: String,               
-                label: String,
-                id: String,
-                editor: Object,
-                tab: Object,
-                loading: {
-                    type: Boolean,
-                    value: false,
-                    notify: true
+            static get is() { return 'common-filter-view'; }
+
+            static get properties() {
+                return {
+                    pluginId: String,
+                    label: String,
+                    id: String,
+                    editor: Object,
+                    tab: Object,
+                    loading: {
+                        type: Boolean,
+                        value: false,
+                        notify: true
+                    }
                 }
             }
-            }
-            constructor(){
+            constructor() {
                 super();
             }
-            ready (e){
-                var grid =   this.querySelector(".projectworksheet");
+            ready(e) {
+                super.ready();
+                var grid = this.shadowRoot.querySelector(".projectworksheet");
                 grid.items = [];
                 //grid.addColumn({name: "<b>Please use this Edit button to filter on the Data </b>"});
             }
 
-            setGeneralProperties (properties) {
+            setGeneralProperties(properties) {
 
             }
 

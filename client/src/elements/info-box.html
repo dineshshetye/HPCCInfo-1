@@ -1,8 +1,10 @@
+<link rel="import" href="../../bower_components/polymer/lib/utils/render-status.html">
 <link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-menu-button/paper-menu-button.html">
 <!--<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">-->
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/paper-styles/color.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
@@ -10,7 +12,6 @@
 <link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
 <link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../../bower_components/iron-icons/social-icons.html">
-<link rel="import" href="../../bower_components/neon-animation/web-animations.html">
 
 <link rel="import" href="info-plugin-dialog.html">
 
@@ -67,9 +68,7 @@
             
             <paper-menu-button horizontal-align="right" disabled="true" id="pluginMenu">
                 <paper-icon-button id="btnAddPlugin" icon="add" slot="dropdown-trigger"></paper-icon-button>
-                <paper-dropdown-menu >
                 <paper-listbox id="pluginmenu" slot="dropdown-content"> </paper-listbox>
-            </paper-dropdown-menu>
             </paper-menu-button>
             <paper-tooltip for="btnAddPlugin" offset="0">Plugin List</paper-tooltip>   
 
@@ -171,6 +170,7 @@
                 this.addPlugin("common-aggregate", "Aggregate", "common");
                 this.addPlugin("common-sort", "Sort", "common");
                 this.addPlugin("common-sample", "Data Sampling", "common");
+                //this.$.plugininfo.addEventListener('complete', '_pluginNewTabHandler');
             }
             handleTabTap(e){
                 console.log(e);
@@ -180,8 +180,18 @@
                     }
                 }
             }
+            connectedCallback(){
+                Polymer.RenderStatus.beforeNextRender(this, function() {
+                    // measure something
+                    this.$.plugininfo.addEventListener('complete', this._pluginNewTabHandler);
+                    });
+            }
             attached() {
-                this.listen(this.$.plugininfo, 'complete', '_pluginNewTabHandler');
+                Polymer.RenderStatus.beforeNextRender(this, function() {
+                    // measure something
+                    this.$.plugininfo.addEventListener('complete', this._pluginNewTabHandler);
+                    });
+               
             }
 
             addPlugin(id, label, category) {
@@ -189,8 +199,7 @@
                 item.id = "item_" + id;
                 item.textContent = label;
                 Polymer.dom(this.$.pluginmenu).appendChild(item);
-                this.addEventListener(item,'tap', (e)=>this._pluginMenuTapHandler(e));
-                //this.listen(item, 'tap', '_pluginMenuTapHandler');
+                item.addEventListener('tap', (e)=>this._pluginMenuTapHandler(e));
                 if (this.pluginList == null) {
                     this.pluginList = [];
                 }
@@ -377,7 +386,7 @@
                 var pluginId = e.target.pluginId;
                 var label = e.target.getLabel();
                 //Add a new tab
-                this.addTab((pluginId + '_' + Math.random().toString(36).substr(2, 9)), label, pluginId); //TODO: Need to generate an unique id for the tab
+                document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').addTab((pluginId + '_' + Math.random().toString(36).substr(2, 9)), label, pluginId); //TODO: Need to generate an unique id for the tab
             }
 
             // This handler is called when the user clicks on any plugins 'Edit' button.

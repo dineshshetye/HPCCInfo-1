@@ -50,8 +50,8 @@
                 super();
             }
             ready(e) {
-                var grid = this.querySelector(".projectworksheet");
-
+                super.ready();
+                var grid =  this.shadowRoot.querySelector(".projectworksheet");
                 grid.items = [];
 
                 /*grid.addColumn({

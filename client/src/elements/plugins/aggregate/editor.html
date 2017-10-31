@@ -126,18 +126,20 @@
 			}
 
 			ready(eve){
+				super.ready();
 				console.log("Ready function");
-				var selpage = document.querySelector("#pages").querySelector("#common-input");
-				var infoBox = document.querySelector('#infobox');
-				var username = infoBox.properties.username;
-				var password = infoBox.properties.password;
+				//var selpage = document.querySelector("#pages").querySelector("#common-input");
+				var selpage =document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#pages").querySelector("#common-input");
+				var infoBox =document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box');
+				var username = infoBox.username;
+				var password = infoBox.password;
 				var credentials = username === null || username === "" ? "" : (
 					password === null || password === "" ?  (username + '@') :
 					(username + ':' + password + '@')               
 				);
 
-				var eclIP = (infoBox.properties.isHpccSecured === "true" ? "https://" : "http://") +  infoBox.properties.cluster_address +
-					":" + infoBox.properties.port;
+				var eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") +  infoBox.cluster_address +
+					":" + infoBox.port;
 				this.eclIP = eclIP;
 				this.hpccuser = username;
 
@@ -215,9 +217,9 @@
 			}
 			open() {
 
-				this.$.TabTitle.value = document.querySelector("#tabs").selectedItem.textContent;			 
+				this.$.TabTitle.value = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#tabs").selectedItem.textContent;			 
 
-				var pages = document.querySelector("#tabs");
+				var pages = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#tabs");
 
 				var tabnames = "";
 

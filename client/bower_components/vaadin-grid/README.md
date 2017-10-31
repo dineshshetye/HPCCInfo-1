@@ -1,107 +1,95 @@
-![Bower version](https://img.shields.io/bower/v/vaadin-grid.svg) [![Build Status](https://travis-ci.org/vaadin/vaadin-grid.svg?branch=master)](https://travis-ci.org/vaadin/vaadin-grid) [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/vaadin/vaadin-core-elements?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+![Bower version](https://img.shields.io/bower/v/vaadin-grid.svg)
+[![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/vaadin/vaadin-grid)
+[![Build Status](https://travis-ci.org/vaadin/vaadin-grid.svg?branch=master)](https://travis-ci.org/vaadin/vaadin-grid)
+[![Coverage Status](https://coveralls.io/repos/github/vaadin/vaadin-grid/badge.svg?branch=master)](https://coveralls.io/github/vaadin/vaadin-grid?branch=master)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/vaadin/vaadin-core-elements?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-# &lt;vaadin-grid&gt;
+# &lt;vaadin-grid&gt; v3
+
+[Live Demo ↗](https://cdn.vaadin.com/vaadin-grid/3.0.1/demo/)
+
+> :eyes: Looking for &lt;vaadin-grid&gt; v1.x? Please see the [the v1 branch](https://github.com/vaadin/vaadin-grid/tree/1.x)
 
 [&lt;vaadin-grid&gt;](https://vaadin.com/elements/-/element/vaadin-grid) is a free, high quality data grid / data table [Polymer](http://polymer-project.org) element, part of the [Vaadin Core Elements](https://vaadin.com/elements).
 
-> :rocket: The upcoming [&lt;vaadin-grid&gt; v2](https://github.com/vaadin/vaadin-grid/tree/2.0-dev) release with a lot of exciting improvements is almost ready! Please see the [Migration Guide](https://github.com/vaadin/vaadin-grid/wiki/Migration-from-1.*-to-2.0) to find out what's changing.
-
 <!---
 ```
-<custom-element-demo height="500">
+<custom-element-demo>
   <template>
+    <script src="../webcomponentsjs/webcomponents-lite.js"></script>
+    <link rel="import" href="vaadin-grid.html">
     <next-code-block></next-code-block>
   </template>
 </custom-element-demo>
 ```
 -->
 ```html
-<script src="../webcomponentsjs/webcomponents-lite.js"></script>
-<link rel="import" href="../iron-ajax/iron-ajax.html">
-<link rel="import" href="vaadin-grid.html">
+<template is="dom-bind">
+  <x-data-provider data-provider="{{dataProvider}}"></x-data-provider>
 
-<dom-module id="my-grid">
-  <template>
-    <iron-ajax auto handle-as="json" last-Response="{{items}}"
-    url="https://randomuser.me/api?results=100"></iron-ajax>
+  <vaadin-grid data-provider="[[dataProvider]]" size="200">
 
-    <vaadin-grid demo items="[[items.results]]" visible-rows="8">
-      <table>
-        <colgroup>
-          <col name="name.first" resizable>
-          <col name="name.last" resizable>
-          <col name="email"  resizable flex>
-        </colgroup>
-      </table>
-    </vaadin-grid>
-  </template>
-  <script>
-    Polymer({
-      is: "my-grid"
-    });
-  </script>
-</dom-module>
-<my-grid></my-grid>
+    <vaadin-grid-column width="50px" flex-grow="0">
+      <template class="header">#</template>
+      <template>[[index]]</template>
+    </vaadin-grid-column>
+
+    <vaadin-grid-column width="50px" flex-grow="0">
+      <template class="header"></template>
+      <template>
+        <iron-image src="[[item.picture.thumbnail]]"></iron-image>
+      </template>
+    </vaadin-grid-column>
+
+    <vaadin-grid-column width="calc(50% - 100px)">
+      <template class="header">First Name</template>
+      <template>[[item.name.first]]</template>
+    </vaadin-grid-column>
+
+    <vaadin-grid-column width="calc(50% - 100px)">
+      <template class="header">Last Name</template>
+      <template>[[item.name.last]]</template>
+    </vaadin-grid-column>
+
+  </vaadin-grid>
+</template>
 ```
 
-[<img src="https://github.com/vaadin/vaadin-grid/raw/master/screenshot.png" width="481" alt="Screenshot of vaadin-grid" />](https://vaadin.com/elements/-/element/vaadin-grid)
+<img src="https://github.com/vaadin/vaadin-grid/raw/master/grid.gif">
 
-## Getting started
 
-Visit https://vaadin.com/elements/-/element/vaadin-grid for features, demos and documentation.
+## Running demos and tests in browser
 
-## Contributing
+1. Fork the `vaadin-grid` repository and clone it locally.
 
-See the [contribution instructions](https://github.com/vaadin/vaadin-core-elements#contributing) which apply to all Vaadin core elements.
+1. Make sure you have [npm](https://www.npmjs.com/) installed.
 
-## Development
+1. When in the `vaadin-grid` directory, run `npm install` and then `bower install` to install dependencies.
 
-See the [development instructions](https://github.com/vaadin/vaadin-core-elements#development) which apply to all Vaadin core elements.
+1. Run `polymer serve --open`, browser will automatically open the component API documentation.
 
-### &lt;vaadin-grid&gt; specific development instructions
+1. You can also open demo or in-browser tests by adding **demo** or **test** to the URL, for example:
 
-The internal implementation of vaadin-grid (1.0) is written in [GWT](http://gwtproject.org), as it is based on the same implementation which is used in [Vaadin Framework 7](https://vaadin.com/framework).
+  - http://127.0.0.1:8080/components/vaadin-grid/demo
+  - http://127.0.0.1:8080/components/vaadin-grid/test
 
-Below are instructions how to work with the GWT/Java code:
 
-#### Compiling the GWT module
+## Running tests from the command line
 
-The compiled module is in the repository (`vaadin-grid.min.js`), so you don't need to compile it unless you modify any `.java` files.
+1. When in the `vaadin-grid` directory, run `polymer test`
 
-First, make sure you've installed all the necessary tooling:
-- [Node.js](http://nodejs.org)
-- [JDK8](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
-- [Maven](http://maven.apache.org/download.cgi)
 
-Install [Gulp](http://gulpjs.com):
+## Following the coding style
 
-```shell
-$ npm install -g gulp
-```
+We are using [ESLint](http://eslint.org/) for linting JavaScript code. You can check if your code is following our standards by running `gulp lint`, which will automatically lint all `.js` files as well as JavaScript snippets inside `.html` files.
 
-Install npm dependencies:
 
-```shell
-$ npm install
-```
+## Creating a pull request
 
-Run the GWT compilation:
-
-```shell
-$ gulp gwt
-```
-
-Compiling using "pretty" output:
-```shell
-$ gulp gwt --gwt-pretty
-```
-
-#### Running and debugging in GWT SuperDevMode
-
-To easily debug the Java code in the browser, use SDM:
-```shell
-$ gulp gwt:sdm
-```
+  - Make sure your code is compliant with our code linters: `gulp lint`
+  - Check that tests are passing: `polymer test`
+  - [Submit a pull request](https://www.digitalocean.com/community/tutorials/how-to-create-a-pull-request-on-github) with detailed title and description
+  - Wait for response from one of Vaadin Elements team members
 
 
 ## License
