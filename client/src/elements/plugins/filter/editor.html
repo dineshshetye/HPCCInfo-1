@@ -227,13 +227,13 @@
 			}
 
 			_okHandler(e) {
-				document.querySelector("#tabs").selectedItem.textContent = this.$.TabTitle.value;
+				document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#tabs").selectedItem.textContent = this.$.TabTitle.value;
 				this.title = this.$.TabTitle.value;
-				var currentPage = document.querySelector("#pages").selectedItem;
+				var currentPage = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#pages").selectedItem;
 
 				currentPage.outputdsname = 'filterdsName' + '_' + Math.random().toString(36).substr(2, 4);
 
-				var infoBox = document.querySelector('#infobox');
+				var infoBox =  document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box');
 
 				this.outputdsname = currentPage.outputdsname;
 
@@ -243,6 +243,8 @@
 
 				this.expression = this.$.filterformulas.value;
 
+				if(this.$.sortbyfieldsvalue.value==undefined)
+				this.$.sortbyfieldsvalue.value="";
 				var QueryStr = QueryStr1 + "\n OUTPUT(" + (this.$.sortbyfieldsvalue.value.length > 0 ? ('SORT(' + currentPage.outputdsname + ',' + this.$.sortbyfieldsvalue.value + ')') : currentPage.outputdsname) + ");";
 
 				var eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") +
@@ -263,10 +265,10 @@
 			changeInput(e) {
 
 				var tabid = "";
-
-				for (var cnt = 0; cnt < document.getElementsByTagName("paper-tab").length; cnt++) {
-					if (event.currentTarget.value === document.getElementsByTagName("paper-tab")[cnt].textContent.trim()) {
-						tabid = document.getElementsByTagName("paper-tab")[cnt].id;
+				var papertabs=document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector('app-toolbar').getElementsByTagName("paper-tab");
+				for (var cnt = 0; cnt < papertabs.length; cnt++) {
+					if (event.currentTarget.value === papertabs[cnt].textContent.trim()) {
+						tabid = papertabs[cnt].id;
 						break;
 					}
 				}
@@ -275,7 +277,7 @@
 					return;
 				}
 
-				var selpage = document.querySelector("#pages").querySelector("#" + tabid);
+				var selpage = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#pages").querySelector("#" + tabid);				
 
 				this.eclcode = selpage.editor.eclcode;
 
@@ -304,7 +306,7 @@
 			}
 			andFunction(e) {
 
-				var infoBox = document.querySelector('#infobox');
+				var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box');
 
 				var strFields = ["STRING", "UNICODE"];
 
@@ -318,6 +320,10 @@
 				if (infoBox.fieldDtls.has(this.$.field.value)) {
 					formula = strFields.includes(infoBox.fieldDtls.get(this.$.field.value).toUpperCase()) ? ("'" + formula + "'") : formula;
 				}
+				if(this.$.filterformulas.value==undefined){
+					this.$.filterformulas.value=this.$.field.value + ' ' + this.$.operation.value + ' ' + formula;
+				}
+				else
 				this.$.filterformulas.value = this.$.filterformulas.value + (this.$.filterformulas.value.length > 0 ? " AND " : "") + this.$.field.value + ' ' + this.$.operation.value + ' ' + formula;
 
 				//  this.$.formulavalue.value ;            
