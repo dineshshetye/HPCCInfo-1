@@ -214,10 +214,10 @@
 			changeSortInput(e){
 
 				var tabid = "";
-
-				for(var cnt =0 ; cnt < document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("#infobox").shadowRoot.querySelector('app-toolbar').getElementsByTagName("paper-tabs").length; cnt++){
-					if(event.currentTarget.value === document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("#infobox").shadowRoot.querySelector('app-toolbar').getElementsByTagName("paper-tabs")[cnt].textContent.trim()){
-						tabid =  document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("#infobox").shadowRoot.querySelector('app-toolbar').querySelector('paper-tabs').getElementsByTagName("paper-tab")[cnt].id;
+				var papertab = document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("info-box").shadowRoot.querySelector('app-toolbar').getElementsByTagName("paper-tab");
+				for(var cnt =0 ; cnt < papertab.length; cnt++){
+					if(event.currentTarget.value === papertab[cnt].textContent.trim()){
+						tabid =  papertab[cnt].id;
 						break;
 					}
 				}
