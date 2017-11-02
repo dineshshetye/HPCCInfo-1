@@ -20,6 +20,8 @@
 <link rel="import" href="plugins/input/view.html">
 <link rel="import" href="plugins/filter/editor.html">
 <link rel="import" href="plugins/filter/view.html">
+<link rel="import" href="plugins/dashboard/editor.html">
+<link rel="import" href="plugins/dashboard/view.html">
 <link rel="import" href="plugins/sort/editor.html">
 <link rel="import" href="plugins/sort/view.html">
 <link rel="import" href="plugins/aggregate/editor.html">
@@ -170,14 +172,17 @@
                 this.addPlugin("common-aggregate", "Aggregate", "common");
                 this.addPlugin("common-sort", "Sort", "common");
                 this.addPlugin("common-sample", "Data Sampling", "common");
+                this.addPlugin("common-dashboard", "Dashboard", "common");
                 //this.$.plugininfo.addEventListener('complete', '_pluginNewTabHandler');
             }
             handleTabTap(e){
                 console.log(e);
                 if(e.detail.item.editor != undefined){
+                    if(e.detail.item.shadowRoot.querySelector('.projectworksheet')!=null){
                     if(e.detail.item.shadowRoot.querySelector('.projectworksheet').items.length === 0){
                         e.detail.item.editor.loadgrid();
                     }
+                }
                 }
             }
             connectedCallback(){
@@ -391,7 +396,7 @@
 
             // This handler is called when the user clicks on any plugins 'Edit' button.
             _pluginEditOpenHandler(e) {
-                var view = this.getActiveView();
+                var view = this.getActiveView();               
                 view.editor.open();
             }
 

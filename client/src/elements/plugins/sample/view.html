@@ -44,7 +44,9 @@
                 super();
             }
             ready(e) {
-                var grid = this.querySelector(".projectworksheet");
+                super.ready();
+                //var grid = this.querySelector(".projectworksheet");
+                var grid = this.shadowRoot.querySelector(".projectworksheet");
                 grid.items = [];
                 /*grid.addColumn({
                     name: "<b>Please use this Edit button to sample the Data </b>"

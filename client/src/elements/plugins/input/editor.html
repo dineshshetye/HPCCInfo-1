@@ -45,6 +45,8 @@
           eclIP: String,
           hpccuser: String,
           displayFields: String,
+          xdisplayFields : String,
+          ydisplayFields : String,
           expression: String,
           title: String
         }
@@ -68,6 +70,8 @@
         this.hpccuser = username;
 
         this.displayFields = '';
+        this.xdisplayFields = '';
+        this.ydisplayFields = '';
         this.eclcode = '';
         this.$.TabTitle.value = '';
         this.inputdsname = '';
@@ -79,6 +83,8 @@
       serialize() {
         var jsonStr = '{';
         jsonStr += '\"displayFields\" : \"' + this.displayFields + '\",';
+        jsonStr += '\"xdisplayFields\" : \"' + this.xdisplayFields + '\",';
+        jsonStr += '\"ydisplayFields\" : \"' + this.ydisplayFields + '\",';
         jsonStr += '\"eclcode\" : \"' + this.eclcode.replace(/[\r\n]/g, '') + '\",';
         jsonStr += '\"inputdsname\" :\" ' + this.inputdsname + '\",';
         jsonStr += '\"outputdsname\" : \"' + this.outputdsname + '\",';
@@ -102,6 +108,7 @@
           if (tabTtitle === tabs[cnt].title) {
             jsonTabContent = tabs[cnt];
             this.displayFields = jsonTabContent.displayFields;
+            
             this.eclcode = jsonTabContent.eclcode;
             this.$.TabTitle.value = jsonTabContent.title;
             this.inputdsname = jsonTabContent.inputdsname;
@@ -165,6 +172,7 @@
           infoBox.getActiveView().editor.outputdsname = ajaxResp.outputdsname;
 
           var obj = ajaxResp.Result.Row[0];
+          var resobj = ajaxResp.Result.Row[0];
           var cnt = 0;
 
           // var cols = grid.columns;
@@ -175,6 +183,8 @@
           // }
 
           var fieldnames = "";
+          var xfieldnames = "";
+          var yfieldnames = "";  
           Object.keys(obj).forEach(function (key) {
             //grid.addColumn({ name: key, resizable: true });
             if (fieldnames === "") {
@@ -187,10 +197,25 @@
           });
 
           for (var i = 0; i < cnt; i++) {
-
             var headerTemplate = document.createElement('template');
             headerTemplate.classList.add('header');
             headerTemplate.innerHTML = colArray[i];
+         var validatedfields=colArray[i];        
+        if(isNaN(resobj[validatedfields])){
+                if(xfieldnames === ""){
+                  xfieldnames += validatedfields;
+              }else{
+                xfieldnames += "," + validatedfields;
+              }
+              }
+             else {
+              if(yfieldnames === ""){
+                  yfieldnames += validatedfields;
+              }else{
+                yfieldnames += "," + validatedfields;
+              }
+              }
+
 
             var body = "[[item." + colArray[i] + "]]";
             var bodyTemplate = document.createElement('template');
@@ -201,13 +226,32 @@
             grid.appendChild(column);
           }
           grid.items = ajaxResp.Result.Row;
-
+          // var gridcols=[];
+          //  gridcols = grid.columns;
+          //     for(i=0;i<gridcols.length ;i++){
+          //       var validatedfields=gridcols[i].name;        
+          //      if(isNaN(resobj[validatedfields])){
+          //       if(xfieldnames === ""){
+          //         xfieldnames += validatedfields;
+          //     }else{
+          //       xfieldnames += "," + validatedfields;
+          //     }
+          //     }
+          //    else {
+          //     if(yfieldnames === ""){
+          //         yfieldnames += validatedfields;
+          //     }else{
+          //       yfieldnames += "," + validatedfields;
+          //     }
+          //     }
+          //     }
 
           infoBox.shadowRoot.querySelector('#pluginMenu').disabled = false;
           infoBox.shadowRoot.querySelector('#export-project-dialog').disabled = false;
 
           currentPage.editor.displayFields = fieldnames;
-
+          currentPage.editor.xdisplayFields = xfieldnames;
+          currentPage.editor.ydisplayFields = yfieldnames;
           sessionStorage.setItem('gridColumns', colArray);
           // Add some example data as an array.
           //grid.items = ajaxResp.Result.Row;

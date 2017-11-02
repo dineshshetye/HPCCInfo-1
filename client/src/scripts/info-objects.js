@@ -10,13 +10,13 @@ function hostReachable(eclIP, hpccuser, password) {
 			url: "/clusterDetails/checkConnection",
 			contentType: "application/json",
 			type: 'POST',
-			data: JSON.stringify({"password": btoa(hpccuser + ":" + password), "url": eclIP}),
+			data: JSON.stringify({ "password": btoa(hpccuser + ":" + password), "url": eclIP }),
 			success: function (data) {
 				resolve(data);
 			},
 			error: function (request, status, error) {
-		        reject(error);
-		    }
+				reject(error);
+			}
 		});
 	});
 	return promise;
@@ -45,20 +45,26 @@ function workunitStatus(url, queryparam, hpccuser, password) {
 					resolve(data.WUInfoResponse.Workunit.Wuid);
 					// return;
 				} else {
-					var currentPage = document.querySelector("#pages").selectedItem;
-					var grid = currentPage.querySelector(".projectworksheet");
+					var infoBox = document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("info-box");
+					//var currentPage = document.querySelector("#pages").selectedItem;
+					var currentPage = infoBox.shadowRoot.querySelector("#pages").selectedItem;
+					var grid = currentPage.shadowRoot.querySelector(".projectworksheet");
 					if (grid !== null) {
 						var cols = grid.columns;
-						for (; cols.length > 0;) {
-							console.log(cols[0].name);
-							grid.removeColumn(cols[0].name);
+						if(cols != undefined)
+						{
+							for (; cols.length > 0;) {
+								console.log(cols[0].name);
+								grid.removeColumn(cols[0].name);
+							}
 						}
+				
 					}
-
 					currentPage.loading = false;
 					grid.items = [];
 					grid.addColumn({ name: "<b>Something went wrong while fetching the data, Please try again or check you filter query again!</b>" });
 					reject('Something went wrong while fetching the data, Please try again or check you filter query again!');
+				
 				}
 			}
 		});
@@ -75,7 +81,7 @@ function getFileListForSearch(url, pattern, hpccuser, password, nodegroup, conte
 		jsonp: 'jsonp',
 		type: 'GET',
 		async: 'false',
-		error : function(data) {alert('');},
+		error: function (data) { alert(''); },
 		headers: {
 			"Authorization": "Basic " + btoa(hpccuser + ":" + password)
 		}
@@ -101,55 +107,67 @@ function getThorList(url, hpccuser, password) {
 
 function loadGridwithEcl(QueryStr, recLimit) {
 
-	var infoBox = document.querySelector('#infobox');
-	var currentPage = document.querySelector("#pages").selectedItem;
+	var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
+	var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
+	
 	//Set paper-progress when the grid is being loaded
-    currentPage.loading = true;
+	currentPage.loading = true;
 
-	var eclIP = (infoBox.properties.isHpccSecured === "true" ? "https://" : "http://") +
+	var eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") +
 		// (infoBox.properties.username != '' ? infoBox.properties.username + ':' + infoBox.properties.password + '@' : '') +
-		infoBox.properties.cluster_address +
-		":" + infoBox.properties.port;
+		infoBox.cluster_address +
+		":" + infoBox.port;
 
 	var getFileData = new Promise(function (resolve, reject) {
-		callAjaxForECL(eclIP, QueryStr, infoBox.properties.username, infoBox.properties.password, recLimit).then(function (resData) {
+		callAjaxForECL(eclIP, QueryStr, infoBox.username, infoBox.password, recLimit).then(function (resData) {
 			resolve(resData);
 		});
 	});
 
 	getFileData.then(function (ajaxResp) {
 
-		var currentPage = document.querySelector("#pages").selectedItem;
+var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
+var grid;
+if(currentPage.shadowRoot.querySelector(".projectworksheet")!=null){
+grid = currentPage.shadowRoot.querySelector(".projectworksheet");
 
-		var grid = currentPage.querySelector(".projectworksheet");
+		//var cols = grid.columns;
+		//var colArray = [];
+		// for (; cols.length > 0;) {
+		// 	console.log(cols[0].name);
+		// 	grid.removeColumn(cols[0].name);
+		// }
 
-
-		var cols = grid.columns;
-		var colArray = [];
-		for (; cols.length > 0;) {
-			console.log(cols[0].name);
-			grid.removeColumn(cols[0].name);
-		}
-
-		grid.items = ajaxResp.Result.Row;
-		if (ajaxResp.Result.Row.length === 0) {
+		//grid.items = ajaxResp.Result.Row;
+		//var fieldnames = "";	
+		if(ajaxResp.Result.Row.length==0)
+		{
+			var headerTemplate = document.createElement('template');
+			headerTemplate.classList.add('header');
+			headerTemplate.innerHTML = "";
+			var bodyTemplate = document.createElement('template');
+            bodyTemplate.innerHTML = "<b>There are no records for your Filter Query</b>";
+            var column = document.createElement('vaadin-grid-column');
+            column.appendChild(headerTemplate);
+            column.appendChild(bodyTemplate);
+			grid.appendChild(column);
 			currentPage.loading = false;
-			grid.addColumn({ name: "<b>There are no records for your Filter Query</b>" });
 			return;
-		}
+		}	
 		var obj = ajaxResp.Result.Row[0];
 		var cnt = 0;
-
-		var cols = grid.columns;
 		var colArray = [];
-		for (; cols.length > 0;) {
-			console.log(cols[0].name);
-			grid.removeColumn(cols[0].name);
-		}
+		//var cols = grid.columns;
+		// var colArray = [];
+		// for (; cols.length > 0;) {
+		// 	console.log(cols[0].name);
+		// 	grid.removeColumn(cols[0].name);
+		// }
 
 		var fieldnames = "";
+		
 		Object.keys(obj).forEach(function (key) {
-			grid.addColumn({ name: key, resizable: true });
+			//grid.addColumn({ name: key, resizable: true });
 			if (fieldnames === "") {
 				fieldnames += key;
 			} else {
@@ -158,16 +176,35 @@ function loadGridwithEcl(QueryStr, recLimit) {
 			colArray[cnt] = key;
 			cnt++;
 		});
+		for (var i = 0; i < cnt; i++) {
 
+			var headerTemplate = document.createElement('template');
+			headerTemplate.classList.add('header');
+			headerTemplate.innerHTML = colArray[i];
+
+			var body = "[[item." + colArray[i] + "]]";
+			var bodyTemplate = document.createElement('template');
+			bodyTemplate.innerHTML = body;
+			var column = document.createElement('vaadin-grid-column');
+			column.appendChild(headerTemplate);
+			column.appendChild(bodyTemplate);
+			grid.appendChild(column);
+		}
+		grid.items = ajaxResp.Result.Row;
+		
 		currentPage.editor.displayFields = fieldnames;
 
 		sessionStorage.setItem('gridColumns', colArray);
 		// Add some example data as an array.
 		currentPage.loading = false;
-
+	}
+	else{		
+		currentPage.loading = false;		
+		initchart(ajaxResp.Result.Row,currentPage.selectedchartyype,currentPage.selectedxcoordinate,currentPage.selectedycoordinate);		
+	}
 	});
 
-	
+
 
 	return;
 }
@@ -175,7 +212,7 @@ function loadGridwithEcl(QueryStr, recLimit) {
 function callAjaxForECL(url, eclCode, hpccuser, password, recLimit) {
 	var wuid = '';
 	//var infoBox = document.querySelector('#infobox')
-	var infoBox=document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
+	var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
 	var clusterid = infoBox.clusterid === '' || infoBox.clusterid === undefined || infoBox.clusterid === 'undefined' ? 'hthor' : infoBox.clusterid;
 	var promise = new Promise(
 		function (resolve, reject) {
@@ -194,7 +231,7 @@ function callAjaxForECL(url, eclCode, hpccuser, password, recLimit) {
 				success: function (data) {
 					wuid = data.WUUpdateResponse.Workunit.Wuid;
 					$.ajax({
-						url: url + "/WsWorkunits/WUSubmit.json?Wuid=" + data.WUUpdateResponse.Workunit.Wuid + '&Cluster=' + clusterid ,
+						url: url + "/WsWorkunits/WUSubmit.json?Wuid=" + data.WUUpdateResponse.Workunit.Wuid + '&Cluster=' + clusterid,
 						headers: { 'Access-Control-Allow-Origin': '*' },
 						dataType: "JSONP",
 						jsonp: 'jsonp',
@@ -246,11 +283,11 @@ function callAjaxForECL(url, eclCode, hpccuser, password, recLimit) {
 }
 function callForFileDetails(url, filename, subfilename, hpccuser, password, recLimit) {
 	//var infoBox = document.querySelector('#infobox');
-	var infoBox=document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
+	var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
 	var promise = new Promise(function (resolve, reject) {
 		var wuid = '';
 		$.ajax({
-			url: url + "/WsDfu/DFUInfo.json?Name=" + ( subfilename.startsWith('~') === false ? '~' : '' ) + subfilename,
+			url: url + "/WsDfu/DFUInfo.json?Name=" + (subfilename.startsWith('~') === false ? '~' : '') + subfilename,
 			headers: { 'Access-Control-Allow-Origin': '*' },
 			dataType: "JSONP",
 			jsonp: 'jsonp',
@@ -262,18 +299,18 @@ function callForFileDetails(url, filename, subfilename, hpccuser, password, recL
 				console.log(data.DFUInfoResponse);
 
 				//var currentPage = document.querySelector("#pages").selectedItem;
-				var currentPage=document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox').shadowRoot.querySelector('#pages').selectedItem;
+				var currentPage = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox').shadowRoot.querySelector('#pages').selectedItem;
 				outputdsname = 'inputds' + '_' + Math.random().toString(36).substr(2, 4);
 
 				if (data.DFUInfoResponse.FileDetail.isSuperfile) {
 					var QueryStr = "IMPORT STD;NOTHOR(OUTPUT(DATASET([{NOTHOR(std.file.SUPERFILECONTENTS('~" + filename + "', TRUE)[1].NAME), '~" + filename + "'}], {STRING NAME, STRING SUPER}), NAMED('SUPERFILECONTENTS')));";
-					
+
 					// OUTPUT(STD.FILE.SUPERFILECONTENTS('~" + filename + "', TRUE)[1], NAMED('SUPERFILECONTENTS'));"
 				} else {
 					var QueryStr1 = "#OPTION(\'OUTPUTLIMIT\',2000);\nrecLayout := " + data.DFUInfoResponse.FileDetail.Ecl + "\n" +
 						outputdsname + " := DATASET(\'" + (filename.startsWith('~') ? '' : '~') + filename + "\'," + "recLayout, THOR);\n";
 
-				    var recLayout = data.DFUInfoResponse.FileDetail.Ecl.replace("RECORD", "");
+					var recLayout = data.DFUInfoResponse.FileDetail.Ecl.replace("RECORD", "");
 
 					str = recLayout.replace("[{}]", "").replace(",", ";").trim();
 
@@ -284,20 +321,20 @@ function callForFileDetails(url, filename, subfilename, hpccuser, password, recL
 
 					var recordStartEnd = ["RECORD", "END"];
 
-					for(var cnt = 0; cnt < fields.length; cnt++ ){
+					for (var cnt = 0; cnt < fields.length; cnt++) {
 						var singlePart = fields[cnt].trim();
-						if(!recordStartEnd.includes(singlePart.trim())){
-							var twoParts = (singlePart.endsWith(";") ? singlePart.substring(0,  singlePart.length() -1) : singlePart).trim().split(" ");
+						if (!recordStartEnd.includes(singlePart.trim())) {
+							var twoParts = (singlePart.endsWith(";") ? singlePart.substring(0, singlePart.length() - 1) : singlePart).trim().split(" ");
 							fielddts.set(twoParts[1], twoParts[0]);
 						}
 					}
-					
+
 					infoBox.fieldDtls = fielddts;
 
 					var strFields = ["STRING", "UNICODE"];
-					
+
 					console.log("Field====>Type ======> IsStringType\n===============================================\n\n");
-					
+
 					// for(Map.Entry<String, String> maps : fielddts.entrySet()){
 					// 	System.out.println(maps.getKey() + "===>" + maps.getValue() + "==>" + 
 					// 			strtypes.includes(maps.getValue().toUpperCase().replace("[^a-zA-Z]", "")));
@@ -306,7 +343,7 @@ function callForFileDetails(url, filename, subfilename, hpccuser, password, recL
 
 					for (var i in fielddts) {
 						console.log('Key is: ' + i + '. Value is: ' + fielddts[i]);
-					} 
+					}
 					var QueryStr = QueryStr1 + "Output(" + outputdsname + ");";
 				}
 				console.log(QueryStr);
@@ -326,4 +363,181 @@ function callForFileDetails(url, filename, subfilename, hpccuser, password, recL
 		});
 	});
 	return promise;
+}
+function initchart(griditems,charttype,xcoordinate,ycoordinate){
+	var charttype=charttype;
+	var xcoordinatefield=xcoordinate;
+	var ycoordinatefield=ycoordinate;	
+	var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
+	var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
+	var salesdata=[];
+	legendarray = [];
+	 var yAxisarray=[];
+	// var sumofycoordinate=0;
+	
+	// for (i=0; 12 > i;i++) {	
+	// 	var rows = griditems[i];
+	// //	sumofycoordinate=+sumofycoordinate + +rows[ycoordinatefield];		
+	// 	salesdata.push({ 	
+	// 		"value" : rows[ycoordinatefield],"name":rows[xcoordinatefield]
+	// });
+	// legendarray.push(rows[xcoordinatefield]);
+	// yAxisarray.push(rows[ycoordinatefield]);	
+	// }
+
+var myArray=griditems;
+var subtotal;
+var groups = {};
+for (var i = 0; i <griditems.length; i++) {
+	var rows = griditems[i];
+  var groupName = rows[xcoordinatefield];
+  if (!groups[groupName]) {
+    groups[groupName] = [];
+  }  
+  groups[groupName].push(rows[ycoordinatefield]);
+ 
+}
+myArray = [];
+
+for (var groupName in groups) { 
+  var yaxisdata=groups[groupName];
+  var yaxistotal=0;
+  for (var j=0;j<yaxisdata.length; j++) {
+	yaxistotal=+yaxistotal+ +yaxisdata[j];	
+  }
+  myArray.push({"name": groupName, "value": yaxistotal});
+  legendarray.push(groupName);
+}
+
+	this.myChart = echarts.init(currentPage.shadowRoot.querySelector("#divChart"));
+	
+	   //For echarts styling   http://echarts.baidu.com/echarts2/doc/example/bar.html
+	   // specify chart configuration item and data
+if(charttype=='pie'){
+	 // option for pie chart
+	   var  option = {
+		 title : {
+			 text: 'HPCC INFO SALES DATA',
+			 subtext: xcoordinatefield+" - "+ ycoordinatefield+" Chart",
+			 x:'center'
+		 },
+		 tooltip : {
+			 trigger: 'item',
+			 formatter: "{a} <br/>{b} : {c} ({d}%)"
+		 },
+		 legend: {
+			 orient : 'vertical',
+			 x : 'left',
+			 data:legendarray
+		 },
+		 xAxis:{show:false},
+		 yAxis:{show:false},
+		 toolbox: {
+			 show : true,
+			feature : {	
+				mark : {show: false},		
+				magicType : {
+					show: false, 
+					type: ['pie', 'funnel'],
+					title : {
+						pie : 'pie',
+						funnel : 'funnel'
+					}
+				},
+				restore : {
+					show: false,
+					title : 'Restore'
+				},
+				saveAsImage : {
+					show: true,
+					title : 'Save'
+				}
+			}
+		},
+		 calculable : true,
+		 series : [
+			 {
+				 name:'Sales',
+				 type:charttype,
+				 radius : '55%',
+				 center: ['50%', '60%'],
+				 data:myArray
+			 }
+		 ]
+	 };	
+}
+else if(charttype=='bar' || charttype=='line'){
+ // option for bar chart
+	   var option = {
+		title : {
+			text: 'HPCC INFO SALES DATA',
+			subtext: xcoordinatefield+" - "+ ycoordinatefield+" Chart",
+			x:'center'
+		},
+			tooltip : {
+			trigger: 'item',
+			formatter: "{a} <br/>{b} : {c}"
+		},
+		legend: {
+			orient : 'vertical',
+			x : 'left',
+		  data: ['Sales']
+		},
+		xAxis: {
+			show:true,
+			type:'category',
+			axisTick: {
+				show:true,
+				interval:0
+				//alignWithLabel: true
+			 },
+			axisLabel: {
+				show:true,
+				interval:0
+			},	
+		  data:legendarray		  
+		},		
+		yAxis: {
+			show:true,
+			type:'value'
+		},
+		toolbox: {
+			show : true,
+			feature : {
+				magicType : {show: true, 
+					type: ['line', 'bar'],
+					title : {
+						line : 'line',
+						bar : 'bar'
+					}
+			},
+				restore : {
+					show: true,
+					title : 'Restore'
+				},
+				saveAsImage : {
+					show: true,
+					title : 'Save'
+				}
+			}
+		},
+		series: [{
+		  name: 'Sales',
+		  itemStyle: {              
+			  normal: {
+				  barBorderColor:'tomato',
+				  color: 'gray'
+			  },
+			  emphasis: {
+				  barBorderColor:'red',
+				  color: 'brown'
+			  }
+		  },
+		  type: charttype,
+		  data: myArray
+		}]
+	  };
+}
+	   // use configuration item and data specified to show chart
+	   this.myChart.setOption(option);
 }

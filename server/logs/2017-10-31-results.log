@@ -7,18 +7,14 @@
 {"level":"info","message":"Listening on port 3000","timestamp":"10/31/2017, 3:11:14 AM"}
 {"level":"info","message":"REQUEST URL: /checkConnection, REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/31/2017, 3:11:52 AM"}
 {"level":"info","message":"REQUEST URL: /checkConnection, REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/31/2017, 3:14:01 AM"}
-{"level":"info","message":"Listening on port 3000","timestamp":"10/31/2017, 3:48:55 AM"}
-{"level":"info","message":"Listening on port 3000","timestamp":"10/31/2017, 3:50:36 AM"}
-{"level":"info","message":"Listening on port 3000","timestamp":"10/31/2017, 3:57:26 AM"}
-{"level":"info","message":"Listening on port 3000","timestamp":"10/31/2017, 7:24:20 AM"}
-{"level":"info","message":"REQUEST URL: /checkConnection, REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/31/2017, 7:56:51 AM"}
-{"level":"info","message":"REQUEST URL: /checkConnection, REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/31/2017, 7:58:06 AM"}
-{"level":"info","message":"Listening on port 3000","timestamp":"10/31/2017, 8:32:19 AM"}
-{"level":"info","message":"Listening on port 3000","timestamp":"10/31/2017, 8:57:29 AM"}
-{"level":"info","message":"Listening on port 3000","timestamp":"10/31/2017, 10:24:36 AM"}
-{"level":"error","message":"REQUEST URL: /polymerdemo2017@gmail.com , REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/31/2017, 10:25:14 AM"}
-{"level":"error","message":"ERROR MESSAGE: Error: ER_ACCESS_DENIED_ERROR: Access denied for user 'root'@'localhost' (using password: YES)","timestamp":"10/31/2017, 10:25:14 AM"}
-{"level":"error","message":"REQUEST URL: /polymerdemo2017@gmail.com , REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/31/2017, 10:26:50 AM"}
-{"level":"error","message":"ERROR MESSAGE: Error: ER_ACCESS_DENIED_ERROR: Access denied for user 'root'@'localhost' (using password: YES)","timestamp":"10/31/2017, 10:26:50 AM"}
-{"level":"info","message":"Listening on port 3000","timestamp":"10/31/2017, 10:27:04 AM"}
-{"level":"info","message":"REQUEST URL: /checkConnection, REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/31/2017, 10:28:18 AM"}
+{"level":"info","message":"Listening on port 3000","timestamp":"10/31/2017, 7:22:27 AM"}
+{"level":"error","message":"REQUEST URL: /polymerdemo2017@gmail.com , REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/31/2017, 7:25:42 AM"}
+{"level":"error","message":"ERROR MESSAGE: Error: ER_ACCESS_DENIED_ERROR: Access denied for user 'root'@'localhost' (using password: YES)","timestamp":"10/31/2017, 7:25:42 AM"}
+{"level":"error","message":"REQUEST URL: /polymerdemo2017@gmail.com , REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/31/2017, 7:28:03 AM"}
+{"level":"error","message":"ERROR MESSAGE: Error: ER_ACCESS_DENIED_ERROR: Access denied for user 'root'@'localhost' (using password: YES)","timestamp":"10/31/2017, 7:28:03 AM"}
+{"level":"error","message":"REQUEST URL: /polymerdemo2017@gmail.com , REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/31/2017, 7:28:30 AM"}
+{"level":"error","message":"ERROR MESSAGE: Error: ER_ACCESS_DENIED_ERROR: Access denied for user 'root'@'localhost' (using password: YES)","timestamp":"10/31/2017, 7:28:30 AM"}
+{"level":"error","message":"REQUEST URL: /polymerdemo2017@gmail.com , REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/31/2017, 7:30:24 AM"}
+{"level":"error","message":"ERROR MESSAGE: Error: ER_ACCESS_DENIED_ERROR: Access denied for user 'root'@'localhost' (using password: YES)","timestamp":"10/31/2017, 7:30:24 AM"}
+{"level":"info","message":"Listening on port 3000","timestamp":"10/31/2017, 7:30:43 AM"}
+{"level":"info","message":"REQUEST URL: /checkConnection, REQUEST IP:  ::ffff:127.0.0.1, RESPONSE STATUS CODE: 200","timestamp":"10/31/2017, 7:32:35 AM"}

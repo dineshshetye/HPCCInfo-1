@@ -63,11 +63,13 @@
 
 			logout(e) {
 				if(e.target.innerText === 'Sign-Out') {
-					this.fire('sign-out');
+					this.addEventListener('fire', this._onClick)
+					//this.fire('sign-out');
 				}
 
 								
-				var infoBox = document.querySelector('#infobox');
+				//var infoBox = document.querySelector('#infobox');
+				var infoBox = document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("#infobox");
 				infoBox.clearWorkBook();
 				
                 this.set('route.path', '/');
