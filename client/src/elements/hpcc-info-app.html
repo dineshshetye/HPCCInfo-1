@@ -274,26 +274,28 @@
         }
         ready(){
             super.ready();
-            if(this.user === null || this.user === undefined) {
-                this.set('route.path', '/');
-            }
-            var infoBox = this.shadowRoot.querySelector('#infobox');
-            try{
-                infoBox.cluster_name =  "4-way";
-                infoBox.cluster_address = "10.173.147.1";
-                infoBox.port = "8010";
-                infoBox.username = "";
-                infoBox.password = "";
-                infoBox.httpSecured = false;
+            Polymer.Async.microTask.run(function() {
+                if(this.user === null || this.user === undefined) {
+                    this.set('route.path', '/');
+                }
+                var infoBox = this.shadowRoot.querySelector('#infobox');
+                try{
+                    infoBox.cluster_name =  "4-way";
+                    infoBox.cluster_address = "10.173.147.1";
+                    infoBox.port = "8010";
+                    infoBox.username = "";
+                    infoBox.password = "";
+                    infoBox.httpSecured = false;
 
-                var pluginId = "common-input";
-                infoBox.projectid = 'projectid' + '_' +  Math.random().toString(36).substr(2, 4); 
-                infoBox.title = 'Welcome to HPCC Ino Application';
-                // infobox.addTab(pluginId, "Input", pluginId);    
+                    var pluginId = "common-input";
+                    infoBox.projectid = 'projectid' + '_' +  Math.random().toString(36).substr(2, 4); 
+                    infoBox.title = 'Welcome to HPCC Ino Application';
+                    // infobox.addTab(pluginId, "Input", pluginId);    
 
-            }catch(e2){
-                console.log("Error occurred");
-            }
+                }catch(e2){
+                    console.log("Error occurred");
+                }
+             }.bind(this), 50);
         }
         _userChanged() {
             Polymer.Async.microTask.run(function() {                   
@@ -462,17 +464,17 @@
         }
 
         _newWorkbook(e) {
-            var dialog = this.shadowRoot.querySelector('#newwork');
+            var dialog = this.$.newwork;
             dialog.open();
         }
 
         _openWorkbook(e) {
-            var dialog = this.shadowRoot.querySelector('#openwork')
+            var dialog = this.$.openwork;
             dialog.open();
         }
 
         _editWorkbook(e) {
-            var dialog = this.shadowRoot.querySelector('#editwork');
+            var dialog = this.$.editwork;
             dialog.open();
         }
     }
