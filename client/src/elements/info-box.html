@@ -167,16 +167,15 @@
             }
             ready() {
                 super.ready();
-                this.addEventListener('iron-select', (e)=>this.handleTabTap(e));
+                this.addEventListener('iron-select', (e) => this.handleTabTap(e));
                 this.addPlugin("common-filter", "Filter", "common");
                 this.addPlugin("common-aggregate", "Aggregate", "common");
                 this.addPlugin("common-sort", "Sort", "common");
                 this.addPlugin("common-sample", "Data Sampling", "common");
                 this.addPlugin("common-dashboard", "Dashboard", "common");
-                //this.$.plugininfo.addEventListener('complete', '_pluginNewTabHandler');
             }
+
             handleTabTap(e){
-                console.log(e);
                 if(e.detail.item.editor != undefined){
                     if(e.detail.item.shadowRoot.querySelector('.projectworksheet')!=null){
                     if(e.detail.item.shadowRoot.querySelector('.projectworksheet').items.length === 0){
@@ -186,17 +185,9 @@
                 }
             }
             connectedCallback(){
-                Polymer.RenderStatus.beforeNextRender(this, function() {
-                    // measure something
+                Polymer.RenderStatus.afterNextRender(this, function() {
                     this.$.plugininfo.addEventListener('complete', this._pluginNewTabHandler);
-                    });
-            }
-            attached() {
-                Polymer.RenderStatus.beforeNextRender(this, function() {
-                    // measure something
-                    this.$.plugininfo.addEventListener('complete', this._pluginNewTabHandler);
-                    });
-               
+                });
             }
 
             addPlugin(id, label, category) {
@@ -210,6 +201,12 @@
                 }
                 var plugin = new Plugin(id, label, category);
                 this.pluginList.push(plugin);
+            }
+
+            _clear(items) {
+                while (items.childNodes.length) {
+                    items.removeChild(items.childNodes[0]);
+                }
             }
 
             clearWorkBook(){
@@ -230,9 +227,10 @@
                 var tabitems = Polymer.dom(this.$.tabs);
                 var pageitems = Polymer.dom(this.$.pages);
                 var cnt = 0;
-               // tabitems._clear();
                 this.$.tabs.items = [];
-               // pageitems._clear(); 
+                this._clear(tabitems);
+                this._clear(pageitems);
+
                 if(this.viewList === undefined ||  this.viewList.length > 0){
 
                     if(this.viewList != undefined ){
@@ -255,17 +253,16 @@
 
                if(pluginId === "common-input"){
 
-                   //document.querySelector('#export-project-dialog').disabled = true;
-                   this.shadowRoot.querySelector('#export-project-dialog').disabled = true;
-
-
-                   
-                   var tabitems = Polymer.dom(this.$.tabs);
-                   var pageitems = Polymer.dom(this.$.pages);
-                   var cnt = 0;
-                    //tabitems._clear();
+                    //document.querySelector('#export-project-dialog').disabled = true;
+                    this.shadowRoot.querySelector('#export-project-dialog').disabled = true;
+                    
+                    var tabitems = Polymer.dom(this.$.tabs);
+                    var pageitems = Polymer.dom(this.$.pages);
+                    var cnt = 0;
+                    this._clear(tabitems);
+                    this._clear(pageitems);
                     this.$.tabs.items = [];
-                   // pageitems._clear(); 
+
                     if(this.viewList === undefined ||  this.viewList.length > 0){
 
                         if(this.viewList != undefined ){

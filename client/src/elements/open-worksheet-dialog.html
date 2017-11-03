@@ -48,26 +48,9 @@
                         </span>
                 </div>
             </iron-label>
-            <!-- <iron-data-table  id="worksheetlist" items="[[projects.projectdata]]" selection-enabled multi-selection
-                   on-selecting-item='handleSelect' on-deselecting-item='handleDeselect' on-selecting-all-items = 'handleselectall' on-deselecting-all-items = 'handledeselectall'>
-                    <data-table-column name="Title">
-                        <template>[[item.title]]</template>
-                    </data-table-column>
-                    <data-table-column name="File">
-                        <template>[[item.file]]</template>
-                    </data-table-column>
-                    <data-table-column name="Updated By">
-                        <template>[[item.updatedby]]</template>
-                    </data-table-column>
-                    <data-table-column name="Date Updated">
-                        <template>[[item.dateupdated]]</template>
-                    </data-table-column>
-                </iron-data-table> -->
 
-            <vaadin-grid id="worksheetlist" items="[[projects.projectdata]]" on-selecting-item='handleSelect' on-deselecting-item='handleDeselect'
-            on-selecting-all-items='handleselectall' on-deselecting-all-items='handledeselectall'>
-            <vaadin-grid-selection-column auto-select>
-                </vaadin-grid-selection-column>
+            <vaadin-grid id="worksheetlist" items="[[projects.projectdata]]" active-item="{{activeItem}}">
+                
                 <vaadin-grid-column>
                     <template class="header">Title</template>
                     <template>[[item.title]]</template>
@@ -100,7 +83,10 @@
             static get is() { return 'open-worksheet-dialog'; }
             static get properties() {
                 return {
-                    data: Array
+                    data: Array,
+                    activeItem: {
+                        observer: '_activeItemChanged'
+                    }
                 }
             }
             constructor() {
@@ -109,26 +95,14 @@
             ready() {
                 super.ready();
             }
-            handleSelect(e) {
-                var table = document.querySelector('#worksheetlist');
-                e.preventDefault(); // this will cancel the default selection behavior
-                table.clearSelection();
-                table.selectItem(e.detail.item);
+
+            /**
+              * This handler is called every time a row is selected which in-turn resets the selectedItems[] 
+              */
+            _activeItemChanged(item) {
+                this.$.worksheetlist.selectedItems = item ? [item] : [];
             }
-            handleselectall(e) {
-                e.preventDefault();
-            }
-            handledeselectall(e) {
-                e.preventDefault();
-            }
-            handleDeselect(e) {
-                var table = document.querySelector('#worksheetlist');
-                if (table.selectedItems.length > 1 || table.selectedItems[0] !== e.detail.item) {
-                    e.preventDefault(); // this will cancel the default selection behavior
-                    table.clearSelection();
-                    table.selectItem(e.detail.item);
-                }
-            }
+            
             fireAjaxToFetchAllProjects(updatedby) {
                 var infoBox = this.parentNode.querySelector('#infobox');
                 this.$.ajaxRetrieveAllProjects.url = 'http://' + window.location.hostname + ':' + window.location.port + '/projectDetails/' + updatedby;
@@ -138,11 +112,8 @@
             }
             open(e) {
                 this.parentNode.querySelector('#drawer').toggle();
-                // loginThenLoadAll : function({
-                //var infoApp = document.querySelector('#hpcc-info-app');
                 var infoBox = this.parentNode.querySelector('#infobox');
                 var updatedby = infoBox.updatedby;
-                //var openworksheet = document.querySelector('#openwork');
                 if (updatedby === undefined || updatedby === null || updatedby === '') {
                     e.preventDefault();
                     return;
@@ -150,23 +121,20 @@
                 this.fireAjaxToFetchAllProjects(updatedby);
             }
             ajaxRetrieveAllProjectsResponse() {
-                //var app = document.querySelector('#app');
-                this.shadowRoot.querySelector('#dialog').querySelector('#worksheetlist').items = this.$.ajaxRetrieveAllProjects.lastResponse;
+                this.$.worksheetlist.items = this.$.ajaxRetrieveAllProjects.lastResponse;
             }
 
             _okHandler(event) {
                 var infoBox = this.parentNode.querySelector('#infobox');
                 infoBox.projectid = this.$.worksheetlist.selectedItems[0].projectid;
                 infoBox.title = this.$.worksheetlist.selectedItems[0].title;
-                var titleElement = this.getRootNode().querySelector('app-toolbar').querySelector('#projecttitle');
-                /*titleElement.textContent  = "HPCCInfo-" + this.$.worksheetlist.selectedItems[0].title;*/
+                var titleElement = this.getRootNode().querySelector('#projecttitle');
                 titleElement.textContent = this.$.worksheetlist.selectedItems[0].title;
                 infoBox.file = this.$.worksheetlist.selectedItems[0].file;
                 this.$.ajaxRetrieveProjectByName.url = 'http://' + window.location.hostname + ':' + window.location.port + '/projectDetails/' + this.$.worksheetlist.selectedItems[0].projectid;
                 this.$.ajaxRetrieveProjectByName.generateRequest();
                 this.getRootNode().querySelector('#edit-worksheet-dialog').disabled = false;
                 infoBox.shadowRoot.querySelector('app-toolbar').querySelector('#btnExportProject').disabled = false;
-                // document.querySelector('#drawer').toggle(); //Toggle the app-drawer
             }
             _cancelHandler(event) {
                 //  document.querySelector('#drawer').toggle();
