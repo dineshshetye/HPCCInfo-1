@@ -45,8 +45,8 @@
           eclIP: String,
           hpccuser: String,
           displayFields: String,
-          xdisplayFields : String,
-          ydisplayFields : String,
+          xdisplayFields: String,
+          ydisplayFields: String,
           expression: String,
           title: String
         }
@@ -100,7 +100,7 @@
 
         var jsonTabContent = null;
 
-        var infoBox = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
+        var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
 
         var tabs = infoBox.tabsdata.Tabs;
 
@@ -108,7 +108,8 @@
           if (tabTtitle === tabs[cnt].title) {
             jsonTabContent = tabs[cnt];
             this.displayFields = jsonTabContent.displayFields;
-            
+            this.xdisplayFields = jsonTabContent.xdisplayFields;
+            this.ydisplayFields = jsonTabContent.ydisplayFields;
             this.eclcode = jsonTabContent.eclcode;
             this.$.TabTitle.value = jsonTabContent.title;
             this.inputdsname = jsonTabContent.inputdsname;
@@ -127,10 +128,7 @@
         }
       }
       loadgrid() {
-        // console.log(' On Tap event of Tab : ' + tabTtitle);
-        //var infoBox = document.querySelector('#infobox');
-        var infoBox = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
-
+        var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
         if (infoBox.file === '') {
           return;
         }
@@ -138,13 +136,11 @@
         if (infoBox.file.value === "") {
           return;
         }
-        //var infoBox = document.querySelector('#infobox');
-        var infoBox = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
+        var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
         var eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") +
           // (this.properties.hpccuser != '' ? this.properties.hpccuser + ':' + this.properties.password + '@' : '')  +
           infoBox.cluster_address +
           ":" + infoBox.port;
-        //var currentPage = document.querySelector("#pages").selectedItem;
         var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
 
         //Set paper-progress when the grid is being loaded
@@ -153,18 +149,18 @@
         var grid = currentPage.querySelector(".projectworksheet");
 
         var getFileData = new Promise(function (resolve, reject) {
-         
-          var infoBox = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
+
+          var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
           var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
           var grid = currentPage.shadowRoot.querySelector(".projectworksheet");
-          
+
           callForFileDetails(eclIP, infoBox.file, infoBox.file, infoBox.username, infoBox.password, 1000).then(function (resData) {
             resolve(resData);
           });
         });
         var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
-          var grid = currentPage.shadowRoot.querySelector(".projectworksheet");
-          var infoBox = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
+        var grid = currentPage.shadowRoot.querySelector(".projectworksheet");
+        var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
         getFileData.then(function (ajaxResp) {
 
           infoBox.getActiveView().editor.eclcode = ajaxResp.querystr;
@@ -174,17 +170,26 @@
           var obj = ajaxResp.Result.Row[0];
           var resobj = ajaxResp.Result.Row[0];
           var cnt = 0;
-
-          // var cols = grid.columns;
           var colArray = [];
-          // for (; cols.length > 0;) {
-          //   console.log(cols[0].name);
-          //   grid.removeColumn(cols[0].name);
-          // }
-
+          grid.innerHTML = "";
           var fieldnames = "";
           var xfieldnames = "";
-          var yfieldnames = "";  
+          var yfieldnames = "";
+
+          if (ajaxResp.Result.Row.length == 0) {
+            var headerTemplate = document.createElement('template');
+            headerTemplate.classList.add('header');
+            headerTemplate.innerHTML = "";
+            var bodyTemplate = document.createElement('template');
+            bodyTemplate.innerHTML = "<b>There are no records for your Filter Query</b>";
+            var column = document.createElement('vaadin-grid-column');
+            column.appendChild(headerTemplate);
+            column.appendChild(bodyTemplate);
+            grid.appendChild(column);
+            currentPage.loading = false;
+            return;
+          }
+
           Object.keys(obj).forEach(function (key) {
             //grid.addColumn({ name: key, resizable: true });
             if (fieldnames === "") {
@@ -200,21 +205,21 @@
             var headerTemplate = document.createElement('template');
             headerTemplate.classList.add('header');
             headerTemplate.innerHTML = colArray[i];
-         var validatedfields=colArray[i];        
-        if(isNaN(resobj[validatedfields])){
-                if(xfieldnames === ""){
-                  xfieldnames += validatedfields;
-              }else{
+            var validatedfields = colArray[i];
+            if (isNaN(resobj[validatedfields])) {
+              if (xfieldnames === "") {
+                xfieldnames += validatedfields;
+              } else {
                 xfieldnames += "," + validatedfields;
               }
-              }
-             else {
-              if(yfieldnames === ""){
-                  yfieldnames += validatedfields;
-              }else{
+            }
+            else {
+              if (yfieldnames === "") {
+                yfieldnames += validatedfields;
+              } else {
                 yfieldnames += "," + validatedfields;
               }
-              }
+            }
 
 
             var body = "[[item." + colArray[i] + "]]";
@@ -226,25 +231,6 @@
             grid.appendChild(column);
           }
           grid.items = ajaxResp.Result.Row;
-          // var gridcols=[];
-          //  gridcols = grid.columns;
-          //     for(i=0;i<gridcols.length ;i++){
-          //       var validatedfields=gridcols[i].name;        
-          //      if(isNaN(resobj[validatedfields])){
-          //       if(xfieldnames === ""){
-          //         xfieldnames += validatedfields;
-          //     }else{
-          //       xfieldnames += "," + validatedfields;
-          //     }
-          //     }
-          //    else {
-          //     if(yfieldnames === ""){
-          //         yfieldnames += validatedfields;
-          //     }else{
-          //       yfieldnames += "," + validatedfields;
-          //     }
-          //     }
-          //     }
 
           infoBox.shadowRoot.querySelector('#pluginMenu').disabled = false;
           infoBox.shadowRoot.querySelector('#export-project-dialog').disabled = false;
@@ -253,17 +239,6 @@
           currentPage.editor.xdisplayFields = xfieldnames;
           currentPage.editor.ydisplayFields = yfieldnames;
           sessionStorage.setItem('gridColumns', colArray);
-          // Add some example data as an array.
-          //grid.items = ajaxResp.Result.Row;
-          if (grid.items.length === 0) {
-            var bodyTemplate = document.createElement('template');
-            bodyTemplate.innerHTML = "<b>There are no records for your Filter Query</b>";
-            var column = document.createElement('vaadin-grid-column');
-            //column.appendChild(headerTemplate);
-            column.appendChild(bodyTemplate);
-            grid.appendChild(column);
-            //grid.addColumn({ name: "<b>There are no records for your Filter Query</b>" });
-          }
 
           currentPage.loading = false;
         });
@@ -277,8 +252,7 @@
       _okHandler(e) {
         //document.querySelector("#tabs").selectedItem.textContent = this.$.TabTitle.value;
         this.parentNode.selectedItem.textContent = this.$.TabTitle.value;
-        //var infoBox = document.querySelector('#infobox');
-        var infoBox = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
+        var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
         this.title = this.$.TabTitle.value;
         var selectedFile = this.$.subfilesgrid.value;
         this.expression = selectedFile;
@@ -286,14 +260,12 @@
         sessionStorage.setItem('FilterCriteria', '');
         sessionStorage.setItem('selecteFile', selectedFile);
 
-        //var infoBox = document.querySelector('#infobox');
-        var infoBox = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
+        var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
         var eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") +
           // (this.properties.hpccuser != '' ? this.properties.hpccuser + ':' + this.properties.password + '@' : '')  +
           infoBox.cluster_address +
           ":" + infoBox.port;
-        //var currentPage = document.querySelector("#pages").selectedItem;
-        var currentPage = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox').shadowRoot.querySelector('#pages').selectedItem;
+        var currentPage = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox').shadowRoot.querySelector('#pages').selectedItem;
         //Set paper-progress when the grid is being loaded
         currentPage.loading = true;
 
@@ -307,22 +279,29 @@
           });
         });
         getFileData.then(function (ajaxResp) {
-
           infoBox.getActiveView().editor.eclcode = ajaxResp.querystr;
-
           infoBox.getActiveView().editor.outputdsname = ajaxResp.outputdsname;
-
           var obj = ajaxResp.Result.Row[0];
+          var resobj = ajaxResp.Result.Row[0];
           var cnt = 0;
-
-          // var cols = grid.columns;    
           var colArray = [];
-          // for(;cols.length > 0;){
-          //   console.log(cols[0].name);
-          //   grid.removeColumn(cols[0].name);
-          // }
-
+          grid.innerHTML = "";
+          if (ajaxResp.Result.Row.length == 0) {
+            var headerTemplate = document.createElement('template');
+            headerTemplate.classList.add('header');
+            headerTemplate.innerHTML = "";
+            var bodyTemplate = document.createElement('template');
+            bodyTemplate.innerHTML = "<b>There are no records for your Filter Query</b>";
+            var column = document.createElement('vaadin-grid-column');
+            column.appendChild(headerTemplate);
+            column.appendChild(bodyTemplate);
+            grid.appendChild(column);
+            currentPage.loading = false;
+            return;
+          }
           var fieldnames = "";
+          var xfieldnames = "";
+          var yfieldnames = "";  
           Object.keys(obj).forEach(function (key) {
             //grid.addColumn({name: key, resizable:true});
             if (fieldnames === "") {
@@ -347,26 +326,31 @@
             column.appendChild(headerTemplate);
             column.appendChild(bodyTemplate);
             grid.appendChild(column);
+            var validatedfields=colArray[i];        
+        if(isNaN(resobj[validatedfields])){
+                if(xfieldnames === ""){
+                  xfieldnames += validatedfields;
+              }else{
+                xfieldnames += "," + validatedfields;
+              }
+              }
+             else {
+              if(yfieldnames === ""){
+                  yfieldnames += validatedfields;
+              }else{
+                yfieldnames += "," + validatedfields;
+              }
+              }
           }
           grid.items = ajaxResp.Result.Row;
 
           currentPage.editor.displayFields = fieldnames;
-
+          currentPage.editor.xdisplayFields = xfieldnames;
+          currentPage.editor.ydisplayFields = yfieldnames;
           sessionStorage.setItem('gridColumns', colArray);
 
           //document.querySelector('#pluginMenu').disabled = false;
           infoBox.shadowRoot.querySelector('#pluginMenu').disabled = false;
-
-          if (grid.items.length === 0) {
-            var bodyTemplate = document.createElement('template');
-            bodyTemplate.innerHTML = "<b>There are no records for your Filter Query</b>";
-            var column = document.createElement('vaadin-grid-column');
-            //column.appendChild(headerTemplate);
-            column.appendChild(bodyTemplate);
-            grid.appendChild(column);
-            //grid.addColumn({ name: "<b>There are no records for your Filter Query</b>" });
-          }
-
           currentPage.loading = false;
           // this.fire('complete');
         }
@@ -389,8 +373,7 @@
       }
 
       _loadFilesOnScopeChange(event) {
-        //var infoBox = document.querySelector('#infobox');
-        var infoBox = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
+        var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
 
         this.eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") +
           // (this.properties.hpccuser != '' ? this.properties.hpccuser + ':' + this.properties.password + '@' : '')  +
@@ -398,7 +381,7 @@
           ":" + infoBox.port;
 
         // var infoBox = document.querySelector('#infobox');
-        var infoBox = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
+        var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
         var eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") +
           // (infoBox.properties.username != '' ? infoBox.properties.username + ':' + infoBox.properties.password + '@' : '')  +
           infoBox.cluster_address +

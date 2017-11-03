@@ -45,27 +45,24 @@ function workunitStatus(url, queryparam, hpccuser, password) {
 					resolve(data.WUInfoResponse.Workunit.Wuid);
 					// return;
 				} else {
-					var infoBox = document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("info-box");
 					//var currentPage = document.querySelector("#pages").selectedItem;
-					var currentPage = infoBox.shadowRoot.querySelector("#pages").selectedItem;
+					var currentPage = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox').shadowRoot.querySelector('#pages').selectedItem;
 					var grid = currentPage.shadowRoot.querySelector(".projectworksheet");
 					if (grid !== null) {
 						var cols = grid.columns;
-						if(cols != undefined)
-						{
-							for (; cols.length > 0;) {
-								console.log(cols[0].name);
-								grid.removeColumn(cols[0].name);
-							}
+						for (; cols.length > 0;) {
+							console.log(cols[0].name);
+							grid.removeColumn(cols[0].name);
 						}
-				
+
+
+						currentPage.loading = false;
+						grid.items = [];
+						grid.addColumn({ name: "<b>Something went wrong while fetching the data, Please try again or check you filter query again!</b>" });
 					}
-					currentPage.loading = false;
-					grid.items = [];
-					grid.addColumn({ name: "<b>Something went wrong while fetching the data, Please try again or check you filter query again!</b>" });
 					reject('Something went wrong while fetching the data, Please try again or check you filter query again!');
-				
 				}
+
 			}
 		});
 	});
@@ -109,7 +106,7 @@ function loadGridwithEcl(QueryStr, recLimit) {
 
 	var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
 	var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
-	
+
 	//Set paper-progress when the grid is being loaded
 	currentPage.loading = true;
 
@@ -126,82 +123,65 @@ function loadGridwithEcl(QueryStr, recLimit) {
 
 	getFileData.then(function (ajaxResp) {
 
-var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
-var grid;
-if(currentPage.shadowRoot.querySelector(".projectworksheet")!=null){
-grid = currentPage.shadowRoot.querySelector(".projectworksheet");
-
-		//var cols = grid.columns;
-		//var colArray = [];
-		// for (; cols.length > 0;) {
-		// 	console.log(cols[0].name);
-		// 	grid.removeColumn(cols[0].name);
-		// }
-
-		//grid.items = ajaxResp.Result.Row;
-		//var fieldnames = "";	
-		if(ajaxResp.Result.Row.length==0)
-		{
-			var headerTemplate = document.createElement('template');
-			headerTemplate.classList.add('header');
-			headerTemplate.innerHTML = "";
-			var bodyTemplate = document.createElement('template');
-            bodyTemplate.innerHTML = "<b>There are no records for your Filter Query</b>";
-            var column = document.createElement('vaadin-grid-column');
-            column.appendChild(headerTemplate);
-            column.appendChild(bodyTemplate);
-			grid.appendChild(column);
-			currentPage.loading = false;
-			return;
-		}	
-		var obj = ajaxResp.Result.Row[0];
-		var cnt = 0;
-		var colArray = [];
-		//var cols = grid.columns;
-		// var colArray = [];
-		// for (; cols.length > 0;) {
-		// 	console.log(cols[0].name);
-		// 	grid.removeColumn(cols[0].name);
-		// }
-
-		var fieldnames = "";
-		
-		Object.keys(obj).forEach(function (key) {
-			//grid.addColumn({ name: key, resizable: true });
-			if (fieldnames === "") {
-				fieldnames += key;
-			} else {
-				fieldnames += "," + key;
+		var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
+		var grid;
+		if (currentPage.shadowRoot.querySelector(".projectworksheet") != null) {
+			grid = currentPage.shadowRoot.querySelector(".projectworksheet");
+			grid.innerHTML="";
+			if (ajaxResp.Result.Row.length == 0) {
+				var headerTemplate = document.createElement('template');
+				headerTemplate.classList.add('header');
+				headerTemplate.innerHTML = "";
+				var bodyTemplate = document.createElement('template');
+				bodyTemplate.innerHTML = "<b>There are no records for your Filter Query</b>";
+				var column = document.createElement('vaadin-grid-column');
+				column.appendChild(headerTemplate);
+				column.appendChild(bodyTemplate);
+				grid.appendChild(column);
+				currentPage.loading = false;
+				return;
 			}
-			colArray[cnt] = key;
-			cnt++;
-		});
-		for (var i = 0; i < cnt; i++) {
+			var obj = ajaxResp.Result.Row[0];
+			var cnt = 0;
+			var colArray = [];
+			var fieldnames = "";
 
-			var headerTemplate = document.createElement('template');
-			headerTemplate.classList.add('header');
-			headerTemplate.innerHTML = colArray[i];
+			Object.keys(obj).forEach(function (key) {
+				//grid.addColumn({ name: key, resizable: true });
+				if (fieldnames === "") {
+					fieldnames += key;
+				} else {
+					fieldnames += "," + key;
+				}
+				colArray[cnt] = key;
+				cnt++;
+			});
+			for (var i = 0; i < cnt; i++) {
 
-			var body = "[[item." + colArray[i] + "]]";
-			var bodyTemplate = document.createElement('template');
-			bodyTemplate.innerHTML = body;
-			var column = document.createElement('vaadin-grid-column');
-			column.appendChild(headerTemplate);
-			column.appendChild(bodyTemplate);
-			grid.appendChild(column);
+				var headerTemplate = document.createElement('template');
+				headerTemplate.classList.add('header');
+				headerTemplate.innerHTML = colArray[i];
+
+				var body = "[[item." + colArray[i] + "]]";
+				var bodyTemplate = document.createElement('template');
+				bodyTemplate.innerHTML = body;
+				var column = document.createElement('vaadin-grid-column');
+				column.appendChild(headerTemplate);
+				column.appendChild(bodyTemplate);
+				grid.appendChild(column);
+			}
+			grid.items = ajaxResp.Result.Row;
+
+			currentPage.editor.displayFields = fieldnames;
+
+			sessionStorage.setItem('gridColumns', colArray);
+			// Add some example data as an array.
+			currentPage.loading = false;
 		}
-		grid.items = ajaxResp.Result.Row;
-		
-		currentPage.editor.displayFields = fieldnames;
-
-		sessionStorage.setItem('gridColumns', colArray);
-		// Add some example data as an array.
-		currentPage.loading = false;
-	}
-	else{		
-		currentPage.loading = false;		
-		initchart(ajaxResp.Result.Row,currentPage.selectedchartyype,currentPage.selectedxcoordinate,currentPage.selectedycoordinate);		
-	}
+		else {
+			currentPage.loading = false;
+			initchart(ajaxResp.Result.Row, currentPage.selectedchartyype, currentPage.selectedxcoordinate, currentPage.selectedycoordinate);
+		}
 	});
 
 
@@ -364,180 +344,164 @@ function callForFileDetails(url, filename, subfilename, hpccuser, password, recL
 	});
 	return promise;
 }
-function initchart(griditems,charttype,xcoordinate,ycoordinate){
-	var charttype=charttype;
-	var xcoordinatefield=xcoordinate;
-	var ycoordinatefield=ycoordinate;	
+function initchart(griditems, charttype, xcoordinate, ycoordinate) {
+	var charttype = charttype;
+	var xcoordinatefield = xcoordinate;
+	var ycoordinatefield = ycoordinate;
 	var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
 	var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
-	var salesdata=[];
+	var salesdata = [];
 	legendarray = [];
-	 var yAxisarray=[];
-	// var sumofycoordinate=0;
-	
-	// for (i=0; 12 > i;i++) {	
-	// 	var rows = griditems[i];
-	// //	sumofycoordinate=+sumofycoordinate + +rows[ycoordinatefield];		
-	// 	salesdata.push({ 	
-	// 		"value" : rows[ycoordinatefield],"name":rows[xcoordinatefield]
-	// });
-	// legendarray.push(rows[xcoordinatefield]);
-	// yAxisarray.push(rows[ycoordinatefield]);	
-	// }
+	var yAxisarray = [];
+	var myArray = griditems;
+	var subtotal;
+	var groups = {};
+	for (var i = 0; i < griditems.length; i++) {
+		var rows = griditems[i];
+		var groupName = rows[xcoordinatefield];
+		if (!groups[groupName]) {
+			groups[groupName] = [];
+		}
+		groups[groupName].push(rows[ycoordinatefield]);
 
-var myArray=griditems;
-var subtotal;
-var groups = {};
-for (var i = 0; i <griditems.length; i++) {
-	var rows = griditems[i];
-  var groupName = rows[xcoordinatefield];
-  if (!groups[groupName]) {
-    groups[groupName] = [];
-  }  
-  groups[groupName].push(rows[ycoordinatefield]);
- 
-}
-myArray = [];
+	}
+	myArray = [];
 
-for (var groupName in groups) { 
-  var yaxisdata=groups[groupName];
-  var yaxistotal=0;
-  for (var j=0;j<yaxisdata.length; j++) {
-	yaxistotal=+yaxistotal+ +yaxisdata[j];	
-  }
-  myArray.push({"name": groupName, "value": yaxistotal});
-  legendarray.push(groupName);
-}
+	for (var groupName in groups) {
+		var yaxisdata = groups[groupName];
+		var yaxistotal = 0;
+		for (var j = 0; j < yaxisdata.length; j++) {
+			yaxistotal = +yaxistotal + +yaxisdata[j];
+		}
+		myArray.push({ "name": groupName, "value": yaxistotal });
+		legendarray.push(groupName);
+	}
 
 	this.myChart = echarts.init(currentPage.shadowRoot.querySelector("#divChart"));
-	
-	   //For echarts styling   http://echarts.baidu.com/echarts2/doc/example/bar.html
-	   // specify chart configuration item and data
-if(charttype=='pie'){
-	 // option for pie chart
-	   var  option = {
-		 title : {
-			 text: 'HPCC INFO SALES DATA',
-			 subtext: xcoordinatefield+" - "+ ycoordinatefield+" Chart",
-			 x:'center'
-		 },
-		 tooltip : {
-			 trigger: 'item',
-			 formatter: "{a} <br/>{b} : {c} ({d}%)"
-		 },
-		 legend: {
-			 orient : 'vertical',
-			 x : 'left',
-			 data:legendarray
-		 },
-		 xAxis:{show:false},
-		 yAxis:{show:false},
-		 toolbox: {
-			 show : true,
-			feature : {	
-				mark : {show: false},		
-				magicType : {
-					show: false, 
-					type: ['pie', 'funnel'],
-					title : {
-						pie : 'pie',
-						funnel : 'funnel'
-					}
-				},
-				restore : {
-					show: false,
-					title : 'Restore'
-				},
-				saveAsImage : {
-					show: true,
-					title : 'Save'
-				}
-			}
-		},
-		 calculable : true,
-		 series : [
-			 {
-				 name:'Sales',
-				 type:charttype,
-				 radius : '55%',
-				 center: ['50%', '60%'],
-				 data:myArray
-			 }
-		 ]
-	 };	
-}
-else if(charttype=='bar' || charttype=='line'){
- // option for bar chart
-	   var option = {
-		title : {
-			text: 'HPCC INFO SALES DATA',
-			subtext: xcoordinatefield+" - "+ ycoordinatefield+" Chart",
-			x:'center'
-		},
-			tooltip : {
-			trigger: 'item',
-			formatter: "{a} <br/>{b} : {c}"
-		},
-		legend: {
-			orient : 'vertical',
-			x : 'left',
-		  data: ['Sales']
-		},
-		xAxis: {
-			show:true,
-			type:'category',
-			axisTick: {
-				show:true,
-				interval:0
-				//alignWithLabel: true
-			 },
-			axisLabel: {
-				show:true,
-				interval:0
-			},	
-		  data:legendarray		  
-		},		
-		yAxis: {
-			show:true,
-			type:'value'
-		},
-		toolbox: {
-			show : true,
-			feature : {
-				magicType : {show: true, 
-					type: ['line', 'bar'],
-					title : {
-						line : 'line',
-						bar : 'bar'
-					}
+
+	//For echarts styling   http://echarts.baidu.com/echarts2/doc/example/bar.html
+	// specify chart configuration item and data
+	if (charttype == 'pie') {
+		// option for pie chart
+		var option = {
+			title: {
+				text: 'HPCC INFO SALES DATA',
+				subtext: xcoordinatefield + " - " + ycoordinatefield + " Chart",
+				x: 'center'
 			},
-				restore : {
-					show: true,
-					title : 'Restore'
-				},
-				saveAsImage : {
-					show: true,
-					title : 'Save'
+			tooltip: {
+				trigger: 'item',
+				formatter: "{a} <br/>{b} : {c} ({d}%)"
+			},
+			legend: {
+				orient: 'vertical',
+				x: 'left',
+				data: legendarray
+			},
+			xAxis: { show: false },
+			yAxis: { show: false },
+			toolbox: {
+				show: true,
+				feature: {
+					magicType: {
+						show: false						
+					},
+					restore: {
+						show: false,
+						title: 'Restore'
+					},
+					saveAsImage: {
+						show: true,
+						title: 'Save'
+					}
 				}
-			}
-		},
-		series: [{
-		  name: 'Sales',
-		  itemStyle: {              
-			  normal: {
-				  barBorderColor:'tomato',
-				  color: 'gray'
-			  },
-			  emphasis: {
-				  barBorderColor:'red',
-				  color: 'brown'
-			  }
-		  },
-		  type: charttype,
-		  data: myArray
-		}]
-	  };
-}
-	   // use configuration item and data specified to show chart
-	   this.myChart.setOption(option);
+			},
+			calculable: true,
+			series: [
+				{
+					name: 'Sales',
+					type: charttype,
+					radius: '55%',
+					center: ['50%', '60%'],
+					data: myArray
+				}
+			]
+		};
+	}
+	else if (charttype == 'bar' || charttype == 'line') {
+		// option for bar chart
+		var option = {
+			title: {
+				text: 'HPCC INFO SALES DATA',
+				subtext: xcoordinatefield + " - " + ycoordinatefield + " Chart",
+				x: 'center'
+			},
+			tooltip: {
+				trigger: 'item',
+				formatter: "{a} <br/>{b} : {c}"
+			},
+			legend: {
+				orient: 'vertical',
+				x: 'left',
+				data: ['Sales']
+			},
+			xAxis: {
+				show: true,
+				type: 'category',
+				axisTick: {
+					show: true,
+					interval: 0
+					//alignWithLabel: true
+				},
+				axisLabel: {
+					show: true,
+					interval: 0
+				},
+				data: legendarray
+			},
+			yAxis: {
+				show: true,
+				type: 'value'
+			},
+			toolbox: {
+				show: true,
+				feature: {
+					magicType: {
+						show: true,
+						type: ['line', 'bar'],
+						title: {
+							line: 'line',
+							bar: 'bar'
+						}
+					},
+					restore: {
+						show: true,
+						title: 'Restore'
+					},
+					saveAsImage: {
+						show: true,
+						title: 'Save'
+					}
+				}
+			},
+			calculable: true,
+			series: [{
+				name: 'Sales',
+				itemStyle: {
+					normal: {
+						barBorderColor: 'tomato',
+						color: 'gray'
+					},
+					emphasis: {
+						barBorderColor: 'red',
+						color: 'brown'
+					}
+				},
+				type: charttype,
+				data: myArray
+			}]
+		};
+	}
+	// use configuration item and data specified to show chart
+	this.myChart.setOption(option);
 }

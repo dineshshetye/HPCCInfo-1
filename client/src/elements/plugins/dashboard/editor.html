@@ -120,8 +120,8 @@ deSerialize(tabTtitle){
 
 			jsonTabContent = tabs[cnt];
 			this.displayFields = jsonTabContent.displayFields;				
-			this.$.xcoordinate.items = this.displayFields.split(",");			
-			this.$.ycoordinate.items = this.displayFields.split(",");		
+			//this.$.xcoordinate.items = this.displayFields.split(",");			
+			//this.$.ycoordinate.items = this.displayFields.split(",");		
 			this.$.TabTitle.value = jsonTabContent.title;
 			this.eclcode = jsonTabContent.eclcode;
 			this.inputeclcode = jsonTabContent.eclcode;
@@ -148,6 +148,8 @@ deSerialize(tabTtitle){
 serialize(){
 	var jsonStr = '{';
 	jsonStr += '\"displayFields\" : \"' + this.displayFields + '\",';
+	jsonStr += '\"xdisplayFields\" : \"' + this.xdisplayFields + '\",';
+	jsonStr += '\"ydisplayFields\" : \"' + this.ydisplayFields + '\",';
 	jsonStr += '\"eclcode\" : \"' + this.eclcode.replace(/[\r\n]/g, '') + '\",';
 	jsonStr += '\"inputdsname\" :\" ' + this.inputdsname + '\",';
 	jsonStr += '\"outputdsname\" : \"' + this.outputdsname + '\",';
@@ -168,7 +170,7 @@ loadgrid(tabTtitle){
 	var QueryStr =  QueryStr1 +  "\n OUTPUT(" + this.outputdsname + ");";
 	this.selectedchartyype=this.$.ChartType.selectedItem;
 	this.selectedxcoordinate=this.$.xcoordinate.selectedItem;
-	this.selectedycoordinate=this.$.xcoordinate.selectedItem;
+	this.selectedycoordinate=this.$.ycoordinate.selectedItem;
 	return loadGridwithEcl(QueryStr, 1000);
 }
 open() {

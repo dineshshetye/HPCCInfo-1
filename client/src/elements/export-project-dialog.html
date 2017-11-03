@@ -13,14 +13,14 @@
 <!--- ---------------------------------------------filter dialog------------------------------------------------>
 
 
-<dom-module id="export-project-dialog"> 
+<dom-module id="export-project-dialog">
     <template>
         <style>
             paper-button.green {
                 background-color: var(--paper-green-500);
                 color: white;
             }
-            
+
             paper-button.indigo {
                 background-color: var(--paper-indigo-500);
                 color: white;
@@ -30,12 +30,12 @@
                 }
                 ;
             }
-            
+
             paper-button.indigo:hover {
                 background-color: var(--paper-indigo-400);
             }
-            
-            
+
+
             paper-dialog {
                 width: 500px;
             }
@@ -50,7 +50,7 @@
                 </div>
 
             </iron-label>
-            <paper-input id='exportto' label="ID to Share Project"  class="worksheettitle" ></paper-input>
+            <paper-input id='exportto' label="ID to Share Project" class="worksheettitle"></paper-input>
             <!--<paper-input id='label' label="label"  class="projectlabel" ></paper-input>-->
 
             <div class="buttons">
@@ -62,27 +62,27 @@
 
     <script>
         class ExportProjectDialog extends Polymer.Element {
-			static get is() {return 'export-project-dialog'; }
-			
-			static get properties() { return {
-               pluginId: {
-                    type: String,
-                    value: 'common-input'
+            static get is() { return 'export-project-dialog'; }
+
+            static get properties() {
+                return {
+                    pluginId: {
+                        type: String,
+                        value: 'common-input'
+                    }
                 }
             }
-            }
-            constructor(){
+            constructor() {
                 super();
             }
             ready() {
                 super.ready();
             }
             open(e) {
-               this.$.dialog.open();
+                this.$.dialog.open();
             }
-            _exportProject(event){
-                //var infobox = document.querySelector("#infobox");
-                 var infoapp = document.querySelector('#hpccinfoappid');
+            _exportProject(event) {
+                var infoapp = document.querySelector('my-app').shadowRoot.querySelector('#hpccinfoappid')
                 infoapp.exportProjectDtls(this.$.exportto.value);
             }
         }
