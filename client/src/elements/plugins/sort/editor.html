@@ -10,7 +10,12 @@
 
 <dom-module id="common-sort-editor">
     <template>
-    	<style include="shared-dialog-styles"></style>
+    	<style include="shared-dialog-styles">
+			vaadin-combo-box {
+				width:100%;
+				display: block !important;
+			}
+		</style>
         <paper-dialog id="dialog" modal>
         		<iron-label>
 		            <div class="headerDiv">

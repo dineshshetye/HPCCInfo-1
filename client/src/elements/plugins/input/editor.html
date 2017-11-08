@@ -191,7 +191,7 @@
           }
 
           Object.keys(obj).forEach(function (key) {
-            //grid.addColumn({ name: key, resizable: true });
+            //grid.addColumn({ name: key, resizable: true });            
             if (fieldnames === "") {
               fieldnames += key;
             } else {
@@ -202,9 +202,12 @@
           });
 
           for (var i = 0; i < cnt; i++) {
+            var headername=colArray[i];
+            headername = headername != null ? headername : "";
+            headername = headername.replace("_"," "); 
             var headerTemplate = document.createElement('template');
             headerTemplate.classList.add('header');
-            headerTemplate.innerHTML = colArray[i];
+            headerTemplate.innerHTML =headername;
             var validatedfields = colArray[i];
             if (isNaN(resobj[validatedfields])) {
               if (xfieldnames === "") {
@@ -314,10 +317,12 @@
           });
 
           for (var i = 0; i < cnt; i++) {
-
+            var headername=colArray[i];
+            headername = headername != null ? headername : "";
+            headername = headername.replace("_"," "); 
             var headerTemplate = document.createElement('template');
             headerTemplate.classList.add('header');
-            headerTemplate.innerHTML = colArray[i];
+            headerTemplate.innerHTML = headername;
 
             var body = "[[item." + colArray[i] + "]]";
             var bodyTemplate = document.createElement('template');

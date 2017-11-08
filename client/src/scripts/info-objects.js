@@ -127,17 +127,18 @@ function loadGridwithEcl(QueryStr, recLimit) {
 		var grid;
 		if (currentPage.shadowRoot.querySelector(".projectworksheet") != null) {
 			grid = currentPage.shadowRoot.querySelector(".projectworksheet");
-			grid.innerHTML="";
+			grid.innerHTML = "";
 			if (ajaxResp.Result.Row.length == 0) {
 				var headerTemplate = document.createElement('template');
 				headerTemplate.classList.add('header');
-				headerTemplate.innerHTML = "";
+				headerTemplate.innerHTML = "<b>There are no records for your Filter Query</b>";
 				var bodyTemplate = document.createElement('template');
 				bodyTemplate.innerHTML = "<b>There are no records for your Filter Query</b>";
 				var column = document.createElement('vaadin-grid-column');
 				column.appendChild(headerTemplate);
 				column.appendChild(bodyTemplate);
 				grid.appendChild(column);
+				grid.items = ajaxResp.Result.Row;
 				currentPage.loading = false;
 				return;
 			}
@@ -157,10 +158,12 @@ function loadGridwithEcl(QueryStr, recLimit) {
 				cnt++;
 			});
 			for (var i = 0; i < cnt; i++) {
-
+				var headername = colArray[i];
+				headername = headername != null ? headername : "";
+				headername = headername.replace("_", " ");
 				var headerTemplate = document.createElement('template');
 				headerTemplate.classList.add('header');
-				headerTemplate.innerHTML = colArray[i];
+				headerTemplate.innerHTML = headername;
 
 				var body = "[[item." + colArray[i] + "]]";
 				var bodyTemplate = document.createElement('template');
@@ -404,7 +407,7 @@ function initchart(griditems, charttype, xcoordinate, ycoordinate) {
 				show: true,
 				feature: {
 					magicType: {
-						show: false						
+						show: false
 					},
 					restore: {
 						show: false,

@@ -9,57 +9,61 @@
 <link rel="import" href="../../shared-styles.html">
 
 <dom-module id="common-sample-editor">
-    <template>
-    	<style include="shared-dialog-styles"></style>
-        <paper-dialog id="dialog" modal>
-        		<iron-label>
-		            <div class="headerDiv">
-		                <span>Apply a Sample</span>
-		        	</div>
-		        </iron-label>
-		        <paper-dialog-scrollable>
-		            <!-- User cannot enter title value beginning with a number -->
-		            <paper-input id='TabTitle' label="Title" 
-		                   required auto-validate allowed-pattern="^[a-zA-Z](.*[a-zA-Z0-9 ])?$" 
-		                   error-message="Title is Required"></paper-input>
-		            <paper-input id='sampleoutputlimit' allowed-pattern="[\d]" label="Output Limit" value="10000"></paper-input>
-		            <vaadin-combo-box id='sampleInputtab' required label="Input Dataset" on-value-changed='changeSampleInput' items='[]'></vaadin-combo-box>
-		            <paper-input id='samplingInterval' allowed-pattern="[\d]" label="Sampling Interval"></paper-input>
-		            <paper-input id='ordinalNumber' allowed-pattern="[\d]" label="Ordinal Number For Sample"></paper-input>
-					<vaadin-combo-box id='sortfields' required label="Sort By"></vaadin-combo-box>
-	                <paper-button on-tap="addSortFunction" class="addBtn">ADD</paper-button>
-	                <paper-input id='sortbyfieldsvalue' label="Sort Order"></paper-input>
-	            </paper-dialog-scrollable>
-	            <div class="buttons">
-	                <paper-button dialog-confirm raised class="indigo" on-tap="_okHandler">Ok</paper-button>
-	                <paper-button dialog-dismiss raised class="green">Cancel</paper-button>
-	            </div>
+	<template>
+		<style include="shared-dialog-styles">
+			vaadin-combo-box {
+				width: 100%;
+				display: block !important;
+			}
+		</style>
+		<paper-dialog id="dialog" modal>
+			<iron-label>
+				<div class="headerDiv">
+					<span>Apply a Sample</span>
+				</div>
+			</iron-label>
+			<paper-dialog-scrollable>
+				<!-- User cannot enter title value beginning with a number -->
+				<paper-input id='TabTitle' label="Title" required auto-validate allowed-pattern="^[a-zA-Z](.*[a-zA-Z0-9 ])?$" error-message="Title is Required"></paper-input>
+				<paper-input id='sampleoutputlimit' allowed-pattern="[\d]" label="Output Limit" value="10000"></paper-input>
+				<vaadin-combo-box id='sampleInputtab' required label="Input Dataset" on-value-changed='changeSampleInput' items='[]'></vaadin-combo-box>
+				<paper-input id='samplingInterval' allowed-pattern="[\d]" label="Sampling Interval"></paper-input>
+				<paper-input id='ordinalNumber' allowed-pattern="[\d]" label="Ordinal Number For Sample"></paper-input>
+				<vaadin-combo-box id='sortfields' required label="Sort By"></vaadin-combo-box>
+				<paper-button on-tap="addSortFunction" class="addBtn">ADD</paper-button>
+				<paper-input id='sortbyfieldsvalue' label="Sort Order"></paper-input>
+			</paper-dialog-scrollable>
+			<div class="buttons">
+				<paper-button dialog-confirm raised class="indigo" on-tap="_okHandler">Ok</paper-button>
+				<paper-button dialog-dismiss raised class="green">Cancel</paper-button>
+			</div>
 
-	        <paper-toast id="toast" class="fit-bottom" style="text-transform: none"></paper-toast>
+			<paper-toast id="toast" class="fit-bottom" style="text-transform: none"></paper-toast>
 
-        </paper-dialog>
-    </template>
-    <script>
+		</paper-dialog>
+	</template>
+	<script>
 		class CommonSampleEditor extends Polymer.Element {
-			static get is() {return 'common-sample-editor'; }
-			
-			static get properties() { return {
-				eclcode : String,
-				inputeclcode : String,
-				outputdsname : String,
-				inputdsname : String,
-				eclIP : String,
-				hpccuser : String,
-				displayFields : String,
-				expression : String,
-				title : String,
-				sortfields : String,
-				inputTab : String
+			static get is() { return 'common-sample-editor'; }
+
+			static get properties() {
+				return {
+					eclcode: String,
+					inputeclcode: String,
+					outputdsname: String,
+					inputdsname: String,
+					eclIP: String,
+					hpccuser: String,
+					displayFields: String,
+					expression: String,
+					title: String,
+					sortfields: String,
+					inputTab: String
+				}
 			}
+			constructor() {
+				super();
 			}
-			constructor(){
-                super();
-            }
 			ready() {
 				super.ready();
 				//var selpage = document.querySelector("#pages").querySelector("#common-input");
@@ -67,7 +71,7 @@
 				var selpage = infoBox.shadowRoot.querySelector("#pages").querySelector("#common-input");
 				this.eclcode = '';
 
-				this.inputdsname ='';
+				this.inputdsname = '';
 
 				//var infoBox = document.querySelector('#infobox');
 				var username = infoBox.username;
@@ -80,44 +84,44 @@
 
 				var credentials = username === null || username === "" ? "" : (
 
-					password === null || password === "" ?  (username + '@') :
+					password === null || password === "" ? (username + '@') :
 
-					(username + ':' + password + '@')               
+						(username + ':' + password + '@')
 
 				);
 
-				var eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") +  infoBox.cluster_address +
+				var eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") + infoBox.cluster_address +
 					":" + infoBox.port;
 
 				this.eclIP = eclIP;
 
 				this.hpccuser = username;
 
-					// setTimeout(function () {
-					// 	document.querySelector('#btnEditPlugin').fire('click');
-					// }, 2000);
+				// setTimeout(function () {
+				// 	document.querySelector('#btnEditPlugin').fire('click');
+				// }, 2000);
 
 			}
 
-			changeSampleInput(e){
+			changeSampleInput(e) {
 
 				console.log(event.currentTarget.value);
 
 				var tabid = "";
 				var papertab = document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("info-box").shadowRoot.querySelector('app-toolbar').getElementsByTagName("paper-tab");
-				for(var cnt =0 ; cnt < papertab.length; cnt++){
-					if(event.currentTarget.value === papertab[cnt].textContent.trim()){
-						tabid =  papertab[cnt].id;
+				for (var cnt = 0; cnt < papertab.length; cnt++) {
+					if (event.currentTarget.value === papertab[cnt].textContent.trim()) {
+						tabid = papertab[cnt].id;
 						break;
 					}
 				}
 
-				if(tabid === ''){
+				if (tabid === '') {
 					return;
 				}
 
 				//var selpage = document.querySelector("#pages").querySelector("#" + tabid);
-				var selpage = document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("info-box").shadowRoot.querySelector('#pages').querySelector("#"+ tabid);
+				var selpage = document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("info-box").shadowRoot.querySelector('#pages').querySelector("#" + tabid);
 
 				this.eclcode = selpage.editor.eclcode;
 
@@ -128,8 +132,8 @@
 				this.displayFields = selpage.editor.displayFields;
 				this.$.sortfields.items = [];
 				var fieldList = [];
-				var splitstrs =  selpage.editor.displayFields.split(',');
-				for(var cnt = 0; cnt < splitstrs.length; cnt++ ){
+				var splitstrs = selpage.editor.displayFields.split(',');
+				for (var cnt = 0; cnt < splitstrs.length; cnt++) {
 					fieldList.push('+' + splitstrs[cnt]);
 					fieldList.push('-' + splitstrs[cnt]);
 				}
@@ -143,7 +147,7 @@
 			open() {
 
 				//this.$.TabTitle.value = document.querySelector("#tabs").selectedItem.textContent;
-				this.$.TabTitle.value =  document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("#infobox").shadowRoot.querySelector("#tabs").selectedItem.textContent;
+				this.$.TabTitle.value = document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("#infobox").shadowRoot.querySelector("#tabs").selectedItem.textContent;
 
 				//var pages = document.querySelector("#tabs");
 				var pages = document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("#infobox").shadowRoot.querySelector("#tabs");
@@ -152,14 +156,14 @@
 
 				var inputidx = 0;
 
-				for(var cnt =0 ; cnt < document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("#infobox").shadowRoot.querySelector('app-toolbar').getElementsByTagName("paper-tab").length; cnt++){
-					if(pages.selectedItem.id === document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("#infobox").shadowRoot.querySelector('app-toolbar').getElementsByTagName("paper-tab")[cnt].id){
+				for (var cnt = 0; cnt < document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("#infobox").shadowRoot.querySelector('app-toolbar').getElementsByTagName("paper-tab").length; cnt++) {
+					if (pages.selectedItem.id === document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("#infobox").shadowRoot.querySelector('app-toolbar').getElementsByTagName("paper-tab")[cnt].id) {
 						break;
 					}
 					//tabnames += (tabnames === "" ? "" : ",") + document.getElementsByTagName("paper-tab")[cnt].textContent.trim();
-					tabnames += (tabnames === "" ? "" : ",") +document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("info-box").shadowRoot.querySelector('app-toolbar').getElementsByTagName("paper-tab")[cnt].textContent.trim();
-					if(this.inputTab === document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("#infobox").shadowRoot.querySelector('app-toolbar').getElementsByTagName("paper-tab")[cnt].textContent.trim()){
-							inputidx = cnt;
+					tabnames += (tabnames === "" ? "" : ",") + document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("info-box").shadowRoot.querySelector('app-toolbar').getElementsByTagName("paper-tab")[cnt].textContent.trim();
+					if (this.inputTab === document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("#infobox").shadowRoot.querySelector('app-toolbar').getElementsByTagName("paper-tab")[cnt].textContent.trim()) {
+						inputidx = cnt;
 					}
 				}
 
@@ -170,7 +174,7 @@
 				this.$.dialog.open();
 			}
 
-			serialize(){
+			serialize() {
 				var jsonStr = '{';
 				jsonStr += '\"displayFields\" : \"' + this.displayFields + '\",';
 				jsonStr += '\"eclcode\" : \"' + this.eclcode.replace(/[\r\n]/g, '') + '\",';
@@ -178,22 +182,22 @@
 				jsonStr += '\"outputdsname\" : \"' + this.outputdsname.trim() + '\",';
 				jsonStr += '\"expression\" : \"' + this.expression.trim() + '\",';
 				jsonStr += '\"title\" : \"' + this.title.trim() + '\",';
-				jsonStr += '\"inputTab\" : \"' + this.inputTab.trim() + '\",';	
-				jsonStr += '\"sortfields\" : \"' + this.sortfields.trim() + '\",';				
-				jsonStr += '\"pluginId\" : \"' +  'common-sample' + '\"}';
+				jsonStr += '\"inputTab\" : \"' + this.inputTab.trim() + '\",';
+				jsonStr += '\"sortfields\" : \"' + this.sortfields.trim() + '\",';
+				jsonStr += '\"pluginId\" : \"' + 'common-sample' + '\"}';
 
 				return jsonStr;
 			}
 
-			deSerialize(tabTtitle){
+			deSerialize(tabTtitle) {
 
-				console.log(tabTtitle);						
-				var jsonTabContent  = null;
+				console.log(tabTtitle);
+				var jsonTabContent = null;
 				//var infoBox = document.querySelector('#infobox');
 				var infoBox = document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("#infobox");
 				var tabs = infoBox.tabsdata.Tabs;
-				for(var cnt = 0; cnt < tabs.length; cnt++){
-					if( tabTtitle === tabs[cnt].title){
+				for (var cnt = 0; cnt < tabs.length; cnt++) {
+					if (tabTtitle === tabs[cnt].title) {
 						jsonTabContent = tabs[cnt];
 						this.displayFields = jsonTabContent.displayFields;
 						this.eclcode = jsonTabContent.eclcode;
@@ -213,20 +217,20 @@
 						break;
 					}
 				}
-				for(var cnt = 0; cnt < tabs.length; cnt++){
-					if( this.inputdsname  === tabs[cnt].title){
+				for (var cnt = 0; cnt < tabs.length; cnt++) {
+					if (this.inputdsname === tabs[cnt].title) {
 						this.$.aggregatefield.items = tabs[cnt].displayFields.split(",");
 					}
 				}
 			}
-			loadgrid(tabTtitle){
-				var QueryStr1 =  this.eclcode;
-				if(QueryStr1.trim() === ''){
+			loadgrid(tabTtitle) {
+				var QueryStr1 = this.eclcode;
+				if (QueryStr1.trim() === '') {
 					return;
-				}               
-				
-				var QueryStr1 =  this.eclcode;
-				var QueryStr =  QueryStr1 +  "\n OUTPUT(" + this.outputdsname + ");";
+				}
+
+				var QueryStr1 = this.eclcode;
+				var QueryStr = QueryStr1 + "\n OUTPUT(" + this.outputdsname + ");";
 
 				this.$.dialog.close();
 				return loadGridwithEcl(QueryStr, 1000);
@@ -236,7 +240,7 @@
 
 				//var infoBox = document.querySelector('#infobox');
 				var infoBox = document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("#infobox");
-				if(Number(this.$.samplingInterval.value) < Number(this.$.ordinalNumber.value)){
+				if (Number(this.$.samplingInterval.value) < Number(this.$.ordinalNumber.value)) {
 					this.$.toast.text = "Ordinal Number should be a valid number and less than Interval";
 					this.$.toast.open();
 					return;
@@ -244,57 +248,56 @@
 
 				this.expression = this.$.samplingInterval.value + '#' + this.$.ordinalNumber.value;
 
-				var eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") + 
-							// (this.hpccuser != '' ? this.hpccuser + ':' + this.password + '@' : '')  +
-								infoBox.cluster_address +
-								":" + infoBox.port;
+				var eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") +
+					// (this.hpccuser != '' ? this.hpccuser + ':' + this.password + '@' : '')  +
+					infoBox.cluster_address +
+					":" + infoBox.port;
 
-				this.title  = this.$.TabTitle.value;
+				this.title = this.$.TabTitle.value;
 				//var currentPage = document.querySelector("#pages").selectedItem;
 				var currentPage = infoBox.shadowRoot.querySelector("#pages").selectedItem;
-				currentPage.outputdsname = 'sampledsName'  + '_' +  Math.random().toString(36).substr(2, 4);
+				currentPage.outputdsname = 'sampledsName' + '_' + Math.random().toString(36).substr(2, 4);
 
 				this.outputdsname = currentPage.outputdsname;
 
-				var QueryStr1 =  this.inputeclcode + "\n" +  currentPage.outputdsname + " := " + " SAMPLE(" +
-								this.inputdsname + ", " + 
-								this.$.samplingInterval.value + ", " + 
-								this.$.ordinalNumber.value +                                 
-								")"  + " : PERSIST(\'" + currentPage.outputdsname + "_persist\', EXPIRE(1));";
+				var QueryStr1 = this.inputeclcode + "\n" + currentPage.outputdsname + " := " + " SAMPLE(" +
+					this.inputdsname + ", " +
+					this.$.samplingInterval.value + ", " +
+					this.$.ordinalNumber.value +
+					")" + " : PERSIST(\'" + currentPage.outputdsname + "_persist\', EXPIRE(1));";
 
 				//  var QueryStr =    QueryStr1 +  "\n OUTPUT(" + currentPage.properties.outputdsname  + ");";
 
-				
-				var QueryStr =  QueryStr1 +  "\n OUTPUT(" + ( this.$.sortbyfieldsvalue.value.length > 0 ? ( 'SORT(' + currentPage.outputdsname + ',' + this.$.sortbyfieldsvalue.value +')' ) : currentPage.outputdsname) + ");";
+
+				var QueryStr = QueryStr1 + "\n OUTPUT(" + (this.$.sortbyfieldsvalue.value.length > 0 ? ('SORT(' + currentPage.outputdsname + ',' + this.$.sortbyfieldsvalue.value + ')') : currentPage.outputdsname) + ");";
 
 
 				currentPage.eclcode = QueryStr1;
-				
+
 				this.eclcode = QueryStr1;
 
-				this.sortfields = this.$.sortbyfieldsvalue.value;	
+				this.sortfields = this.$.sortbyfieldsvalue.value;
 
-				this.inputTab = this.$.sampleInputtab.value;	 
+				this.inputTab = this.$.sampleInputtab.value;
 
 				return loadGridwithEcl(QueryStr, this.$.sampleoutputlimit.value);
 			}
 
 			addSortFunction(e) {
-				
-				if(this.$.sortbyfieldsvalue.value==undefined){
+
+				if (this.$.sortbyfieldsvalue.value == undefined) {
 					this.$.sortbyfieldsvalue.value = this.$.sortfields.value;
 				}
-				else	
-				{
-				var splitstrs = this.$.sortbyfieldsvalue.value.split(',');
-				for(var cnt = 0; cnt < splitstrs.length; cnt++ ){
-					if(splitstrs[cnt].trim().substring(1) === this.$.sortfields.value.substring(1) ){
-						return;
+				else {
+					var splitstrs = this.$.sortbyfieldsvalue.value.split(',');
+					for (var cnt = 0; cnt < splitstrs.length; cnt++) {
+						if (splitstrs[cnt].trim().substring(1) === this.$.sortfields.value.substring(1)) {
+							return;
 						}
 					}
-				this.$.sortbyfieldsvalue.value = this.$.sortbyfieldsvalue.value + (this.$.sortbyfieldsvalue.value.length > 0 ? " ," : "") + this.$.sortfields.value  ;            
-				}			
-				
+					this.$.sortbyfieldsvalue.value = this.$.sortbyfieldsvalue.value + (this.$.sortbyfieldsvalue.value.length > 0 ? " ," : "") + this.$.sortfields.value;
+				}
+
 			}
 
 			_cancelHandler(e) {
@@ -314,6 +317,5 @@
 			}
 		}
 		customElements.define(CommonSampleEditor.is, CommonSampleEditor);
-
-    </script>
+	</script>
 </dom-module>

@@ -11,6 +11,22 @@
 <dom-module id="common-filter-editor">
 	<template>
 		<style include="shared-dialog-styles"></style>
+		<style>
+			 paper-tabs {
+                font-family: 'Roboto', 'Noto', sans-serif;
+                -webkit-font-smoothing: antialiased;
+                width: 100%;
+                text-transform: uppercase;
+                color: #767676;
+                --paper-tabs-selection-bar-color: white;
+            }
+			vaadin-combo-box {
+				width:100%;
+				display: block !important;
+			}
+			</style>
+		
+		
 		<paper-dialog id="dialog" modal>
 			<iron-label>
 				<div class="headerDiv">
