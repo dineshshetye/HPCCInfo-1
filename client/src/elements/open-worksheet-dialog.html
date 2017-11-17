@@ -1,10 +1,11 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
 
 <!--<link rel="import" href="../../bower_components/iron-data-table/iron-data-table.html">
 
 <link rel="import" href="../../bower_components/iron-data-table/data-table-column.html">-->
+<link rel="import" href="../../bower_components/vaadin-valo-theme/vaadin-combo-box.html"> 
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-selection-column.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html" />
@@ -27,12 +28,10 @@
                 width: 1400px;
             }
 
-            .buttons {
-                margin-right: 30px;
-            }
-
             #worksheetlist {
-                margin: 20px;
+                margin: 25px;
+                height: auto;
+                min-height: 300px;
                 --iron-data-table-header: {
                     background-color: #e3e3e3;
                     font-size: 1.2em;
@@ -70,7 +69,7 @@
                 </vaadin-grid-column>
             </vaadin-grid>
 
-            <br><br>
+           
             <div class="buttons">
                 <paper-button dialog-confirm raised class="indigo" on-tap="_okHandler">Ok</paper-button>
                 <paper-button dialog-dismiss raised class="green" on-tap='_cancelHandler'>Cancel</paper-button>

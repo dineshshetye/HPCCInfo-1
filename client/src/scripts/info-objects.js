@@ -182,6 +182,8 @@ function loadGridwithEcl(QueryStr, recLimit) {
 			currentPage.loading = false;
 		}
 		else {
+
+
 			currentPage.loading = false;
 			initchart(ajaxResp.Result.Row, currentPage.selectedchartyype, currentPage.selectedxcoordinate, currentPage.selectedycoordinate);
 		}
@@ -347,6 +349,7 @@ function callForFileDetails(url, filename, subfilename, hpccuser, password, recL
 	});
 	return promise;
 }
+var chartData = [];
 function initchart(griditems, charttype, xcoordinate, ycoordinate) {
 	var charttype = charttype;
 	var xcoordinatefield = xcoordinate;
@@ -379,8 +382,63 @@ function initchart(griditems, charttype, xcoordinate, ycoordinate) {
 		myArray.push({ "name": groupName, "value": yaxistotal });
 		legendarray.push(groupName);
 	}
+	var graphId = sessionStorage.getItem("ChartId");
+	if (graphId == "") {
+		var divChart = document.createElement("div");
+		var randomNumber = Math.random().toString(36).substr(2, 9);
+		var divId = 'divChart' + randomNumber;
+		divChart.id = divId;
+		divChart.classList.add('divChart');
+		Polymer.dom(currentPage.shadowRoot.querySelector('#divDashboard')).appendChild(divChart);
 
-	this.myChart = echarts.init(currentPage.shadowRoot.querySelector("#divChart"));
+		var divColumn = document.createElement("div");
+		var divColumnId = 'divColumn' + randomNumber;
+		divColumn.id = divColumnId;
+		divColumn.classList.add('divColumn');
+		Polymer.dom(currentPage.shadowRoot.querySelector('#' + divId)).appendChild(divColumn);
+
+
+
+		var chartDiv = document.createElement("div");
+		var chartId = 'Chart' + randomNumber;
+		chartDiv.id = chartId;
+		chartDiv.classList.add('chartDiv');
+		//chartDiv.style="width:650px;height:400px;float:left;";
+		Polymer.dom(currentPage.shadowRoot.querySelector('#' + divId).querySelector('#' + divColumnId)).appendChild(chartDiv);
+
+		var editButton = document.createElement("paper-icon-button");
+		editButton.classList.add('chartEdit');
+		editButton.id = "edit" + randomNumber;
+		editButton.icon = "create"
+		//editButton.addEventListener('tap', (e) => currentPage.editChart(e));
+		Polymer.dom(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId)).appendChild(editButton);
+		
+		var deleteButton = document.createElement("paper-icon-button");
+		deleteButton.classList.add('chartEdit');
+		deleteButton.id = "delete" + randomNumber;
+		deleteButton.icon = "delete"
+		//deleteButton.addEventListener('tap', (e) => currentPage.deleteChart(e));
+		Polymer.dom(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId)).appendChild(deleteButton);
+		
+		chartData.push({ "ChartId": chartId, "ChartType": charttype, "xcoordinate": xcoordinate, "ycoordinate": ycoordinate });
+		this.myChart = echarts.init(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId).querySelector("#" + chartId));
+	}
+	else{
+		var divId = 'divChart' + graphId.replace('Chart', '');
+		var divColumnId=  'divColumn' + graphId.replace('Chart', '');
+		for (var i = 0; i < chartData.length; i++) {
+			var chart = chartData[i];
+			if (chart.ChartId == graphId) {
+				chart.ChartType  =charttype;
+				chart.xcoordinate  = xcoordinate;
+				chart.ycoordinate =ycoordinate;
+				//this.inputTab = '';
+				break;
+			}
+		}
+		this.myChart = echarts.init(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId).querySelector("#" + graphId));
+	}
+	
 
 	//For echarts styling   http://echarts.baidu.com/echarts2/doc/example/bar.html
 	// specify chart configuration item and data

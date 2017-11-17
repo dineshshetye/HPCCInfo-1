@@ -1,3 +1,4 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="info-plugin-dialog"> 
@@ -15,12 +16,12 @@
                         <span>{{plugintitle}} Title</span>
                     </div>
                 </iron-label>
-                <paper-input id='label' label="Title"></paper-input>
-                <br><br><br>
-                <div class="buttons">
-                    <paper-button dialog-confirm raised class="indigo" on-tap="handleOk">Ok</paper-button>
-                    <paper-button dialog-dismiss raised class="green" on-tap="handleCancel">Cancel</paper-button>
-                </div>
+                <paper-input id='label' label="Title"></paper-input>   
+                
+            </div>
+            <div class="buttons">
+                <paper-button dialog-confirm raised class="indigo" on-tap="handleOk">Ok</paper-button>
+                <paper-button dialog-dismiss raised class="green" on-tap="handleCancel">Cancel</paper-button>
             </div>
         </paper-dialog>
     </template>
@@ -55,12 +56,10 @@
             }
 
             handleOk(e) {
-                 //this.fire('complete');
                  this.dispatchEvent(new CustomEvent('complete', { bubbles: true, composed: true }));
             }
 
             handleCancel(e) {
-                //this.fire('cancel');
                 this.dispatchEvent(new CustomEvent('cancel', { bubbles: true, composed: true }));
             }
 

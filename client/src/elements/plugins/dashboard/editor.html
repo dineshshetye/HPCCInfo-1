@@ -26,8 +26,8 @@
 			<paper-dialog-scrollable>
 				<!-- User cannot enter title value beginning with a number -->
 				<paper-input id='TabTitle' label="Title" required auto-validate allowed-pattern="^[a-zA-Z](.*[a-zA-Z0-9 ])?$" error-message="Title is Required"></paper-input>
-				<paper-input id='filteroutputlimit' allowed-pattern="[\d]" label="Output Limit" value="10000"></paper-input>
-				<vaadin-combo-box id='filterInputTab' on-value-changed='changeInput' required label="Input Dataset"></vaadin-combo-box>
+				<paper-input id='dashboardoutputlimit' allowed-pattern="[\d]" label="Output Limit" value="10000"></paper-input>
+				<vaadin-combo-box id='dashboardInputTab' on-value-changed='changeInput' required label="Input Dataset"></vaadin-combo-box>
 
 				<vaadin-combo-box id='ChartType' required label="Chart Type" items='["bar", "pie","line"]'></vaadin-combo-box>
 				<vaadin-combo-box id='xcoordinate' required label="x-coordinate"></vaadin-combo-box>
@@ -37,7 +37,7 @@
 		            <paper-input id='formulavalue' label="Value"></paper-input>
 		            <paper-button on-tap="andFunction" class="addBtn">AND</paper-button>
 		            <paper-button on-tap="orFunction" class="addBtn">OR</paper-button>
-		            <paper-input id='filterformulas' label="Value"></paper-input> -->
+		            <paper-input id='dashboardformulas' label="Value"></paper-input> -->
 				<!-- <vaadin-combo-box id='sortfields' required label="Sort By"></vaadin-combo-box>
 	                <paper-button on-tap="addSortFunction" class="addBtn">ADD</paper-button>
 	                <paper-input id='sortbyfieldsvalue' label="Sort Order"></paper-input> -->
@@ -134,9 +134,9 @@
 						this.title = jsonTabContent.title;
 						this.expression = jsonTabContent.expression;
 						//  this.$.sortbyfieldsvalue.value = jsonTabContent.sortfields === undefined ? '' : jsonTabContent.sortfields;						
-						//this.$.filterformulas.value = jsonTabContent.expression; 
+						//this.$.dashboardformulas.value = jsonTabContent.expression; 
 						this.inputTab = jsonTabContent.inputTab;
-						this.$.filterInputTab.value = jsonTabContent.inputdsname;
+						this.$.dashboardInputTab.value = jsonTabContent.inputdsname;
 
 						break;
 					}
@@ -160,7 +160,7 @@
 				jsonStr += '\"title\" : \"' + this.title.trim() + '\",';
 				jsonStr += '\"inputTab\" : \"' + this.inputTab.trim() + '\",';
 				//jsonStr += '\"sortfields\" : \"' + this.sortfields.trim() + '\",';	
-				jsonStr += '\"pluginId\" : \"' + 'common-filter' + '\"}';
+				jsonStr += '\"pluginId\" : \"' + 'common-dashboard' + '\"}';
 
 				return jsonStr;
 			}
@@ -197,8 +197,8 @@
 					}
 
 				}
-				this.$.dialog.querySelector("#filterInputTab").items = tabnames.split(",");
-				this.$.filterInputTab.selectedItem = tabnames.split(",")[inputidx].trim();
+				this.$.dialog.querySelector("#dashboardInputTab").items = tabnames.split(",");
+				this.$.dashboardInputTab.selectedItem = tabnames.split(",")[inputidx].trim();
 
 				this.$.dialog.open();
 			}
@@ -208,7 +208,7 @@
 				this.title = this.$.TabTitle.value;
 				var currentPage = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#pages").selectedItem;
 
-				currentPage.outputdsname = 'filterdsName' + '_' + Math.random().toString(36).substr(2, 4);
+				currentPage.outputdsname = 'dashboarddsName' + '_' + Math.random().toString(36).substr(2, 4);
 
 				var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box');
 
@@ -221,9 +221,9 @@
 
 				//	var QueryStr1 =  this.inputeclcode + "\n" + currentPage.outputdsname + " := " + 
 				//	 this.inputdsname + "(" +                                
-				//	 this.$.filterformulas.value + ")" + " : PERSIST(\'" + currentPage.outputdsname + "_persist\', EXPIRE(1));";
+				//	 this.$.dashboardformulas.value + ")" + " : PERSIST(\'" + currentPage.outputdsname + "_persist\', EXPIRE(1));";
 
-				//   this.expression = this.$.filterformulas.value;
+				//   this.expression = this.$.dashboardformulas.value;
 				var QueryStr = QueryStr1 + "\n OUTPUT(" + (currentPage.outputdsname) + ");";
 				//	var QueryStr =  QueryStr1 +  "\n OUTPUT(" + ( this.$.sortbyfieldsvalue.value.length > 0 ? ( 'SORT(' + currentPage.outputdsname + ',' + this.$.sortbyfieldsvalue.value +')' ) : currentPage.outputdsname) + ");";
 
@@ -234,25 +234,28 @@
 
 				currentPage.eclcode = QueryStr1;
 
-				this.inputTab = this.$.filterInputTab.value;
+				this.inputTab = this.$.dashboardInputTab.value;
 
 				//this.sortfields = this.$.sortbyfieldsvalue.value;
-
+				sessionStorage.setItem('ChartId', "");
 				this.eclcode = QueryStr1;
 				currentPage.selectedchartyype = this.$.ChartType.selectedItem;
 				currentPage.selectedxcoordinate = this.$.xcoordinate.selectedItem;
 				currentPage.selectedycoordinate = this.$.ycoordinate.selectedItem;
-				return loadGridwithEcl(QueryStr, this.$.filteroutputlimit.value);
+				return loadGridwithEcl(QueryStr, this.$.dashboardoutputlimit.value);
 			}
-			changeInput(e) {
+			changeInput(event) {
 
 				var tabid = "";
 
 				var papertabs = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector('app-toolbar').getElementsByTagName("paper-tab");
 				for (var cnt = 0; cnt < papertabs.length; cnt++) {
-					if (event.currentTarget.value === papertabs[cnt].textContent.trim()) {
+					if(event.currentTarget.value != null || event.currentTarget.value != undefined)
+					{
+						if (event.currentTarget.value === papertabs[cnt].textContent.trim()) {
 						tabid = papertabs[cnt].id;
 						break;
+						}
 					}
 				}
 
@@ -302,7 +305,7 @@
 			// 	if(infoBox.fieldDtls.has(this.$.field.value)){
 			// 	 formula = strFields.includes(infoBox.fieldDtls.get(this.$.field.value).toUpperCase()) ? ("'" + formula + "'") : formula;
 			// 	}
-			// //    this.$.filterformulas.value = this.$.filterformulas.value + (this.$.filterformulas.value.length > 0 ? " AND " : "") + this.$.field.value + ' ' + this.$.operation.value + ' ' +  formula;
+			// //    this.$.dashboardformulas.value = this.$.dashboardformulas.value + (this.$.dashboardformulas.value.length > 0 ? " AND " : "") + this.$.field.value + ' ' + this.$.operation.value + ' ' +  formula;
 
 			// 	//  this.$.formulavalue.value ;            
 			// },
@@ -321,7 +324,7 @@
 
 
 			// orFunction: function (e) {
-			//     this.$.filterformulas.value = this.$.filterformulas.value + (this.$.filterformulas.value.length > 0 ? " OR " : "") + this.$.field.value + ' ' + this.$.operation.value + ' ' +this.$.formulavalue.value ;
+			//     this.$.dashboardformulas.value = this.$.dashboardformulas.value + (this.$.dashboardformulas.value.length > 0 ? " OR " : "") + this.$.field.value + ' ' + this.$.operation.value + ' ' +this.$.formulavalue.value ;
 			// },
 			_cancelHandler(e) {
 				this.fire('cancel');

@@ -278,14 +278,17 @@
 
 				return loadGridwithEcl(QueryStr, this.$.filteroutputlimit.value);
 			}
-			changeInput(e) {
+			changeInput(event) {
 
 				var tabid = "";
 				var papertabs=document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector('app-toolbar').getElementsByTagName("paper-tab");
 				for (var cnt = 0; cnt < papertabs.length; cnt++) {
-					if (event.currentTarget.value === papertabs[cnt].textContent.trim()) {
+					if(event.currentTarget.value != null || event.currentTarget.value != undefined)
+					{
+						if (event.currentTarget.value === papertabs[cnt].textContent.trim()) {
 						tabid = papertabs[cnt].id;
 						break;
+						}
 					}
 				}
 

@@ -1,3 +1,4 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../bower_components/polymer/lib/utils/render-status.html">
 <link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
@@ -60,6 +61,18 @@
                         height: 40px;
                     }
                 }
+            paper-listbox  {
+                font-size: 15px;
+                font-weight: bold;
+                color: #333;
+                min-width: 200px;
+            }
+            paper-listbox paper-item {
+                cursor: pointer
+            } 
+            paper-listbox paper-item:hover {
+                background: #f2f2f2
+            } 
         </style>
         <app-toolbar>
             <paper-tabs id="tabs" selected="{{selected}}"></paper-tabs>
@@ -251,7 +264,7 @@
             
             addTab(id, label, pluginId, reload = false) {
 
-               if(pluginId === "common-input"){
+               if(pluginId == "common-input"){
 
                     //document.querySelector('#export-project-dialog').disabled = true;
                     this.shadowRoot.querySelector('#export-project-dialog').disabled = true;
@@ -304,7 +317,7 @@
                 this.shadowRoot.querySelector('#tabs').items.push(editor);
                 
 
-                this.addEventListener(editor, 'complete', '_pluginEditCompleteHandler');
+                //this.addEventListener(editor, 'complete', '_pluginEditCompleteHandler');
                 
                 if (this.viewList == null) {
                     this.viewList = [];

@@ -1,8 +1,90 @@
 <link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../../bower_components/paper-progress/paper-progress.html">
 <link rel="import" href="../../shared-styles.html">
+<link rel="import" href="../../new-chart-dialog.html">
+
 <dom-module id="common-dashboard-view">
     <template>
+        <style>
+            .add-col {
+                display: inline-block;
+                width: 100%;
+                font-weight: bold;
+                font-size: 14px;
+                text-align: right;
+                background: #ffffff;
+                border-bottom: 1px solid #eee;
+                padding: 5px 7px;
+                box-sizing: border-box;
+            }
+
+            .add-col paper-button {
+                background: #3f51b5;
+                color: #fff;
+                min-width: 170px;
+                padding: 6px;
+            }
+
+            .divDashboard {
+                display: inline-block;
+                width: 100%;
+                padding: 5px;
+                box-sizing: border-box;
+                background: #f2f2f2;
+                margin-bottom: 4px;
+            }
+
+            .divChart {
+                padding: 5px;
+                width: 50%;
+                float: left;
+                box-sizing: border-box;
+                margin-bottom: -4px;
+            }
+
+            .divColumn {
+                border: 1px solid #eee;
+                background: #fff;
+                padding: 10px;
+                box-sizing: border-box;
+                display: inline-block;
+                width: 100%;
+            }
+
+            .divColumn:hover {
+                border: 1px solid #ff7043;
+            }
+
+            .chartDiv {
+                width: 94%;
+                height: 400px;
+                float: left;
+                padding-right: 5px;
+                box-sizing: border-box;
+            }
+
+            .chartEdit {
+                width: 3%;
+                float: left;
+                padding: 4px 0 14px 0;
+                color: #666;
+            }
+
+            @media (max-width: 1366px) {
+                .chartDiv {
+                    width: 92%;
+                }
+                .chartEdit {
+                    width: 4%;
+                }
+            }
+
+            @media (max-width: 1024px) {
+                .divChart {
+                    width: 100%;
+                }
+            }
+        </style>
         <style include="shared-grid-styles"></style>
         <template is="dom-if" if={{loading}}>
             <paper-progress indeterminate="true" style="width: 100%;"></paper-progress>
@@ -11,36 +93,69 @@
         <!-- <div>
             <vaadin-grid style="display:none" class="projectworksheet" name="worksheet" page-size="10">                    
         </div> -->
-       <div id="divChart" class="chart-container" style="width:700px;height:400px"></div>
-    <div id="divAddChart" style="display:none;">Add New Chart</div>
+        <div class="add-col">
+            <paper-button id="btnAddChart" on-tap="_addNewChart">
+                <iron-icon class="icnNewWorkbook" icon="add"></iron-icon>
+                <iron-label class="headerLabels">Add New Chart</iron-label>
+            </paper-button>
+        </div>
+        <div id="divDashboard" class="divDashboard"></div>
+        <paper-tooltip for="btnEditPlugin" offset="0">Edit Worksheet</paper-tooltip>
+        <new-chart-dialog id="newchart"></new-chart-dialog>
     </template>
     <script>
-      class CommonDashboardView extends Polymer.Element {
-        static get is() { return 'common-dashboard-view'; }
-        static get properties() {
+        class CommonDashboardView extends Polymer.Element {
+            static get is() { return 'common-dashboard-view'; }
+            static get properties() {
                 return {
-                pluginId: String,               
-                label: String,
-                id: String,
-                editor: Object,
-                tab: Object,
-                loading: {
-                    type: Boolean,
-                    value: false,
-                    notify: true
+                    pluginId: String,
+                    label: String,
+                    id: String,
+                    editor: Object,
+                    tab: Object,
+                    loading: {
+                        type: Boolean,
+                        value: false,
+                        notify: true
+                    }
                 }
             }
-        }
-            ready(e){
+            ready(e) {
                 super.ready();
                 var grid;
-                if(this.shadowRoot.querySelector('.projectworksheet')!=null){
-                grid = this.shadowRoot.querySelector(".projectworksheet");
-                grid.items = [];
+                if (this.shadowRoot.querySelector('.projectworksheet') != null) {
+                    grid = this.shadowRoot.querySelector(".projectworksheet");
+                    grid.items = [];
                 }
                 //grid.addColumn({name: "<b>Please use this Edit button to filter on the Data </b>"});
-            } 
-            setGeneralProperties (properties) {
+            }
+            _addNewChart(e) {
+                var dialog = this.$.newchart;
+                var id = "";
+                dialog.open(id);
+            }
+            editChart(e) {
+                var dialog = this.$.newchart;
+                var id = e.target.id;
+                dialog.open(id);
+            }
+            deleteChart(e) {
+                var dialog = this.$.newchart;
+                var id = e.target.id;
+                var divId = 'divChart' + id.replace('delete', '');
+                var chartId = 'Chart' + id.replace('delete', '');
+                var index = 0;
+                for (var i = 0; i < chartData.length; i++) {
+                    var chart = chartData[i];
+                    if (chart.ChartId == chartId) {
+                        index = i;
+                        break;
+                    }
+                }
+                chartData.splice(index, 1);
+                this.shadowRoot.querySelector('#divDashboard').removeChild(this.shadowRoot.querySelector("#" + divId));
+            }
+            setGeneralProperties(properties) {
 
             }
             setViewProperties(properties) {
@@ -54,7 +169,7 @@
         }
         customElements.define(CommonDashboardView.is, CommonDashboardView);
     </script>
-<!-- <script type="text/javascript">
+    <!-- <script type="text/javascript">
     if (document.addEventListener) { // IE >= 9; other browsers
         document.addEventListener('contextmenu', function(e) {
             document.getElementById("divAddChart").style.display = "block";  

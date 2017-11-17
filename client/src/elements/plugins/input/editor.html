@@ -1,3 +1,4 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
@@ -163,9 +164,11 @@
         var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
         getFileData.then(function (ajaxResp) {
 
+        if(infoBox.getActiveView() != null)
+        {
           infoBox.getActiveView().editor.eclcode = ajaxResp.querystr;
-
           infoBox.getActiveView().editor.outputdsname = ajaxResp.outputdsname;
+        }
 
           var obj = ajaxResp.Result.Row[0];
           var resobj = ajaxResp.Result.Row[0];
