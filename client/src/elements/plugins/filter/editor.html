@@ -12,21 +12,22 @@
 	<template>
 		<style include="shared-dialog-styles"></style>
 		<style>
-			 paper-tabs {
-                font-family: 'Roboto', 'Noto', sans-serif;
-                -webkit-font-smoothing: antialiased;
-                width: 100%;
-                text-transform: uppercase;
-                color: #767676;
-                --paper-tabs-selection-bar-color: white;
-            }
+			paper-tabs {
+				font-family: 'Roboto', 'Noto', sans-serif;
+				-webkit-font-smoothing: antialiased;
+				width: 100%;
+				text-transform: uppercase;
+				color: #767676;
+				--paper-tabs-selection-bar-color: white;
+			}
+
 			vaadin-combo-box {
-				width:100%;
+				width: 100%;
 				display: block !important;
 			}
-			</style>
-		
-		
+		</style>
+
+
 		<paper-dialog id="dialog" modal>
 			<iron-label>
 				<div class="headerDiv">
@@ -59,68 +60,19 @@
 			static get is() { return 'common-filter-editor'; }
 
 			static get properties() {
-				// return {
-				// 	inputeclcode: {
-				// 		type: Object,
-				// 		value: function () { return {}; }
-				// 	},
-
-				// 	outputdsname: {
-				// 		type: Object,
-				// 		value: function () { return {}; }
-				// 	},
-
-				// 	inputdsname: {
-				// 		type: Object,
-				// 		value: function () { return {}; }
-				// 	},
-
-
-				// 	hpccuser: {
-				// 		type: Object,
-				// 		value: function () { return {}; }
-				// 	},
-
-
-				// 	displayFields: {
-				// 		type: Object,
-				// 		value: function () { return {}; }
-				// 	},
-
-				// 	expression: {
-				// 		type: Object,
-				// 		value: function () { return {}; }
-				// 	},
-				// 	title: {
-				// 		type: Object,
-				// 		value: function () { return []; }
-				// 	},
-				// 	eclcode: {
-				// 		type: Object,
-				// 		value: function () { return {}; }
-				// 	},
-				// 	sortfields: {
-				// 		type: String,
-				// 		value: ""
-				// 	},
-				// 	inputTab: {
-				// 		type: String,
-				// 		value: ""
-				// 	}
-				// }
 				return {
-    
-					inputeclcode : String,
-					outputdsname : String,
-					inputdsname : String,
-				
-				hpccuser : String,
-				displayFields : String,
-				expression : String,
-				title : String,
-				eclcode:String,
-				sortfields : String,
-				inputTab : String
+
+					inputeclcode: String,
+					outputdsname: String,
+					inputdsname: String,
+
+					hpccuser: String,
+					displayFields: String,
+					expression: String,
+					title: String,
+					eclcode: String,
+					sortfields: String,
+					inputTab: String
 				}
 			}
 			constructor() {
@@ -128,8 +80,7 @@
 			}
 			ready(e) {
 				super.ready();
-				var selpage =document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#pages").querySelector("#common-input");
-				//var selpage = document.querySelector("#pages").querySelector("#common-input");
+				var selpage = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#pages").querySelector("#common-input");
 				var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box');
 				var username = infoBox.username;
 				var password = infoBox.password;
@@ -215,15 +166,15 @@
 
 
 			open() {
-				this.$.TabTitle.value = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#tabs").selectedItem.textContent;			 
-				//this.$.TabTitle.value = document.querySelector("#tabs").selectedItem.textContent;
+				this.$.TabTitle.value = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#tabs").selectedItem.textContent;
+
 
 				var pages = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#tabs");
 
 				var tabnames = "";
 
 				var inputidx = 0;
-				var papertabs=document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector('app-toolbar').getElementsByTagName("paper-tab");
+				var papertabs = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector('app-toolbar').getElementsByTagName("paper-tab");
 				for (var cnt = 0; cnt < papertabs.length; cnt++) {
 					if (pages.selectedItem.id === papertabs[cnt].id) {
 						break;
@@ -249,7 +200,7 @@
 
 				currentPage.outputdsname = 'filterdsName' + '_' + Math.random().toString(36).substr(2, 4);
 
-				var infoBox =  document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box');
+				var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box');
 
 				this.outputdsname = currentPage.outputdsname;
 
@@ -259,8 +210,8 @@
 
 				this.expression = this.$.filterformulas.value;
 
-				if(this.$.sortbyfieldsvalue.value==undefined)
-				this.$.sortbyfieldsvalue.value="";
+				if (this.$.sortbyfieldsvalue.value == undefined)
+					this.$.sortbyfieldsvalue.value = "";
 				var QueryStr = QueryStr1 + "\n OUTPUT(" + (this.$.sortbyfieldsvalue.value.length > 0 ? ('SORT(' + currentPage.outputdsname + ',' + this.$.sortbyfieldsvalue.value + ')') : currentPage.outputdsname) + ");";
 
 				var eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") +
@@ -281,13 +232,12 @@
 			changeInput(event) {
 
 				var tabid = "";
-				var papertabs=document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector('app-toolbar').getElementsByTagName("paper-tab");
+				var papertabs = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector('app-toolbar').getElementsByTagName("paper-tab");
 				for (var cnt = 0; cnt < papertabs.length; cnt++) {
-					if(event.currentTarget.value != null || event.currentTarget.value != undefined)
-					{
+					if (event.currentTarget.value != null || event.currentTarget.value != undefined) {
 						if (event.currentTarget.value === papertabs[cnt].textContent.trim()) {
-						tabid = papertabs[cnt].id;
-						break;
+							tabid = papertabs[cnt].id;
+							break;
 						}
 					}
 				}
@@ -339,11 +289,11 @@
 				if (infoBox.fieldDtls.has(this.$.field.value)) {
 					formula = strFields.includes(infoBox.fieldDtls.get(this.$.field.value).toUpperCase()) ? ("'" + formula + "'") : formula;
 				}
-				if(this.$.filterformulas.value==undefined){
-					this.$.filterformulas.value=this.$.field.value + ' ' + this.$.operation.value + ' ' + formula;
+				if (this.$.filterformulas.value == undefined) {
+					this.$.filterformulas.value = this.$.field.value + ' ' + this.$.operation.value + ' ' + formula;
 				}
 				else
-				this.$.filterformulas.value = this.$.filterformulas.value + (this.$.filterformulas.value.length > 0 ? " AND " : "") + this.$.field.value + ' ' + this.$.operation.value + ' ' + formula;
+					this.$.filterformulas.value = this.$.filterformulas.value + (this.$.filterformulas.value.length > 0 ? " AND " : "") + this.$.field.value + ' ' + this.$.operation.value + ' ' + formula;
 
 				//  this.$.formulavalue.value ;            
 			}

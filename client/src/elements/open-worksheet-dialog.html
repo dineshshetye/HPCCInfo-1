@@ -144,12 +144,12 @@
                 console.log(this.$.ajaxRetrieveProjectByName.lastResponse[0].projectdata.replace(/\s*\n\s*/g, ""));
                 var infoBox = this.parentNode.querySelector('#infobox');
 
-                infoBox.tabsdata = JSON.parse(this.$.ajaxRetrieveProjectByName.lastResponse[0].projectdata.replace("\n", "").replace(/\s*\n\s*/g, ""));
-
+              //  infoBox.tabsdata = JSON.parse(this.$.ajaxRetrieveProjectByName.lastResponse[0].projectdata.replace("\n", "").replace(/\s*\n\s*/g, ""));
+              infoBox.tabsdata = JSON.parse(this.$.ajaxRetrieveProjectByName.lastResponse[0].projectdata.replace("\n", "").replace(/\s*\n\s*/g, ""));
                 var tabs = infoBox.tabsdata.Tabs;
-
+                infoBox.TabsList=infoBox.tabsdata.Tabs;
+                
                 var clusterDetails = infoBox.tabsdata.cluster_details;
-
                 infoBox.cluster_name = clusterDetails.name;
                 infoBox.cluster_address = clusterDetails.ip;
                 infoBox.port = clusterDetails.port;

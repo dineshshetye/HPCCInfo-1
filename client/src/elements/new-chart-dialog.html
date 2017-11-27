@@ -6,6 +6,8 @@
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/iron-label/iron-label.html">
 <link rel="import" href="../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
+
+<link rel="import" href="../../bower_components/vaadin-valo-theme/vaadin-combo-box.html"> 
 <link rel="import" href="shared-styles.html">
 <script src="../../echarts.js"></script>
 
@@ -25,12 +27,12 @@
 			</iron-label>
 			<paper-dialog-scrollable>
 				<!-- User cannot enter title value beginning with a number -->
-				<paper-input id='TabTitle' label="Title" required auto-validate allowed-pattern="^[a-zA-Z](.*[a-zA-Z0-9 ])?$" error-message="Title is Required"></paper-input>
+				<paper-input id='TabTitle' label="Title" required allowed-pattern="^[a-zA-Z](.*[a-zA-Z0-9 ])?$" error-message="Title is Required"></paper-input>
 				<paper-input id='filteroutputlimit' allowed-pattern="[\d]" label="Output Limit" value="10000"></paper-input>
 				<vaadin-combo-box id='filterInputTab' on-value-changed='changeInput' required label="Input Dataset"></vaadin-combo-box>
 
 				<vaadin-combo-box id='ChartType' required label="Chart Type" items='["bar", "pie","line"]'></vaadin-combo-box>
-				<vaadin-combo-box id='xcoordinate' required label="x-coordinate"></vaadin-combo-box>
+				<vaadin-combo-box id='xcoordinate' required label="x-coordinate" items='[]'></vaadin-combo-box>
 				<vaadin-combo-box id='ycoordinate' required label="y-coordinate"></vaadin-combo-box>
 			</paper-dialog-scrollable>
 			<div class="buttons">
@@ -80,9 +82,11 @@
 				this.selectedxcoordinate = '';
 				this.selectedycoordinate = '';
 				this.inputTab = '';
+				//Style for vaadin-combobox				
+				this.$.xcoordinate.$.overlay.shadowRoot.querySelector('#dropdown').shadowRoot.querySelector('#overlay').shadowRoot.querySelector('#content').style.padding=0;
 			}
 			open(id) {
-				this.$.TabTitle.value = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#tabs").selectedItem.textContent;
+				//this.$.TabTitle.value = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#tabs").selectedItem.textContent;
 				var pages = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#tabs");
 				var tabnames = "";
 
@@ -104,20 +108,23 @@
 
 				if (id == "") {
 					sessionStorage.setItem('ChartId', id);
-					this.$.ChartType.selectedItem  = '';
+					this.$.TabTitle.value = '';
+					this.$.ChartType.selectedItem = '';
 					this.$.xcoordinate.selectedItem = '';
-					this.$.ycoordinate.selectedItem  = '';					
+					this.$.ycoordinate.selectedItem = '';
 				}
 				else {
-					
+					var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
+					var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
 					var chartId = 'Chart' + id.replace('edit', '');
 					sessionStorage.setItem('ChartId', chartId);
-					for (var i = 0; i < chartData.length; i++) {
-						var chart = chartData[i];
+					for (var i = 0; i <currentPage.editor.chartDetails.length; i++) {
+						var chart = currentPage.editor.chartDetails[i];
 						if (chart.ChartId == chartId) {
-							this.$.ChartType.selectedItem  = chart.ChartType;
-							this.$.xcoordinate.selectedItem  = chart.xcoordinate;
-							this.$.ycoordinate.selectedItem  = chart.ycoordinate;
+							this.$.TabTitle.value = chart.chartTitle;
+							this.$.ChartType.selectedItem = chart.ChartType;
+							this.$.xcoordinate.selectedItem = chart.xcoordinate;
+							this.$.ycoordinate.selectedItem = chart.ycoordinate;
 							break;
 						}
 					}
@@ -154,15 +161,15 @@
 				}
 				for (var cnt = 0; cnt < tabs.length; cnt++) {
 					if (this.inputdsname === tabs[cnt].title) {
-						this.$.xcoordinate.items = tabs[cnt].displayFields.split(",");
-						this.$.xcoordinate.items = tabs[cnt].displayFields.split(",");
+						this.$.xcoordinate.items = tabs[cnt].xdisplayFields.split(",");
+						this.$.xcoordinate.items = tabs[cnt].ydisplayFields.split(",");
 					}
 				}
 			}
-			
+
 			_okHandler(e) {
-				document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#tabs").selectedItem.textContent = this.$.TabTitle.value;
-				//	document.querySelector("#tabs").selectedItem.textContent = this.$.TabTitle.value;
+				//document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#tabs").selectedItem.textContent = this.$.TabTitle.value;
+				
 				this.title = this.$.TabTitle.value;
 				var currentPage = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#pages").selectedItem;
 
@@ -177,7 +184,7 @@
 					this.inputdsname + " : PERSIST(\'" + currentPage.outputdsname + "_persist\', EXPIRE(1));";
 
 				var QueryStr = QueryStr1 + "\n OUTPUT(" + (currentPage.outputdsname) + ");";
-				
+
 				var eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") +
 					infoBox.cluster_address +
 					":" + infoBox.port;
@@ -187,9 +194,12 @@
 				this.inputTab = this.$.filterInputTab.value;
 
 				this.eclcode = QueryStr1;
+				currentPage.chartTitle=this.$.TabTitle.value;
 				currentPage.selectedchartyype = this.$.ChartType.selectedItem;
 				currentPage.selectedxcoordinate = this.$.xcoordinate.selectedItem;
 				currentPage.selectedycoordinate = this.$.ycoordinate.selectedItem;
+			//	chartDataSave.push({ "TabTitle": currentPage.editor.tabTtitle, "chartTitle":this.$.TabTitle.value, "selectedchartyype": this.$.ChartType.selectedItem, "selectedxcoordinate": this.$.xcoordinate.selectedItem, "selectedycoordinate": this.$.ycoordinate.selectedItem });
+			//	infoBox.selectedchartdata = chartDataSave;
 				return loadGridwithEcl(QueryStr, this.$.filteroutputlimit.value);
 			}
 			changeInput(event) {
@@ -213,11 +223,8 @@
 				this.inputeclcode = selpage.editor.eclcode;
 				this.inputdsname = selpage.editor.outputdsname;
 				this.displayFields = selpage.editor.displayFields;
-
 				this.$.xcoordinate.items = selpage.editor.xdisplayFields.split(",");
 				this.$.ycoordinate.items = selpage.editor.ydisplayFields.split(",");
-
-
 				return;
 
 			}

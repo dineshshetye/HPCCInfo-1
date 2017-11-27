@@ -1,4 +1,3 @@
-<link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../bower_components/polymer/lib/utils/render-status.html">
 <link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
@@ -42,54 +41,58 @@
                 color: #767676;
                 --paper-tabs-selection-bar-color: white;
             }
-    
+
             paper-tab.iron-selected {
                 color: white;
                 font-weight: bold;
                 text-transform: uppercase;
             }
-            
+
             app-toolbar {
-                    background-color: #FF7043;
-                    height: 50px;
-                    color: #fff;
-                }
-    
+                background-color: #FF7043;
+                height: 50px;
+                color: #fff;
+            }
+
             paper-icon-button {
-                    --paper-icon-button: {
-                        width: 40px;
-                        height: 40px;
-                    }
+                --paper-icon-button: {
+                    width: 40px;
+                    height: 40px;
                 }
-            paper-listbox  {
+            }
+
+            paper-listbox {
                 font-size: 15px;
                 font-weight: bold;
                 color: #333;
                 min-width: 200px;
             }
+
             paper-listbox paper-item {
                 cursor: pointer
-            } 
+            }
+
             paper-listbox paper-item:hover {
                 background: #f2f2f2
-            } 
+            }
         </style>
         <app-toolbar>
             <paper-tabs id="tabs" selected="{{selected}}"></paper-tabs>
 
-            <paper-icon-button id="btnEditPlugin" disabled="true" icon="create" on-tap="_pluginEditOpenHandler"></paper-icon-button>
+            <paper-icon-button id="btnEditPlugin" disabled="true" hidden$="{{hideedit}}" icon="create" on-tap="_pluginEditOpenHandler"></paper-icon-button>
             <paper-tooltip for="btnEditPlugin" offset="0">Edit Worksheet</paper-tooltip>
-            
-            
+
+
+            <paper-icon-button id="btnEditDashboard" hidden$="{{hidden}}" icon="create" on-tap="_pluginEditDashboardHandler"></paper-icon-button>
+            <paper-tooltip for="btnEditDashboard" offset="0">Edit Worksheet</paper-tooltip>
+
             <paper-menu-button horizontal-align="right" disabled="true" id="pluginMenu">
                 <paper-icon-button id="btnAddPlugin" icon="add" slot="dropdown-trigger"></paper-icon-button>
                 <paper-listbox id="pluginmenu" slot="dropdown-content"> </paper-listbox>
             </paper-menu-button>
-            <paper-tooltip for="btnAddPlugin" offset="0">Plugin List</paper-tooltip>   
+            <paper-tooltip for="btnAddPlugin" offset="0">Plugin List</paper-tooltip>
 
-            <paper-icon-button id="btnExportProject" disabled="true"
-                                    icon="social:share" 
-                                    on-tap="_projectExportOpenHandler">                       
+            <paper-icon-button id="btnExportProject" disabled="true" icon="social:share" on-tap="_projectExportOpenHandler">
             </paper-icon-button>
             <paper-tooltip for="btnExportProject" disabled="true" offset="0">Share Project</paper-tooltip>
 
@@ -101,81 +104,105 @@
     </template>
     <script>
         class InfoBox extends Polymer.Element {
-			static get is() {return 'info-box'; }
-			
-            //listeners : {
-            //    'iron-select' : 'handleTabTap'
-            //},
-			static get properties() { return {
-           
-                viewList: {
-                    type: Array
-                },
-                pluginList: {
-                    type: Array
-                },
-                selected: {
-                    type: Number,
-                    value: 0
-                },
-                cluster_address : {
-                    type : String,
-                    value : ''
-                },
-                cluster_name : {
-                    type : String,
-                    value : ''
-                },
-                clusterid : {
-                    type : String,
-                    value : ''
-                },
-                port : {
-                    type : String,
-                    value : ''
-                },
-                httpSecured : {
-                    type : Boolean,
-                    value : false
-                },
-                username : {
-                    type :  String,
-                    value : ''
-                
-                },
-                password  : {
-                    type : String,
-                    value : ''
-                },
-                projectid  : {
-                    type : String,
-                    value : ''
-                },
-                title : {
-                    type : String,
-                    value : ''
-                },
-                updatedby : {
-                    type : String,
-                    value : ''
-                },
-                dateupdated : {
-                    type : Date,
-                    value : null
-                }, 
-                file : {
-                    type : String,
-                    value : ''
-                } ,
-                fieldDtls :{
-                    type : Map,
-                    value : {}
+            static get is() { return 'info-box'; }
+            static get properties() {
+                return {
+
+                    viewList: {
+                        type: Array
+                    },
+                    pluginList: {
+                        type: Array
+                    },
+                    selected: {
+                        type: Number,
+                        value: 0
+                    },
+                    cluster_address: {
+                        type: String,
+                        value: ''
+                    },
+                    cluster_name: {
+                        type: String,
+                        value: ''
+                    },
+                    clusterid: {
+                        type: String,
+                        value: ''
+                    },
+                    port: {
+                        type: String,
+                        value: ''
+                    },
+                    httpSecured: {
+                        type: Boolean,
+                        value: false
+                    },
+                    username: {
+                        type: String,
+                        value: ''
+
+                    },
+                    password: {
+                        type: String,
+                        value: ''
+                    },
+                    projectid: {
+                        type: String,
+                        value: ''
+                    },
+                    title: {
+                        type: String,
+                        value: ''
+                    },
+                    updatedby: {
+                        type: String,
+                        value: ''
+                    },
+                    dateupdated: {
+                        type: Date,
+                        value: null
+                    },
+                    file: {
+                        type: String,
+                        value: ''
+                    },
+                    fieldDtls: {
+                        type: Map,
+                        value: {}
+                    }, charttype: {
+                        type: String,
+                        value: null
+                    },
+                    xcoordinate: {
+                        type: String,
+                        value: null
+                    },
+                    ycoordinate: {
+                        type: String,
+                        value: null
+                    },
+                    TabsList: {
+                        type: Array
+                    },
+                    chartDtls: {
+                        type: Array
+                    },
+                    griddata: {
+                        type: Array
+                    },
+                    hidden: {
+                        type: Boolean,
+                        value: true
+                    },
+                    hideedit: {
+                        type: Boolean,
+                        value: false
+                    }
 
                 }
-
             }
-            }
-            constructor(){
+            constructor() {
                 super();
             }
             ready() {
@@ -188,17 +215,31 @@
                 this.addPlugin("common-dashboard", "Dashboard", "common");
             }
 
-            handleTabTap(e){
-                if(e.detail.item.editor != undefined){
-                    if(e.detail.item.shadowRoot.querySelector('.projectworksheet')!=null){
-                    if(e.detail.item.shadowRoot.querySelector('.projectworksheet').items.length === 0){
-                        e.detail.item.editor.loadgrid();
+            handleTabTap(e) {
+                if (e.detail.item.id == "common-dashboard") {
+                    this.hidden = false;
+                    this.hideedit = true;
+                    if (e.detail.item.editor != undefined) {
+                        e.detail.item.editor.loadChart();
                     }
                 }
+                else {
+                    this.hidden = true;
+                    this.hideedit = false;
+                }
+                if (e.detail.item.editor != undefined) {
+                    if (e.detail.item.shadowRoot.querySelector('.projectworksheet') != null) {
+                        if (e.detail.item.shadowRoot.querySelector('.projectworksheet').items.length === 0) {
+                            e.detail.item.editor.loadgrid();
+                        }
+                    }
+                    // else {
+                    //     e.detail.item.editor.loadChart();
+                    // }
                 }
             }
-            connectedCallback(){
-                Polymer.RenderStatus.afterNextRender(this, function() {
+            connectedCallback() {
+                Polymer.RenderStatus.afterNextRender(this, function () {
                     this.$.plugininfo.addEventListener('complete', this._pluginNewTabHandler);
                 });
             }
@@ -208,7 +249,7 @@
                 item.id = "item_" + id;
                 item.textContent = label;
                 Polymer.dom(this.$.pluginmenu).appendChild(item);
-                item.addEventListener('tap', (e)=>this._pluginMenuTapHandler(e));
+                item.addEventListener('tap', (e) => this._pluginMenuTapHandler(e));
                 if (this.pluginList == null) {
                     this.pluginList = [];
                 }
@@ -222,9 +263,9 @@
                 }
             }
 
-            clearWorkBook(){
+            clearWorkBook() {
                 this.shadowRoot.querySelector('#btnExportProject').disabled = true;
-                this.shadowRoot.querySelector('#export-project-dialog').disabled = true;              
+                this.shadowRoot.querySelector('#export-project-dialog').disabled = true;
 
                 this.cluster_name = '';
                 this.cluster_address = '';
@@ -244,31 +285,29 @@
                 this._clear(tabitems);
                 this._clear(pageitems);
 
-                if(this.viewList === undefined ||  this.viewList.length > 0){
+                if (this.viewList === undefined || this.viewList.length > 0) {
 
-                    if(this.viewList != undefined ){
+                    if (this.viewList != undefined) {
                         var listsize = this.viewList.length;
-                        for(var cnt =0; cnt < listsize; cnt++){
+                        for (var cnt = 0; cnt < listsize; cnt++) {
                             this.viewList.pop();
                         }
                     }
 
-                    if(this.$.tabs != undefined ){
+                    if (this.$.tabs != undefined) {
                         var listsize = this.$.tabs.length;
-                        for(var cnt =0; cnt < listsize; cnt++){
+                        for (var cnt = 0; cnt < listsize; cnt++) {
                             this.$.tabs.pop();
                         }
                     }
                 }
             }
-            
+
             addTab(id, label, pluginId, reload = false) {
 
-               if(pluginId == "common-input"){
-
-                    //document.querySelector('#export-project-dialog').disabled = true;
+                if (pluginId === "common-input") {
                     this.shadowRoot.querySelector('#export-project-dialog').disabled = true;
-                    
+
                     var tabitems = Polymer.dom(this.$.tabs);
                     var pageitems = Polymer.dom(this.$.pages);
                     var cnt = 0;
@@ -276,68 +315,63 @@
                     this._clear(pageitems);
                     this.$.tabs.items = [];
 
-                    if(this.viewList === undefined ||  this.viewList.length > 0){
+                    if (this.viewList === undefined || this.viewList.length > 0) {
 
-                        if(this.viewList != undefined ){
+                        if (this.viewList != undefined) {
                             var listsize = this.viewList.length;
-                            for(var cnt =0; cnt < listsize; cnt++){
+                            for (var cnt = 0; cnt < listsize; cnt++) {
                                 this.viewList.pop();
                             }
                         }
 
-                        if(this.$.tabs != undefined ){
+                        if (this.$.tabs != undefined) {
                             var listsize = this.$.tabs.length;
-                            for(var cnt =0; cnt < listsize; cnt++){
+                            for (var cnt = 0; cnt < listsize; cnt++) {
                                 this.$.tabs.pop();
                             }
                         }
                     }
 
-                var pluginMenu = this.shadowRoot.querySelector('#pluginMenu')
-                pluginMenu.disabled = true;
-               }
+                    var pluginMenu = this.shadowRoot.querySelector('#pluginMenu')
+                    pluginMenu.disabled = true;
+                }
                 var view = document.createElement(pluginId + "-view");
                 var editor = document.createElement(pluginId + "-editor");
                 var tab = document.createElement("paper-tab");
                 tab.id = id;
                 tab.textContent = label;
-                
+
                 view.id = id;
                 editor.id = id + '_editor_' + Math.random().toString(36).substr(2, 9);
                 view.pluginId = pluginId;
                 view.label = label;
-                view.tab = tab; 
+                view.tab = tab;
                 view.editor = editor;
                 Polymer.dom(this.$.tabs).appendChild(tab);
                 Polymer.dom(this.$.pages).appendChild(view);
                 Polymer.dom(this.$.tabs).appendChild(editor);
-                //document.querySelector('#pages').items.push(view);
-                //document.querySelector('#tabs').items.push(editor);
                 this.shadowRoot.querySelector('#pages').items.push(view);
                 this.shadowRoot.querySelector('#tabs').items.push(editor);
-                
 
-                //this.addEventListener(editor, 'complete', '_pluginEditCompleteHandler');
-                
                 if (this.viewList == null) {
                     this.viewList = [];
                 };
                 this.viewList.push(view);
-                if(reload){
+                if (reload) {
                     editor.deSerialize(label);
-                }else{
-                    this.$.tabs.selectIndex(pluginId == "common-input" ? 0 : this.$.tabs.items.length -1);//Select the new tab
-                    
-                	setTimeout(function (that) {
-				            that.shadowRoot.querySelector('#btnEditPlugin').fire('click');
-			        }, 2000,this);
+                } else {
+                    this.$.tabs.selectIndex(pluginId == "common-input" ? 0 : this.$.tabs.items.length - 1);//Select the new tab
+
+                    setTimeout(function (that) {
+                        that.shadowRoot.querySelector('#btnEditPlugin').fire('click');
+                    }, 2000, this);
                 }
 
 
             }
 
 
-            getView (id) {
+            getView(id) {
                 if (this.viewList == null) {
                     return null;
                 } else {
@@ -351,7 +385,7 @@
                 }
             }
 
-            getPlugin (id) {
+            getPlugin(id) {
                 if (this.pluginList == null) {
                     return null;
                 } else {
@@ -394,7 +428,9 @@
                 //Create a dialog to accept just the id and label
                 this.$.plugininfo.open();
             }
-            
+            _pluginEditDashboardHandler(e) {
+                this.shadowRoot.querySelector('#plugininfo').openDashboardEditor(e);
+            }
             // This handler is called when the user adds a new plugin.
             // Called on 'OK' button of the dialog
             _pluginNewTabHandler(e) {
@@ -406,7 +442,7 @@
 
             // This handler is called when the user clicks on any plugins 'Edit' button.
             _pluginEditOpenHandler(e) {
-                var view = this.getActiveView();               
+                var view = this.getActiveView();
                 view.editor.open();
             }
 

@@ -49,7 +49,11 @@
           xdisplayFields: String,
           ydisplayFields: String,
           expression: String,
-          title: String
+          title: String,
+          selectedchartyype: String,
+					selectedxcoordinate: String,
+          selectedycoordinate: String,
+        chartDataSave:Array
         }
       }
       constructor() {
@@ -79,6 +83,10 @@
         this.outputdsname = '';
         this.expression = '';
         this.title = '';
+        this.selectedchartyype='';
+        this.selectedxcoordinate='';
+        this.selectedycoordinate='';
+        this.chartDataSave='';
       }
 
       serialize() {
@@ -116,6 +124,10 @@
             this.inputdsname = jsonTabContent.inputdsname;
             this.pluginId = jsonTabContent.pluginId;
             this.title = jsonTabContent.title;
+            this.selectedchartyype=jsonTabContent.ChartType;           
+            this.selectedxcoordinate=jsonTabContent.xcoordinate;
+            this.selectedycoordinate=jsonTabContent.ycoordinate;      
+            this.chartDataSave =  jsonTabContent.chartDataSave; 
             this.outputdsname = jsonTabContent.outputdsname;
             this.expression = jsonTabContent.expression;
             this.$.subfilesgrid.selectedItem = jsonTabContent.expression;
@@ -123,7 +135,7 @@
               // (this.properties.hpccuser != '' ? this.properties.hpccuser + ':' + this.properties.password + '@' : '')  +
               infoBox.cluster_address +
               ":" + infoBox.port;
-            callForFileDetails(eclIP, jsonTabContent.expression, jsonTabContent.expression, infoBox.username, infoBox.password, 1000);
+            callForFileDetails(eclIP, jsonTabContent.expression, jsonTabContent.expression, infoBox.username, infoBox.password, 10000);
             break;
           }
         }
@@ -155,7 +167,7 @@
           var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
           var grid = currentPage.shadowRoot.querySelector(".projectworksheet");
 
-          callForFileDetails(eclIP, infoBox.file, infoBox.file, infoBox.username, infoBox.password, 1000).then(function (resData) {
+          callForFileDetails(eclIP, infoBox.file, infoBox.file, infoBox.username, infoBox.password, 10000).then(function (resData) {
             resolve(resData);
           });
         });
@@ -237,7 +249,7 @@
             grid.appendChild(column);
           }
           grid.items = ajaxResp.Result.Row;
-
+          infoBox.griddata= ajaxResp.Result.Row;
           infoBox.shadowRoot.querySelector('#pluginMenu').disabled = false;
           infoBox.shadowRoot.querySelector('#export-project-dialog').disabled = false;
 
@@ -247,6 +259,8 @@
           sessionStorage.setItem('gridColumns', colArray);
 
           currentPage.loading = false;
+          
+        
         });
       }
       open() {

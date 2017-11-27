@@ -6,6 +6,8 @@
 <link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../../../bower_components/iron-label/iron-label.html">
 <link rel="import" href="../../../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
+<link rel="import" href="../../../../bower_components/vaadin-valo-theme/vaadin-combo-box.html">
+
 <link rel="import" href="../../shared-styles.html">
 <script src="../../../../echarts.js"></script>
 
@@ -25,22 +27,12 @@
 			</iron-label>
 			<paper-dialog-scrollable>
 				<!-- User cannot enter title value beginning with a number -->
-				<paper-input id='TabTitle' label="Title" required auto-validate allowed-pattern="^[a-zA-Z](.*[a-zA-Z0-9 ])?$" error-message="Title is Required"></paper-input>
+				<paper-input id='ChartTitle' label="Title" required allowed-pattern="^[a-zA-Z](.*[a-zA-Z0-9 ])?$" error-message="Title is Required"></paper-input>
 				<paper-input id='dashboardoutputlimit' allowed-pattern="[\d]" label="Output Limit" value="10000"></paper-input>
 				<vaadin-combo-box id='dashboardInputTab' on-value-changed='changeInput' required label="Input Dataset"></vaadin-combo-box>
-
 				<vaadin-combo-box id='ChartType' required label="Chart Type" items='["bar", "pie","line"]'></vaadin-combo-box>
-				<vaadin-combo-box id='xcoordinate' required label="x-coordinate"></vaadin-combo-box>
+				<vaadin-combo-box id='xcoordinate' class='clusternames' required label="x-coordinate"></vaadin-combo-box>
 				<vaadin-combo-box id='ycoordinate' required label="y-coordinate"></vaadin-combo-box>
-				<!-- <vaadin-combo-box id='field' required label="Field"></vaadin-combo-box>
-		            <vaadin-combo-box id='operation' required label="Operation" items='["=", ">", "<",">=","<=","IN","BETWEEN"]'></vaadin-combo-box>
-		            <paper-input id='formulavalue' label="Value"></paper-input>
-		            <paper-button on-tap="andFunction" class="addBtn">AND</paper-button>
-		            <paper-button on-tap="orFunction" class="addBtn">OR</paper-button>
-		            <paper-input id='dashboardformulas' label="Value"></paper-input> -->
-				<!-- <vaadin-combo-box id='sortfields' required label="Sort By"></vaadin-combo-box>
-	                <paper-button on-tap="addSortFunction" class="addBtn">ADD</paper-button>
-	                <paper-input id='sortbyfieldsvalue' label="Sort Order"></paper-input> -->
 			</paper-dialog-scrollable>
 			<div class="buttons">
 				<paper-button dialog-confirm raised class="indigo" on-tap="_okHandler">Ok</paper-button>
@@ -67,7 +59,13 @@
 					selectedchartyype: String,
 					selectedxcoordinate: String,
 					selectedycoordinate: String,
-					inputTab: String
+					chartDataSave: String,
+					inputTab: String,
+					tabTtitle: String,
+					chartTitle: String,
+					chartDetails: {
+						type: Array
+					},
 				}
 			}
 			constructor() {
@@ -75,8 +73,6 @@
 			}
 			ready(e) {
 				super.ready();
-				//	var selpage = document.querySelector("#pages").querySelector("#common-input");
-				//	var infoBox = document.querySelector('#infobox');
 				var selpage = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#pages").querySelector("#common-input");
 				var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box');
 				var username = infoBox.username;
@@ -95,24 +91,26 @@
 				this.ydisplayFields = '';
 				this.eclcode = '';
 				this.inputeclcode = '';
-				this.$.TabTitle.value = '';
+				this.$.ChartTitle.value = '';
 
 				this.inputdsname = '';
 				this.outputdsname = '';
 				this.expression = '';
-				//	this.sortfields = '';
 				this.selectedchartyype = '';
 				this.selectedxcoordinate = '';
 				this.selectedycoordinate = '';
+				this.chartDetails = [];
+				this.chartDataSave = '';
 				this.inputTab = '';
-				// setTimeout(function () {
-				// 	document.querySelector('#btnEditPlugin').fire('click');
-				// }, 2000);
+				this.tabTtitle = '';
+				this.chartTitle = '';
+				this.$.xcoordinate.$.overlay.shadowRoot.querySelector('#dropdown').shadowRoot.querySelector('#overlay').shadowRoot.querySelector('#content').style.padding=0;
 			}
 			deSerialize(tabTtitle) {
-
+				this.tabTtitle = tabTtitle;
+				chartData = [];
+				this.chartDetails = [];
 				var jsonTabContent = null;
-				//var infoBox = document.querySelector('#infobox');
 				var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box');
 
 				var tabs = infoBox.tabsdata.Tabs;
@@ -120,35 +118,49 @@
 				for (var cnt = 0; cnt < tabs.length; cnt++) {
 
 					if (tabTtitle === tabs[cnt].title) {
-
 						jsonTabContent = tabs[cnt];
 						this.displayFields = jsonTabContent.displayFields;
-						//this.$.xcoordinate.items = this.displayFields.split(",");			
-						//this.$.ycoordinate.items = this.displayFields.split(",");		
-						this.$.TabTitle.value = jsonTabContent.title;
+						this.$.xcoordinate.items = jsonTabContent.xdisplayFields.split(",");
+						this.$.ycoordinate.items = jsonTabContent.ydisplayFields.split(",");
 						this.eclcode = jsonTabContent.eclcode;
 						this.inputeclcode = jsonTabContent.eclcode;
 						this.inputdsname = jsonTabContent.inputdsname;
 						this.outputdsname = jsonTabContent.outputdsname;
 						this.pluginId = jsonTabContent.pluginId;
 						this.title = jsonTabContent.title;
-						this.expression = jsonTabContent.expression;
-						//  this.$.sortbyfieldsvalue.value = jsonTabContent.sortfields === undefined ? '' : jsonTabContent.sortfields;						
-						//this.$.dashboardformulas.value = jsonTabContent.expression; 
+						this.chartDetails = jsonTabContent.chartDataSave;
+						this.chartDataSave = jsonTabContent.chartDataSave;
 						this.inputTab = jsonTabContent.inputTab;
 						this.$.dashboardInputTab.value = jsonTabContent.inputdsname;
-
+						chartData = this.chartDetails;
 						break;
 					}
 				}
 				for (var cnt = 0; cnt < tabs.length; cnt++) {
 					if (this.inputdsname === tabs[cnt].title) {
-						this.$.xcoordinate.items = tabs[cnt].displayFields.split(",");
-						this.$.xcoordinate.items = tabs[cnt].displayFields.split(",");
+						this.$.xcoordinate.items = tabs[cnt].xdisplayFields.split(",");
+						this.$.ycoordinate.items = tabs[cnt].ydisplayFields.split(",");
 					}
 				}
 			}
 			serialize() {
+				if (this.chartDetails.length > 0) {
+					this.chartDataSave = '[';
+					for (var i = 0; i < this.chartDetails.length; i++) {
+						this.chartDataSave += '{';
+						this.chartDataSave += '\"ChartId\" : \"' + this.chartDetails[i].ChartId + '\", ';
+						this.chartDataSave += '\"ChartType\" : \"' + this.chartDetails[i].ChartType + '\", ';
+						this.chartDataSave += '\"xcoordinate\" : \"' + this.chartDetails[i].xcoordinate + '\", ';
+						this.chartDataSave += '\"ycoordinate\" : \"' + this.chartDetails[i].ycoordinate + '\",';
+						this.chartDataSave += '\"chartTitle\" : \"' + this.chartDetails[i].chartTitle + '\"';
+						this.chartDataSave += '}';
+						if (i != this.chartDetails.length - 1)
+							this.chartDataSave += ',';
+					}
+					this.chartDataSave += ']';
+					
+				}
+
 				var jsonStr = '{';
 				jsonStr += '\"displayFields\" : \"' + this.displayFields + '\",';
 				jsonStr += '\"xdisplayFields\" : \"' + this.xdisplayFields + '\",';
@@ -156,10 +168,9 @@
 				jsonStr += '\"eclcode\" : \"' + this.eclcode.replace(/[\r\n]/g, '') + '\",';
 				jsonStr += '\"inputdsname\" :\" ' + this.inputdsname + '\",';
 				jsonStr += '\"outputdsname\" : \"' + this.outputdsname + '\",';
-				jsonStr += '\"expression\" : \"' + this.expression + '\",';
 				jsonStr += '\"title\" : \"' + this.title.trim() + '\",';
 				jsonStr += '\"inputTab\" : \"' + this.inputTab.trim() + '\",';
-				//jsonStr += '\"sortfields\" : \"' + this.sortfields.trim() + '\",';	
+				jsonStr += '\"chartDataSave\" :  ' + this.chartDataSave + ',';
 				jsonStr += '\"pluginId\" : \"' + 'common-dashboard' + '\"}';
 
 				return jsonStr;
@@ -171,15 +182,38 @@
 					return;
 				}
 				var QueryStr = QueryStr1 + "\n OUTPUT(" + this.outputdsname + ");";
-				this.selectedchartyype = this.$.ChartType.selectedItem;
-				this.selectedxcoordinate = this.$.xcoordinate.selectedItem;
-				this.selectedycoordinate = this.$.ycoordinate.selectedItem;
+				currentPage.selectedchartyype = this.$.ChartType.selectedItem;
+				currentPage.selectedxcoordinate = this.$.xcoordinate.selectedItem;
+				currentPage.selectedycoordinate = this.$.ycoordinate.selectedItem;
 				return loadGridwithEcl(QueryStr, 1000);
+			}
+
+			loadChart(tabTtitle) {
+				var currentPage = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#pages").selectedItem;
+				if (currentPage.shadowRoot.querySelector('#divDashboard') != null) {
+					currentPage.shadowRoot.querySelector("#divDashboard").innerHTML = "";
+				}
+				var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
+				var tabs = infoBox.TabsList;
+				for (var cnt = 0; cnt < tabs.length; cnt++) {
+
+					if (this.tabTtitle === tabs[cnt].title) {
+						var tab = tabs[cnt];
+						if (this.chartDetails.length > 0) {
+							for (var i = 0; i < this.chartDetails.length; i++) {
+								var chart = this.chartDetails[i];
+								sessionStorage.setItem('ChartId', "");
+								initchart(infoBox.griddata, chart.chartTitle, chart.ChartType, chart.xcoordinate, chart.ycoordinate, chart.ChartId);
+
+							}
+						}
+						break;
+					}
+
+				}
 			}
 			open() {
 
-				// this.$.TabTitle.value = document.querySelector("#tabs").selectedItem.textContent;
-				this.$.TabTitle.value = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#tabs").selectedItem.textContent;
 				var pages = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#tabs");
 				var tabnames = "";
 
@@ -203,9 +237,8 @@
 				this.$.dialog.open();
 			}
 			_okHandler(e) {
-				document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#tabs").selectedItem.textContent = this.$.TabTitle.value;
-				//	document.querySelector("#tabs").selectedItem.textContent = this.$.TabTitle.value;
-				this.title = this.$.TabTitle.value;
+
+				this.title = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#tabs").selectedItem.textContent;
 				var currentPage = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#pages").selectedItem;
 
 				currentPage.outputdsname = 'dashboarddsName' + '_' + Math.random().toString(36).substr(2, 4);
@@ -217,31 +250,26 @@
 
 				var QueryStr1 = this.inputeclcode + "\n" + currentPage.outputdsname + " := " +
 					this.inputdsname + " : PERSIST(\'" + currentPage.outputdsname + "_persist\', EXPIRE(1));";
-
-
-				//	var QueryStr1 =  this.inputeclcode + "\n" + currentPage.outputdsname + " := " + 
-				//	 this.inputdsname + "(" +                                
-				//	 this.$.dashboardformulas.value + ")" + " : PERSIST(\'" + currentPage.outputdsname + "_persist\', EXPIRE(1));";
-
-				//   this.expression = this.$.dashboardformulas.value;
 				var QueryStr = QueryStr1 + "\n OUTPUT(" + (currentPage.outputdsname) + ");";
-				//	var QueryStr =  QueryStr1 +  "\n OUTPUT(" + ( this.$.sortbyfieldsvalue.value.length > 0 ? ( 'SORT(' + currentPage.outputdsname + ',' + this.$.sortbyfieldsvalue.value +')' ) : currentPage.outputdsname) + ");";
 
 				var eclIP = (infoBox.isHpccSecured === "true" ? "https://" : "http://") +
-					// (this.hpccuser != '' ? this.hpccuser + ':' + this.password + '@' : '')  +
 					infoBox.cluster_address +
 					":" + infoBox.port;
 
 				currentPage.eclcode = QueryStr1;
 
 				this.inputTab = this.$.dashboardInputTab.value;
-
-				//this.sortfields = this.$.sortbyfieldsvalue.value;
 				sessionStorage.setItem('ChartId', "");
 				this.eclcode = QueryStr1;
+				currentPage.chartTitle = this.$.ChartTitle.value;
 				currentPage.selectedchartyype = this.$.ChartType.selectedItem;
 				currentPage.selectedxcoordinate = this.$.xcoordinate.selectedItem;
 				currentPage.selectedycoordinate = this.$.ycoordinate.selectedItem;
+				this.chartTitle = this.$.ChartTitle.value;
+				this.selectedchartyype = this.$.ChartType.selectedItem;
+				this.selectedxcoordinate = this.$.xcoordinate.selectedItem;
+				this.selectedycoordinate = this.$.ycoordinate.selectedItem;
+
 				return loadGridwithEcl(QueryStr, this.$.dashboardoutputlimit.value);
 			}
 			changeInput(event) {
@@ -250,11 +278,10 @@
 
 				var papertabs = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector('app-toolbar').getElementsByTagName("paper-tab");
 				for (var cnt = 0; cnt < papertabs.length; cnt++) {
-					if(event.currentTarget.value != null || event.currentTarget.value != undefined)
-					{
+					if (event.currentTarget.value != null || event.currentTarget.value != undefined) {
 						if (event.currentTarget.value === papertabs[cnt].textContent.trim()) {
-						tabid = papertabs[cnt].id;
-						break;
+							tabid = papertabs[cnt].id;
+							break;
 						}
 					}
 				}
@@ -262,8 +289,6 @@
 				if (tabid === '') {
 					return;
 				}
-
-				//	var selpage = document.querySelector("#pages").querySelector("#" + tabid);
 				var selpage = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#pages").querySelector("#" + tabid);
 				this.eclcode = selpage.editor.eclcode;
 				this.inputeclcode = selpage.editor.eclcode;
@@ -272,60 +297,10 @@
 
 				this.$.xcoordinate.items = selpage.editor.xdisplayFields.split(",");
 				this.$.ycoordinate.items = selpage.editor.ydisplayFields.split(",");
-
-
-				//this.$.sortfields.items = [];
-
-				//	var fieldList = [];
-
-				// var splitstrs =  selpage.editor.displayFields.split(',');
-				// for(var cnt = 0; cnt < splitstrs.length; cnt++ ){
-				// 	fieldList.push('+' + splitstrs[cnt]);
-				// 	fieldList.push('-' + splitstrs[cnt]);
-				// }
-
-				//this.$.sortfields.items = fieldList;
-
 				return;
 
 			}
-			// andFunction: function (e) {
 
-			// 	var infoBox = document.querySelector('#infobox');
-
-			// 	var strFields = ["STRING", "UNICODE"];
-
-			// 	var formula = this.$.formulavalue.value;
-
-			// 	formula = formula.startsWith("'") ? formula.substring(2) : formula;
-
-			// 	formula = formula.endsWith("'") ? formula.substring(0, formula.length -1) : formula;
-
-
-			// 	if(infoBox.fieldDtls.has(this.$.field.value)){
-			// 	 formula = strFields.includes(infoBox.fieldDtls.get(this.$.field.value).toUpperCase()) ? ("'" + formula + "'") : formula;
-			// 	}
-			// //    this.$.dashboardformulas.value = this.$.dashboardformulas.value + (this.$.dashboardformulas.value.length > 0 ? " AND " : "") + this.$.field.value + ' ' + this.$.operation.value + ' ' +  formula;
-
-			// 	//  this.$.formulavalue.value ;            
-			// },
-
-			// addSortFunction: function (e) {
-			// 	var splitstrs = this.$.sortbyfieldsvalue.value.split(',');
-			// 	for(var cnt = 0; cnt < splitstrs.length; cnt++ ){
-			// 		if(splitstrs[cnt].trim().substring(1) === this.$.sortfields.value.substring(1) ){
-			// 			return;
-			// 		}
-			// 	}
-
-			//     this.$.sortbyfieldsvalue.value = this.$.sortbyfieldsvalue.value + (this.$.sortbyfieldsvalue.value.length > 0 ? " ," : "") + this.$.sortfields.value  ;            
-			// },
-
-
-
-			// orFunction: function (e) {
-			//     this.$.dashboardformulas.value = this.$.dashboardformulas.value + (this.$.dashboardformulas.value.length > 0 ? " OR " : "") + this.$.field.value + ' ' + this.$.operation.value + ' ' +this.$.formulavalue.value ;
-			// },
 			_cancelHandler(e) {
 				this.fire('cancel');
 			}

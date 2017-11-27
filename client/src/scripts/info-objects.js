@@ -143,9 +143,12 @@ function loadGridwithEcl(QueryStr, recLimit) {
 				return;
 			}
 			var obj = ajaxResp.Result.Row[0];
+			var resobj = ajaxResp.Result.Row[0];
 			var cnt = 0;
 			var colArray = [];
 			var fieldnames = "";
+			var xfieldnames = "";
+			var yfieldnames = "";
 
 			Object.keys(obj).forEach(function (key) {
 				//grid.addColumn({ name: key, resizable: true });
@@ -172,25 +175,38 @@ function loadGridwithEcl(QueryStr, recLimit) {
 				column.appendChild(headerTemplate);
 				column.appendChild(bodyTemplate);
 				grid.appendChild(column);
+				var validatedfields = colArray[i];
+
+				if (isNaN(resobj[validatedfields])) {
+					if (xfieldnames === "") {
+						xfieldnames += validatedfields;
+					} else {
+						xfieldnames += "," + validatedfields;
+					}
+				}
+				else {
+					if (yfieldnames === "") {
+						yfieldnames += validatedfields;
+					} else {
+						yfieldnames += "," + validatedfields;
+					}
+				}
 			}
 			grid.items = ajaxResp.Result.Row;
 
 			currentPage.editor.displayFields = fieldnames;
-
+			currentPage.editor.xdisplayFields = xfieldnames;
+			currentPage.editor.ydisplayFields = yfieldnames;
 			sessionStorage.setItem('gridColumns', colArray);
 			// Add some example data as an array.
 			currentPage.loading = false;
 		}
 		else {
-
-
 			currentPage.loading = false;
-			initchart(ajaxResp.Result.Row, currentPage.selectedchartyype, currentPage.selectedxcoordinate, currentPage.selectedycoordinate);
+			var ChartId=sessionStorage.getItem('ChartId');
+			initchart(ajaxResp.Result.Row,currentPage.chartTitle, currentPage.selectedchartyype, currentPage.selectedxcoordinate, currentPage.selectedycoordinate,"");
 		}
 	});
-
-
-
 	return;
 }
 
@@ -350,13 +366,13 @@ function callForFileDetails(url, filename, subfilename, hpccuser, password, recL
 	return promise;
 }
 var chartData = [];
-function initchart(griditems, charttype, xcoordinate, ycoordinate) {
+function initchart(griditems, chartTitle, charttype, xcoordinate, ycoordinate,Id) {
 	var charttype = charttype;
 	var xcoordinatefield = xcoordinate;
 	var ycoordinatefield = ycoordinate;
 	var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
 	var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
-	var salesdata = [];
+	//var salesdata = [];
 	legendarray = [];
 	var yAxisarray = [];
 	var myArray = griditems;
@@ -383,6 +399,7 @@ function initchart(griditems, charttype, xcoordinate, ycoordinate) {
 		legendarray.push(groupName);
 	}
 	var graphId = sessionStorage.getItem("ChartId");
+	if(Id==""){
 	if (graphId == "") {
 		var divChart = document.createElement("div");
 		var randomNumber = Math.random().toString(36).substr(2, 9);
@@ -403,42 +420,84 @@ function initchart(griditems, charttype, xcoordinate, ycoordinate) {
 		var chartId = 'Chart' + randomNumber;
 		chartDiv.id = chartId;
 		chartDiv.classList.add('chartDiv');
-		//chartDiv.style="width:650px;height:400px;float:left;";
+		chartDiv.style = "width:550px;height:400px;float:left;";
 		Polymer.dom(currentPage.shadowRoot.querySelector('#' + divId).querySelector('#' + divColumnId)).appendChild(chartDiv);
 
 		var editButton = document.createElement("paper-icon-button");
 		editButton.classList.add('chartEdit');
 		editButton.id = "edit" + randomNumber;
 		editButton.icon = "create"
-		//editButton.addEventListener('tap', (e) => currentPage.editChart(e));
+		editButton.addEventListener('tap', (e) => currentPage.editChart(e));
 		Polymer.dom(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId)).appendChild(editButton);
-		
+
 		var deleteButton = document.createElement("paper-icon-button");
 		deleteButton.classList.add('chartEdit');
 		deleteButton.id = "delete" + randomNumber;
 		deleteButton.icon = "delete"
-		//deleteButton.addEventListener('tap', (e) => currentPage.deleteChart(e));
+		deleteButton.addEventListener('tap', (e) => currentPage.deleteChart(e));
 		Polymer.dom(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId)).appendChild(deleteButton);
-		
-		chartData.push({ "ChartId": chartId, "ChartType": charttype, "xcoordinate": xcoordinate, "ycoordinate": ycoordinate });
+		currentPage.editor.chartDetails.push({ "ChartId": chartId, "ChartType": charttype, "xcoordinate": xcoordinate, "ycoordinate": ycoordinate,"chartTitle":chartTitle });
+		//chartData.push({ "ChartId": chartId, "ChartType": charttype, "xcoordinate": xcoordinate, "ycoordinate": ycoordinate,"chartTitle":chartTitle });
+		//infoBox.selectedchartdata = chartData;
 		this.myChart = echarts.init(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId).querySelector("#" + chartId));
 	}
-	else{
+	else {
+
 		var divId = 'divChart' + graphId.replace('Chart', '');
-		var divColumnId=  'divColumn' + graphId.replace('Chart', '');
-		for (var i = 0; i < chartData.length; i++) {
-			var chart = chartData[i];
+		var divColumnId = 'divColumn' + graphId.replace('Chart', '');
+		for (var i = 0; i < currentPage.editor.chartDetails.length; i++) {
+			var chart = currentPage.editor.chartDetails[i];
 			if (chart.ChartId == graphId) {
-				chart.ChartType  =charttype;
-				chart.xcoordinate  = xcoordinate;
-				chart.ycoordinate =ycoordinate;
+				chart.chartTitle=chartTitle;
+				chart.ChartType = charttype;
+				chart.xcoordinate = xcoordinate;
+				chart.ycoordinate = ycoordinate;
 				//this.inputTab = '';
 				break;
 			}
 		}
 		this.myChart = echarts.init(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId).querySelector("#" + graphId));
 	}
-	
+}
+else{
+	Id=Id.replace('Chart', '');
+	var divChart = document.createElement("div");
+	var divId = 'divChart' + Id;
+	divChart.id = divId;
+	divChart.classList.add('divChart');
+	Polymer.dom(currentPage.shadowRoot.querySelector('#divDashboard')).appendChild(divChart);
+
+	var divColumn = document.createElement("div");
+	var divColumnId = 'divColumn' + Id;
+	divColumn.id = divColumnId;
+	divColumn.classList.add('divColumn');
+	Polymer.dom(currentPage.shadowRoot.querySelector('#' + divId)).appendChild(divColumn);
+
+	var chartDiv = document.createElement("div");
+	var chartId = 'Chart' + Id;
+	chartDiv.id = chartId;
+	chartDiv.classList.add('chartDiv');
+	chartDiv.style = "width:550px;height:400px;float:left;";
+	Polymer.dom(currentPage.shadowRoot.querySelector('#' + divId).querySelector('#' + divColumnId)).appendChild(chartDiv);
+
+	var editButton = document.createElement("paper-icon-button");
+	editButton.classList.add('chartEdit');
+	editButton.id = "edit" + Id;
+	editButton.icon = "create"
+	editButton.addEventListener('tap', (e) => currentPage.editChart(e));
+	Polymer.dom(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId)).appendChild(editButton);
+
+	var deleteButton = document.createElement("paper-icon-button");
+	deleteButton.classList.add('chartEdit');
+	deleteButton.id = "delete" + Id;
+	deleteButton.icon = "delete"
+	deleteButton.addEventListener('tap', (e) => currentPage.deleteChart(e));
+	Polymer.dom(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId)).appendChild(deleteButton);
+	//chartData.push({ "ChartId": chartId, "ChartType": charttype, "xcoordinate": xcoordinate, "ycoordinate": ycoordinate,"chartTitle":chartTitle });
+	//infoBox.selectedchartdata = chartData;
+	this.myChart = echarts.init(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId).querySelector("#" + chartId));
+}
+
 
 	//For echarts styling   http://echarts.baidu.com/echarts2/doc/example/bar.html
 	// specify chart configuration item and data
@@ -446,7 +505,7 @@ function initchart(griditems, charttype, xcoordinate, ycoordinate) {
 		// option for pie chart
 		var option = {
 			title: {
-				text: 'HPCC INFO SALES DATA',
+				text: chartTitle,
 				subtext: xcoordinatefield + " - " + ycoordinatefield + " Chart",
 				x: 'center'
 			},
@@ -493,7 +552,7 @@ function initchart(griditems, charttype, xcoordinate, ycoordinate) {
 		// option for bar chart
 		var option = {
 			title: {
-				text: 'HPCC INFO SALES DATA',
+				text: chartTitle,
 				subtext: xcoordinatefield + " - " + ycoordinatefield + " Chart",
 				x: 'center'
 			},

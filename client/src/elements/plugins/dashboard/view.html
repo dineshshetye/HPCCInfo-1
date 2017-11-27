@@ -145,14 +145,14 @@
                 var divId = 'divChart' + id.replace('delete', '');
                 var chartId = 'Chart' + id.replace('delete', '');
                 var index = 0;
-                for (var i = 0; i < chartData.length; i++) {
-                    var chart = chartData[i];
+                for (var i = 0; i < this.editor.chartDetails.length; i++) {
+                    var chart = this.editor.chartDetails[i];
                     if (chart.ChartId == chartId) {
                         index = i;
                         break;
                     }
                 }
-                chartData.splice(index, 1);
+                this.editor.chartDetails.splice(index, 1);
                 this.shadowRoot.querySelector('#divDashboard').removeChild(this.shadowRoot.querySelector("#" + divId));
             }
             setGeneralProperties(properties) {
