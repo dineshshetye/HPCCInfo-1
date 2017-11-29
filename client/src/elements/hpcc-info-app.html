@@ -110,8 +110,8 @@
                 color: white;
                 text-transform: none;
                 font-size: 15px;
-                margin-left: 30px;
-                width: 100px;
+                margin: 15px;
+                width: 90%;
             }
 
             .toggleBtn {
@@ -166,6 +166,24 @@
                 padding-left: 0px;
                 color: #FF5722;
             }
+            paper-button.btnNewWorkbook {
+                width: 100%;
+                margin: 0;
+                text-align: left;
+                padding: 15px 20px;
+                border-bottom: 1px solid #eaeaea;
+                justify-content: var(--layout-left-left_-_justify-content);
+            }
+            paper-button.btnNewWorkbook[disabled] {
+                border-bottom:0;
+            }
+            .panel-head {
+                background: #4caf50;
+                color: #fff;
+                text-transform: uppercase;
+                margin: 0;
+                padding: 15px 20px;
+            }
         </style>
 
         <app-location route="{{route}}"></app-location>
@@ -186,25 +204,25 @@
             <app-drawer id="drawer" slot="drawer">
                 <div class="listbx_div" role="listbox">
                     <section class="main">
-                        <h2>
+                        <h2 class="panel-head">
                             <iron-label>Actions</iron-label>
                         </h2>
-                        <hr>
-                        <p style="margin-left: 20px">
+                        
+                        <p style="margin: 0px">
                             <paper-button class="btnNewWorkbook" on-tap="_newWorkbook">
                                 <iron-icon class="icnNewWorkbook" icon="create"></iron-icon>
                                 <iron-label class="headerLabels">New Workbook</iron-label>
                             </paper-button>
                         </p>
 
-                        <p style="margin-left: 20px">
+                        <p style="margin: 0px">
                             <paper-button id="edit-worksheet-dialog" class="btnNewWorkbook" on-tap="_editWorkbook" disabled=true>
                                 <iron-icon class="icnNewWorkbook" icon="build"></iron-icon>
                                 <iron-label class="headerLabels">Edit Workbook</iron-label>
                             </paper-button>
                         </p>
 
-                        <p style="margin-left: 20px">
+                        <p style="margin: 0px">
                             <paper-button id="open-worksheet-dialog" class="btnNewWorkbook" on-tap="_openWorkbook">
                                 <iron-icon class="icnNewWorkbook" icon="apps"></iron-icon>
                                 <iron-label class="headerLabels">Open Workbook</iron-label>

@@ -12,6 +12,10 @@
         --paper-toast-background-color: red;
         --paper-toast-color: white;
       }
+      vaadin-combo-box {
+				width: 100%;
+				display: block !important;
+			}
     </style>
 
     <paper-dialog id="dialog" modal>
@@ -87,6 +91,7 @@
         this.selectedxcoordinate='';
         this.selectedycoordinate='';
         this.chartDataSave='';
+        this.$.subfilesgrid.$.overlay.shadowRoot.querySelector('#dropdown').shadowRoot.querySelector('#overlay').shadowRoot.querySelector('#overlay').querySelector('#content').style.padding=0;
       }
 
       serialize() {

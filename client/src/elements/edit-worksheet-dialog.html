@@ -17,6 +17,12 @@
 
 <dom-module id="edit-worksheet-dialog">
     <template>
+            <style include="shared-dialog-styles">
+                    vaadin-combo-box {
+                            width: 100%;
+                            display: block !important;
+                        }
+                    </style>
         <style include="shared-dialog-styles"></style>
         <paper-dialog id="dialog" modal>
             <template is="dom-if" if={{loading}}>

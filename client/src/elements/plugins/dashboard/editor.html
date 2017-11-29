@@ -144,8 +144,9 @@
 				}
 			}
 			serialize() {
+				this.chartDataSave = '[';
 				if (this.chartDetails.length > 0) {
-					this.chartDataSave = '[';
+					
 					for (var i = 0; i < this.chartDetails.length; i++) {
 						this.chartDataSave += '{';
 						this.chartDataSave += '\"ChartId\" : \"' + this.chartDetails[i].ChartId + '\", ';
@@ -156,10 +157,10 @@
 						this.chartDataSave += '}';
 						if (i != this.chartDetails.length - 1)
 							this.chartDataSave += ',';
-					}
-					this.chartDataSave += ']';
+					}			
 					
 				}
+				this.chartDataSave += ']';
 
 				var jsonStr = '{';
 				jsonStr += '\"displayFields\" : \"' + this.displayFields + '\",';
