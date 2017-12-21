@@ -420,7 +420,15 @@ function initchart(griditems, chartTitle, charttype, xcoordinate, ycoordinate, I
 			var chartId = 'Chart' + randomNumber;
 			chartDiv.id = chartId;
 			chartDiv.classList.add('chartDiv');
-			chartDiv.style = "width:550px;height:400px;float:left;";
+			//chartDiv.style = "width:550px;height:400px;float:left;";
+			chartDiv.style = "width:850px;height:400px;float:left;";
+			if ($(window).width() < 1600){ chartDiv.style = "width:650px;height:400px;float:left;" };
+			if ($(window).width() < 1400){ chartDiv.style = "width:555px;height:400px;float:left;" };
+			if ($(window).width() < 1200){ chartDiv.style = "width:460px;height:400px;float:left;" };
+			if ($(window).width() < 1024){ chartDiv.style = "width:830px;height:400px;float:left;" };
+			if ($(window).width() < 992){ chartDiv.style = "width:690px;height:400px;float:left;" };
+			if ($(window).width() < 768){ chartDiv.style = "width:550px;height:400px;float:left;" };
+			if ($(window).width() < 640){ chartDiv.style = "width:380px;height:400px;float:left;" };
 			Polymer.dom(currentPage.shadowRoot.querySelector('#' + divId).querySelector('#' + divColumnId)).appendChild(chartDiv);
 
 			var editButton = document.createElement("paper-icon-button");

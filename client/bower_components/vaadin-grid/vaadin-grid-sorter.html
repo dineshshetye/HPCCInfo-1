@@ -4,24 +4,8 @@ Copyright (c) 2017 Vaadin Ltd.
 This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
 -->
 
-<!--
-
-`vaadin-grid-sorter` is a helper element for the `vaadin-grid` that provides out-of-the-box UI controls,
-visual feedback, and handlers for sorting the grid data.
-
-
-### Styling
-The following custom properties and mixins are available for styling:
-
-Custom property | Description | Default
-----------------|-------------|----------
-`--vaadin-grid-sorter-arrow` | Mixin applied to the arrow | `{}`
-`--vaadin-grid-sorter-order` | Mixin applied to the order | `{}`
-
--->
-
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="vaadin-grid-cell-click-behavior.html">
+<link rel="import" href="../vaadin-themable-mixin/vaadin-themable-mixin.html">
 
 <style>
   @font-face {
@@ -32,260 +16,228 @@ Custom property | Description | Default
   }
 </style>
 
-<dom-module id="vaadin-grid-sorter">
+<dom-module id="vaadin-grid-sorter-default-theme" theme-for="vaadin-grid-sorter">
   <template>
     <style>
       :host {
-        position: relative;
-        display: inline-flex;
         justify-content: space-between;
         align-items: center;
-        cursor: pointer;
-      }
-
-      #indicators {
         position: relative;
       }
 
-      #order {
-        position: absolute;
-        right: 0;
-        top: 0;
-        transform: translateY(-6px) scale(0.7);
-        @apply(--vaadin-grid-sorter-order);
-      }
-
-      #indicators::before {
-        font-family: 'vaadin-grid-sorter-icons';
-        display: block;
-        padding: 0 10px;
-        @apply(--vaadin-grid-sorter-arrow);
-      }
-
-      :host(:not([direction])) #indicators::before {
-        content: "\e901";
+      :host(:not([direction])) [part="indicators"]::before {
         opacity: 0.2;
       }
 
-      :host([direction=asc]) #indicators::before {
-        content: "\e900";
-      }
-
-      :host([direction=desc]) #indicators::before {
-        content: "\e902";
-      }
-
-      #announcer {
-        position: absolute;
-        z-index: -1;
-        clip: rect(0, 0, 0, 0);
-        text-transform: none;
-      }
-
-      #content {
+      [part="content"] {
         display: inline-block;
         overflow: hidden;
         text-overflow: ellipsis;
         flex: 1;
       }
+
+      [part="indicators"]::before {
+        display: block;
+        padding: 0 10px;
+      }
+
+      [part="order"] {
+        transform: translateY(-6px) scale(0.7);
+      }
+    </style>
+  </template>
+</dom-module>
+
+<dom-module id="vaadin-grid-sorter">
+  <template>
+    <style>
+      :host {
+        display: inline-flex;
+        cursor: pointer;
+      }
+
+      [part="indicators"] {
+        position: relative;
+      }
+
+      [part="order"] {
+        position: absolute;
+        right: 0;
+        top: 0;
+      }
+
+      [part="indicators"]::before {
+        font-family: 'vaadin-grid-sorter-icons';
+      }
+
+      :host(:not([direction])) [part="indicators"]::before {
+        content: "\e901";
+      }
+
+      :host([direction=asc]) [part="indicators"]::before {
+        content: "\e900";
+      }
+
+      :host([direction=desc]) [part="indicators"]::before {
+        content: "\e902";
+      }
     </style>
 
-    <div id="content" on-focus="_onContentFocus">
+    <div part="content">
       <slot></slot>
     </div>
-    <div id="announcer" aria-hidden="true">
-      <div>[[_getAriaLabel(direction, _order)]]</div>
-    </div>
-    <div id="indicators" aria-hidden="true" on-focus="_onContentFocus">
-      <div id="order">[[_getDisplayOrder(_order)]]</div>
+    <div part="indicators">
+      <div part="order">[[_getDisplayOrder(_order)]]</div>
     </div>
 
   </template>
   <script>
-    Polymer({
-      is: 'vaadin-grid-sorter',
+    {
+      /**
+       * `<vaadin-grid-sorter>` is a helper element for the `<vaadin-grid>` that provides out-of-the-box UI controls,
+       * visual feedback, and handlers for sorting the grid data.
+       *
+       * #### Example:
+       * ```html
+       * <vaadin-grid-column>
+       *   <template class="header">
+       *     <vaadin-grid-sorter path="name.first">First Name</vaadin-grid-sorter>
+       *   </template>
+       *   <template>[[item.name.first]]</template>
+       * </vaadin-grid-column>
+       * ```
+       *
+       * ### Styling
+       *
+       * The following shadow DOM parts are available for styling:
+       *
+       * Part name | Description
+       * ----------------|----------------
+       * `content` | The slotted content wrapper
+       * `indicators` | The internal sorter indicators.
+       * `order` | The internal sorter order
+       *
+       * The following state attributes are available for styling:
+       *
+       * Attribute    | Description | Part name
+       * -------------|-------------|------------
+       * `direction` | Sort direction of a sorter | :host
+       *
+       * @memberof Vaadin
+       */
+      class GridSorterElement extends Vaadin.ThemableMixin(Polymer.Element) {
+        static get is() {
+          return 'vaadin-grid-sorter';
+        }
 
-      properties: {
+        static get properties() {
+          return {
+            /**
+            * JS Path of the property in the item used for sorting the data.
+            */
+            path: String,
 
-        /**
-         * JS Path of the property in the item used for sorting the data.
-         */
-        path: String,
+            /**
+            * How to sort the data.
+            * Possible values are `asc` to use an ascending algorithm, `desc` to sort the data in
+            * descending direction, or `null` for not sorting the data.
+            */
+            direction: {
+              type: String,
+              reflectToAttribute: true,
+              notify: true,
+              value: null
+            },
 
-        /**
-         * How to sort the data.
-         * Possible values are `asc` to use an ascending algorithm, `desc` to sort the data in
-         * descending direction, or `null` for not sorting the data.
-         */
-        direction: {
-          type: String,
-          reflectToAttribute: true,
-          notify: true,
-          value: null
-        },
+            _order: {
+              type: Number,
+              value: null
+            },
 
-        _order: {
-          type: Number,
-          value: null
-        },
+            _isConnected: {
+              type: Boolean,
+              value: false
+            }
+          };
+        }
 
-        _cellHasFocus: {
-          type: Boolean,
-          value: false
-        },
+        static get observers() {
+          return [
+            '_pathOrDirectionChanged(path, direction, _isConnected)',
+            '_directionOrOrderChanged(direction, _order)'
+          ];
+        }
 
-        _boundOnCellContentFocusin: {
-          type: Function,
-          value: function() {
-            return this._onCellContentFocusin.bind(this);
+        ready() {
+          super.ready();
+          this.addEventListener('click', this._onClick.bind(this));
+        }
+
+        connectedCallback() {
+          super.connectedCallback();
+          this._isConnected = true;
+        }
+
+        disconnectedCallback() {
+          super.disconnectedCallback();
+          this._isConnected = false;
+        }
+
+        _pathOrDirectionChanged(path, direction, isConnected) {
+          if (path === undefined || direction === undefined || isConnected === undefined) {
+            return;
           }
-        },
 
-        _boundOnCellContentFocusout: {
-          type: Function,
-          value: function() {
-            return this._onCellContentFocusout.bind(this);
-          }
-        },
-
-      },
-
-      observers: [
-        '_pathOrDirectionChanged(path, direction, isAttached)',
-        '_directionOrOrderChanged(direction, _order)',
-        '_cellHasFocusChanged(_cellHasFocus)'
-      ],
-
-      behaviors: [
-        vaadin.elements.grid.CellClickBehavior
-      ],
-
-      attached: function() {
-        this._cellContent = this._getClosestCellContent();
-        if (this._cellContent) {
-          this._cellContent.addEventListener('cell-focusin', this._boundOnCellContentFocusin);
-          this._cellContent.addEventListener('cell-focusout', this._boundOnCellContentFocusout);
-        }
-      },
-
-      detached: function() {
-        if (this._cellContent) {
-          this._cellContent.removeEventListener('cell-focusin', this._boundOnCellContentFocusin);
-          this._cellContent.removeEventListener('cell-focusout', this._boundOnCellContentFocusout);
-          this._cellContent = undefined;
-        }
-      },
-
-      _onContentFocus: function(e) {
-        /* Need to move the focus to the correct trap. This is only required for IE11. */
-        var grid = this;
-        while (grid.localName !== 'vaadin-grid') {
-          grid = Polymer.dom(grid).parentNode;
-        }
-
-        var thisCell = grid.$.scroller._getCellByCellContent(this);
-        if (thisCell.is === 'vaadin-grid-table-footer-cell') {
-          grid.$.scroller._virtualFocus = grid.$.scroller.$.footer;
-        } else {
-          grid.$.scroller._virtualFocus = grid.$.scroller.$.header;
-        }
-        grid.$.scroller.interacting = false;
-        grid.focus();
-      },
-
-      _getClosestCellContent: function() {
-        var el = this;
-        while (el = Polymer.dom(el).parentNode) {
-          if (el.is === 'vaadin-grid' || el === document.body) {
-            // not found
-            return null;
-          }
-          if (el.localName === 'vaadin-grid-cell-content') {
-            // found
-            return el;
+          if (isConnected) {
+            this.dispatchEvent(new CustomEvent('sorter-changed', {bubbles: true, composed: true}));
           }
         }
-      },
 
-      _onCellContentFocusin: function() {
-        this._cellHasFocus = true;
-      },
-
-      _onCellContentFocusout: function() {
-        this._cellHasFocus = false;
-      },
-
-      _pathOrDirectionChanged: function(path, direction, isAttached) {
-        if (path === undefined || direction === undefined || isAttached === undefined) {
-          return;
+        _getDisplayOrder(order) {
+          return order === null ? '' : order + 1;
         }
 
-        if (isAttached) {
-          this.fire('sorter-changed');
-        }
-      },
+        _onClick(e) {
+          const activeElement = this.getRootNode().activeElement;
+          if (this !== activeElement && this.contains(activeElement)) {
+            // Some focusable content inside the sorter was clicked, do nothing.
+            return;
+          }
 
-      _getDisplayOrder: function(order) {
-        return order === null ? '' : order + 1;
-      },
-
-      _cellClick: function(e) {
-        e.preventDefault();
-        if (this.direction === 'asc') {
-          this.direction = 'desc';
-        } else if (this.direction === 'desc') {
-          this.direction = null;
-        } else {
-          this.direction = 'asc';
-        }
-      },
-
-      _getAriaLabel: function(direction, order) {
-        if (direction) {
-          var label = 'Sorted ';
-          label += direction === 'asc' ? 'ascending' : 'descending';
-          label += order === null ? '. ' : (', Order ' + (order + 1) + '.');
-          return label;
-        } else {
-          return 'Unsorted.';
-        }
-      },
-
-      _directionOrOrderChanged: function(direction, order) {
-        if (direction === undefined || order === undefined) {
-          return;
+          e.preventDefault();
+          if (this.direction === 'asc') {
+            this.direction = 'desc';
+          } else if (this.direction === 'desc') {
+            this.direction = null;
+          } else {
+            this.direction = 'asc';
+          }
         }
 
-        this.debounce('direction-announce', function() {
-          this.fire('iron-announce', {text: this._getAriaLabel(direction, order)});
-        }, 1);
+        _directionOrOrderChanged(direction, order) {
+          if (direction === undefined || order === undefined) {
+            return;
+          }
 
-        // Safari has an issue with repainting shadow root element styles when a host attribute changes.
-        // Need this workaround (toggle any inline css property on and off) until the issue gets fixed.
-        var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-        if (isSafari && this.root) {
-          this.root.querySelectorAll('*').forEach(function(el) {
-            el.style['-webkit-backface-visibility'] = 'visible';
-            el.style['-webkit-backface-visibility'] = '';
-          });
-        }
-      },
-
-      _cellHasFocusChanged: function(cellHasFocus) {
-        // Let us hide the a11y announces when the cell content parent
-        // of the sorter does not have virtual focus. This is needed to prevent
-        // the sorter announcement on every body cell of the sortable column.
-        if (cellHasFocus) {
-          this.$.announcer.setAttribute('aria-hidden', 'false');
-        } else {
-          // Wait before hiding the label to prevent readers like NVDA from reacting
-          // to changes for the unfocused cell.
-          this.async(function() {
-            this.$.announcer.setAttribute('aria-hidden', 'true');
-          }, 1);
+          // Safari has an issue with repainting shadow root element styles when a host attribute changes.
+          // Need this workaround (toggle any inline css property on and off) until the issue gets fixed.
+          var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+          if (isSafari && this.root) {
+            this.root.querySelectorAll('*').forEach(function(el) {
+              el.style['-webkit-backface-visibility'] = 'visible';
+              el.style['-webkit-backface-visibility'] = '';
+            });
+          }
         }
       }
 
-    });
+      customElements.define(GridSorterElement.is, GridSorterElement);
+
+      /**
+       * @namespace Vaadin
+       */
+      window.Vaadin = window.Vaadin || {};
+      Vaadin.GridSorterElement = GridSorterElement;
+    }
   </script>
 </dom-module>

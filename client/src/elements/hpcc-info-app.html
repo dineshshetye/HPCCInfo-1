@@ -26,6 +26,7 @@
 
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../bower_components/polymer/lib/utils/async.html">
+<link rel="import" href="../../bower_components/iron-localstorage/iron-localstorage.html">
 
 <link rel="import" href="info-box.html">
 <link rel="import" href="my-login.html">
@@ -37,6 +38,8 @@
 
 <dom-module id="hpcc-info-app">
     <template>
+        <iron-localstorage name="user-storage" value="{{user}}"></iron-localstorage>
+      </div>
         <iron-ajax id="ajaxRetrieveAllProjects" method="GET" handle-as="json" on-response="ajaxRetrieveAllProjectsResponse">
         </iron-ajax>
         <iron-ajax id="ajaxRetrieveProjectByName" method="GET" handle-as="json" on-response="ajaxRetrieveProjectByNameResponse">
@@ -248,7 +251,7 @@
         <paper-toast id="toast" class="fit-bottom"></paper-toast>
     </template>
 
-    <script>
+    <script type="text/javascript">
         class HpccInfoApp extends Polymer.Element {
             static get is() { return 'hpcc-info-app'; }
             static get properties() {

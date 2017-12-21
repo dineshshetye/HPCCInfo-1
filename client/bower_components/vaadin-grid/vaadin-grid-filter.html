@@ -4,14 +4,8 @@ Copyright (c) 2017 Vaadin Ltd.
 This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
 -->
 
-<!--
-
-`vaadin-grid-filter` is a helper element for the `vaadin-grid` that provides out-of-the-box UI controls,
-and handlers for filtering the grid data.
-
--->
-
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../vaadin-text-field/vaadin-text-field.html">
 
 <dom-module id="vaadin-grid-filter">
   <template>
@@ -26,51 +20,99 @@ and handlers for filtering the grid data.
       }
     </style>
     <slot name="filter">
-      <input id="filter" value="{{value::input}}">
+      <vaadin-text-field id="filter" value="{{value}}"></vaadin-text-field>
     </slot>
 
   </template>
   <script>
-    Polymer({
-      is: 'vaadin-grid-filter',
+    {
+      /**
+       * `<vaadin-grid-filter>` is a helper element for the `<vaadin-grid>` that provides out-of-the-box UI controls,
+       * and handlers for filtering the grid data.
+       *
+       * #### Example:
+       * ```html
+       * <vaadin-grid-column>
+       *   <template class="header">
+       *     <vaadin-grid-filter path="name.first"></vaadin-grid-filter>
+       *   </template>
+       *   <template>[[item.name.first]]</template>
+       * </vaadin-grid-column>
+       * ```
+       *
+       * @memberof Vaadin
+       */
+      class GridFilterElement extends Polymer.Element {
 
-      properties: {
-
-        /**
-         * JS Path of the property in the item used for filtering the data.
-         */
-        path: String,
-
-        /**
-         * Current filter value.
-         */
-        value: {
-          type: String,
-          notify: true
+        static get is() {
+          return 'vaadin-grid-filter';
         }
-      },
 
-      observers: ['_filterChanged(path, value, isAttached)'],
+        static get properties() {
+          return {
 
-      ready: function() {
-        var child = Polymer.dom(this).firstElementChild;
-        if (child && child.getAttribute('slot') !== 'filter') {
-          console.warn('Make sure you have assigned slot="filter" to the child elements of <vaadin-grid-filter>');
-          child.setAttribute('slot', 'filter');
-        }
-      },
+            /**
+             * JS Path of the property in the item used for filtering the data.
+             */
+            path: String,
 
-      _filterChanged: function(path, value, isAttached) {
-        if (path === undefined || value === undefined || isAttached === undefined) {
-          return;
+            /**
+             * Current filter value.
+             */
+            value: {
+              type: String,
+              notify: true
+            },
+
+            _connected: Boolean
+          };
         }
-        
-        if (isAttached) {
-          this.debounce('filter-changed', function() {
-            this.fire('filter-changed');
-          }, 200);
+
+        /** @private */
+        connectedCallback() {
+          this._connected = true;
         }
+
+        static get observers() {
+          return ['_filterChanged(path, value, _connected)'];
+        }
+
+        ready() {
+          super.ready();
+
+          const child = Polymer.dom(this).firstElementChild;
+          if (child && child.getAttribute('slot') !== 'filter') {
+            console.warn('Make sure you have assigned slot="filter" to the child elements of <vaadin-grid-filter>');
+            child.setAttribute('slot', 'filter');
+          }
+        }
+
+        _filterChanged(path, value, connected) {
+          if (path === undefined || value === undefined || !connected) {
+            return;
+          }
+
+          this._debouncerFilterChanged = Polymer.Debouncer.debounce(
+            this._debouncerFilterChanged,
+            Polymer.Async.timeOut.after(200),
+            () => {
+              this.dispatchEvent(new CustomEvent('filter-changed', {bubbles: true}));
+            });
+        }
+
+        focus() {
+          this.$.filter.focus();
+        }
+
       }
-    });
+
+      customElements.define(GridFilterElement.is, GridFilterElement);
+
+      /**
+       * @namespace Vaadin
+       */
+      window.Vaadin = window.Vaadin || {};
+      Vaadin.GridFilterElement = GridFilterElement;
+    }
   </script>
 </dom-module>

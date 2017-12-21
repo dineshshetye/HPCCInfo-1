@@ -12,10 +12,11 @@
         --paper-toast-background-color: red;
         --paper-toast-color: white;
       }
+
       vaadin-combo-box {
-				width: 100%;
-				display: block !important;
-			}
+        width: 100%;
+        display: block !important;
+      }
     </style>
 
     <paper-dialog id="dialog" modal>
@@ -55,9 +56,9 @@
           expression: String,
           title: String,
           selectedchartyype: String,
-					selectedxcoordinate: String,
+          selectedxcoordinate: String,
           selectedycoordinate: String,
-        chartDataSave:Array
+          chartDataSave: Array
         }
       }
       constructor() {
@@ -66,7 +67,8 @@
       ready(e) {
         super.ready();
         //var infoBox = document.querySelector("#infobox");
-        var infoBox = document.childNodes[1].querySelector('my-app').shadowRoot.getElementById('hpccinfoappid').shadowRoot.querySelector('#infobox');
+        var infoBox =  document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box');
+       
         var username = infoBox.username;
         var password = infoBox.password;
         var credentials = username === null || username === "" ? "" : (
@@ -87,11 +89,10 @@
         this.outputdsname = '';
         this.expression = '';
         this.title = '';
-        this.selectedchartyype='';
-        this.selectedxcoordinate='';
-        this.selectedycoordinate='';
-        this.chartDataSave='';
-        this.$.subfilesgrid.$.overlay.shadowRoot.querySelector('#dropdown').shadowRoot.querySelector('#overlay').shadowRoot.querySelector('#overlay').querySelector('#content').style.padding=0;
+        this.selectedchartyype = '';
+        this.selectedxcoordinate = '';
+        this.selectedycoordinate = '';
+        this.chartDataSave = '';
       }
 
       serialize() {
@@ -129,10 +130,10 @@
             this.inputdsname = jsonTabContent.inputdsname;
             this.pluginId = jsonTabContent.pluginId;
             this.title = jsonTabContent.title;
-            this.selectedchartyype=jsonTabContent.ChartType;           
-            this.selectedxcoordinate=jsonTabContent.xcoordinate;
-            this.selectedycoordinate=jsonTabContent.ycoordinate;      
-            this.chartDataSave =  jsonTabContent.chartDataSave; 
+            this.selectedchartyype = jsonTabContent.ChartType;
+            this.selectedxcoordinate = jsonTabContent.xcoordinate;
+            this.selectedycoordinate = jsonTabContent.ycoordinate;
+            this.chartDataSave = jsonTabContent.chartDataSave;
             this.outputdsname = jsonTabContent.outputdsname;
             this.expression = jsonTabContent.expression;
             this.$.subfilesgrid.selectedItem = jsonTabContent.expression;
@@ -181,11 +182,10 @@
         var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
         getFileData.then(function (ajaxResp) {
 
-        if(infoBox.getActiveView() != null)
-        {
-          infoBox.getActiveView().editor.eclcode = ajaxResp.querystr;
-          infoBox.getActiveView().editor.outputdsname = ajaxResp.outputdsname;
-        }
+          if (infoBox.getActiveView() != null) {
+            infoBox.getActiveView().editor.eclcode = ajaxResp.querystr;
+            infoBox.getActiveView().editor.outputdsname = ajaxResp.outputdsname;
+          }
 
           var obj = ajaxResp.Result.Row[0];
           var resobj = ajaxResp.Result.Row[0];
@@ -222,12 +222,12 @@
           });
 
           for (var i = 0; i < cnt; i++) {
-            var headername=colArray[i];
+            var headername = colArray[i];
             headername = headername != null ? headername : "";
-            headername = headername.replace("_"," "); 
+            headername = headername.replace("_", " ");
             var headerTemplate = document.createElement('template');
             headerTemplate.classList.add('header');
-            headerTemplate.innerHTML =headername;
+            headerTemplate.innerHTML = headername;
             var validatedfields = colArray[i];
             if (isNaN(resobj[validatedfields])) {
               if (xfieldnames === "") {
@@ -254,7 +254,7 @@
             grid.appendChild(column);
           }
           grid.items = ajaxResp.Result.Row;
-          infoBox.griddata= ajaxResp.Result.Row;
+          infoBox.griddata = ajaxResp.Result.Row;
           infoBox.shadowRoot.querySelector('#pluginMenu').disabled = false;
           infoBox.shadowRoot.querySelector('#export-project-dialog').disabled = false;
 
@@ -264,8 +264,8 @@
           sessionStorage.setItem('gridColumns', colArray);
 
           currentPage.loading = false;
-          
-        
+
+
         });
       }
       open() {
@@ -326,7 +326,7 @@
           }
           var fieldnames = "";
           var xfieldnames = "";
-          var yfieldnames = "";  
+          var yfieldnames = "";
           Object.keys(obj).forEach(function (key) {
             //grid.addColumn({name: key, resizable:true});
             if (fieldnames === "") {
@@ -339,9 +339,9 @@
           });
 
           for (var i = 0; i < cnt; i++) {
-            var headername=colArray[i];
+            var headername = colArray[i];
             headername = headername != null ? headername : "";
-            headername = headername.replace("_"," "); 
+            headername = headername.replace("_", " ");
             var headerTemplate = document.createElement('template');
             headerTemplate.classList.add('header');
             headerTemplate.innerHTML = headername;
@@ -353,21 +353,21 @@
             column.appendChild(headerTemplate);
             column.appendChild(bodyTemplate);
             grid.appendChild(column);
-            var validatedfields=colArray[i];        
-        if(isNaN(resobj[validatedfields])){
-                if(xfieldnames === ""){
-                  xfieldnames += validatedfields;
-              }else{
+            var validatedfields = colArray[i];
+            if (isNaN(resobj[validatedfields])) {
+              if (xfieldnames === "") {
+                xfieldnames += validatedfields;
+              } else {
                 xfieldnames += "," + validatedfields;
               }
-              }
-             else {
-              if(yfieldnames === ""){
-                  yfieldnames += validatedfields;
-              }else{
+            }
+            else {
+              if (yfieldnames === "") {
+                yfieldnames += validatedfields;
+              } else {
                 yfieldnames += "," + validatedfields;
               }
-              }
+            }
           }
           grid.items = ajaxResp.Result.Row;
 

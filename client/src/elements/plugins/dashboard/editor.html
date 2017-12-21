@@ -295,13 +295,27 @@
 				this.inputeclcode = selpage.editor.eclcode;
 				this.inputdsname = selpage.editor.outputdsname;
 				this.displayFields = selpage.editor.displayFields;
-
 				this.$.xcoordinate.items = selpage.editor.xdisplayFields.split(",");
 				this.$.ycoordinate.items = selpage.editor.ydisplayFields.split(",");
 				return;
 
 			}
-
+			ApplyInteractions(){
+				var currentPage = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#pages").selectedItem;
+				currentPage.outputdsname = 'filterdsName' + '_' + Math.random().toString(36).substr(2, 4);
+				var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box');
+				this.outputdsname = currentPage.outputdsname;
+				var filterformula=infoBox.parentchartinput+' = \''+infoBox.parentchartfieldvalue.replace(/%20/g, " ")+'\'';
+				alert(filterformula);
+				var QueryStr1 = this.inputeclcode + "\n" + currentPage.outputdsname + " := " +
+					this.inputdsname + "(" +
+					filterformula + ")" + " : PERSIST(\'" + currentPage.outputdsname + "_persist\', EXPIRE(1));";
+				this.expression =filterformula;
+				var QueryStr = QueryStr1 + "\n OUTPUT(" + this.outputdsname + ");";
+				currentPage.eclcode = QueryStr1;
+				this.eclcode = QueryStr1;
+				return loadGridwithEcl(QueryStr, 10000);
+				}
 			_cancelHandler(e) {
 				this.fire('cancel');
 			}
