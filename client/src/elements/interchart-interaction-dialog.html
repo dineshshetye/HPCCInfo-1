@@ -97,6 +97,7 @@
 			AddInteractions(e) {
 				var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
 				var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
+				if(this.$.ParentChartInput.selectedItem!=null && this.$.parentchartTitle.selectedItem!=null && this.$.childchartTitle.selectedItem!=null && this.$.ChildChartInput.selectedItem!=null){
 				if(this.$.ParentChartInput.selectedItem===this.$.ChildChartInput.selectedItem){
 					infoBox.parentchartinput=this.$.ParentChartInput.selectedItem;
 					infoBox.parentchartTitle=this.$.parentchartTitle.selectedItem;				
@@ -106,7 +107,7 @@
 							infoBox.parentchartId=chart.ChartId;
 						}
 						if (chart.chartTitle === this.$.childchartTitle.selectedItem) {
-							infoBox.IsInteraction=true;
+							infoBox.IsInteraction=1;
 							infoBox.childchartId=chart.ChartId;
 							infoBox.childchartTitle=chart.chartTitle;
 							infoBox.childchartType=	 chart.ChartType;
@@ -115,6 +116,7 @@
 							break;						
 						}
 					}
+					currentPage.shadowRoot.querySelector("#div"+chart.ChartId).innerHTML = "";
 					this.$.toast.text = "Interactions Added Successfully.";
                     this.$.toast.open();
 				}
@@ -123,6 +125,11 @@
                     this.$.toast.open();
 				}
 				
+				}
+				else{
+					this.$.toast.text = "Please fill all fields.";
+                    this.$.toast.open();
+				}
 				}
         }
             customElements.define(InterchartInteractionDialog.is, InterchartInteractionDialog);

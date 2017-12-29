@@ -12,9 +12,8 @@
 <link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
 <link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../../bower_components/iron-icons/social-icons.html">
-
 <link rel="import" href="info-plugin-dialog.html">
-
+<link rel="import" href="info-message-dialog.html">
 <!-- Import Custom Plugins here -->
 <link rel="import" href="plugins/input/editor.html">
 <link rel="import" href="plugins/input/view.html">
@@ -100,7 +99,7 @@
         <export-project-dialog id="export-project-dialog"></export-project-dialog>
         <iron-pages id="pages" selected="{{selected}}"></iron-pages>
         <info-plugin-dialog id="plugininfo"></info-plugin-dialog>
-
+        <info-message-dialog id="messageinfo"></info-message-dialog>
     </template>
     <script>
         class InfoBox extends Polymer.Element {
@@ -243,8 +242,8 @@
                         value: null
                     },
                     IsInteraction: {
-                        type: Boolean,
-                        value: false
+                        type: Number,
+                        value: 0
                     }
 
 

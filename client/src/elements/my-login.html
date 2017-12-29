@@ -1,79 +1,120 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html" >
+<link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/app-route/app-route.html">
 
+<link rel="import" href="change-password.html">
+
 <dom-module id="my-login">
-	
+
 	<template>
-			<style>
-					.loginBtnDiv {
-						display: inline-flex;
-					}
+		<style>
+			.loginBtnDiv {
+				display: inline-flex;
+			}
+
+			.signoutBtn {
+				background-color: #4caf50;
+				color: white;
+				text-transform: none;
+				height: 25px;
+				font-size: 13px;
+				margin-top: 30px;
+			}
+
+			.SignInText {
+				color: #767676;
+				margin-top: 30px;
+				padding: 5px;
+			}
+			.btn-dropdown {
+				background: #ff7043;
+				color: #fff;
+				border-radius: 4px;
+				height: 30px;
+    			width: 35px;
+    			margin-top: 20px;
+    			padding: 0px;
+    			text-align: center;
+			}
+			.btn-dropdown {
+				--iron-icon: {
+					width:23px;
+				}
+			}
+			paper-menu-button {
+				--iron-dropdown: {	
+					top:50px !important;
+				}
+			}
+			paper-menu-button {
+				--iron-dropdown: .dropdown-content {	
+					overflow:visible !important;
+				}
+			} 
+			paper-menu-button paper-listbox paper-item {
+				font-size: 14px;
+			}
 			
-					.signoutBtn {
-						background-color: #4caf50; 
-						color: white; 
-						text-transform: none;
-						height: 25px;
-						font-size: 13px;
-						margin-top: 30px;
-					}
-			
-					.SignInText {
-						color: #767676;
-						margin-top: 30px;
-						padding: 5px;
-					}
-			
-				</style>
+		</style>
 		<app-location route="{{route}}"></app-location>
 
 		<template is="dom-if" if="{{signedIn}}">
-            <div class="loginBtnDiv">
-                <h6 class="SignInText">Welcome {{user.displayName}}</h6>
-                <paper-button raised class="signoutBtn" on-tap="logout">Sign-Out</paper-button>
-            </div>
-        </template>
-        <template is="dom-if" if="{{!signedIn}}">
-            <div class="loginBtnDiv">
-                <h6 class="SignInText">Welcome</h6>
-                <paper-button raised class="signoutBtn" on-tap="logout">Sign-In</paper-button>
-            </div>
-        </template>
+			<div class="loginBtnDiv">
+				<h6 class="SignInText">Welcome {{user.displayName}}</h6>
+				<paper-menu-button horizontal-align="right" id="profileMenu">
+					<paper-icon-button icon="arrow-drop-down" slot="dropdown-trigger" class="btn-dropdown"></paper-icon-button>
+					<paper-listbox id="profilemenu" slot="dropdown-content"> 
+						<paper-item>Profile</paper-item>
+						<paper-item hidden$="{{!user.dbauth}}" on-tap="_changePassword">Change Password</paper-item>
+						<paper-item>Sign Out</paper-item>
+					</paper-listbox>
+				</paper-menu-button>
+				<paper-button raised class="signoutBtn" on-tap="logout">Sign-Out</paper-button>
+			</div>
+		</template>
+		<template is="dom-if" if="{{!signedIn}}">
+			<div class="loginBtnDiv">
+				<h6 class="SignInText">Welcome</h6>
+				<paper-button raised class="signoutBtn" on-tap="logout">Sign-In</paper-button>
+			</div>
+		</template>
+		<change-password id="changepassword" user={{user}}></change-password>
 	</template>
+	
 	<script type="text/javascript">
-	class MyLogin extends Polymer.Element {
-			static get is() {return 'my-login'; }
-			
-			static get properties() { return {
-		
-				user: {
-                    type: Object,
-                    notify: true
-                },
+		class MyLogin extends Polymer.Element {
+			static get is() { return 'my-login'; }
 
-                signedIn: {
-                  type: Boolean,
-                  notify: true,
-                  value: false
-                }
-			}
+			static get properties() {
+				return {
+
+					user: {
+						type: Object,
+						notify: true
+					},
+
+					signedIn: {
+						type: Boolean,
+						notify: true,
+						value: false
+					}
+				}
 			}
 
 			logout(e) {
-				if(e.target.innerText === 'Sign-Out') {
-					this.addEventListener('fire', this._onClick)
-					//this.fire('sign-out');
+				if (e.target.innerText === 'Sign-Out') {
+					this.dispatchEvent(new CustomEvent('sign-out', { bubbles: true, composed: true }));
+					this.set('user', null);
 				}
-
-								
-				//var infoBox = document.querySelector('#infobox');
 				var infoBox = document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("#infobox");
 				infoBox.clearWorkBook();
-				
-                this.set('route.path', '/');
-            }
+				this.set('route.path', '/');
+			}
+			_changePassword(){
+				var dialog = this.$.changepassword;
+                dialog.open();				
+			}
 		}
 		customElements.define(MyLogin.is, MyLogin);
 	</script>

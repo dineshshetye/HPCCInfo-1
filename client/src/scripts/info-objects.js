@@ -202,9 +202,25 @@ function loadGridwithEcl(QueryStr, recLimit) {
 			currentPage.loading = false;
 		}
 		else {
-			currentPage.loading = false;
-			var ChartId = sessionStorage.getItem('ChartId');
-			initchart(ajaxResp.Result.Row, currentPage.chartTitle, currentPage.selectedchartyype, currentPage.selectedxcoordinate, currentPage.selectedycoordinate, "");
+			//	alert("infoBox.IsInteraction"+infoBox.IsInteraction);
+			if(infoBox.IsInteraction===1){	
+				currentPage.loading = false;
+			//	sessionStorage.setItem('ChartId',infoBox.childchartId);
+			infoBox.IsInteraction=2;
+			var childchartTitle="Filtered by "+infoBox.parentchartfieldvalue.replace(/%20/g, " ");
+				initchart(ajaxResp.Result.Row, childchartTitle, infoBox.childchartType, infoBox.childchartxcoordinate, infoBox.childchartycoordinate, infoBox.childchartId);
+			}
+			else if(infoBox.IsInteraction===2){	
+				currentPage.loading = false;
+				var childchartTitle="Filtered by "+infoBox.parentchartfieldvalue.replace(/%20/g, " ");
+				sessionStorage.setItem('ChartId',infoBox.childchartId);			
+				initchart(ajaxResp.Result.Row, childchartTitle, infoBox.childchartType, infoBox.childchartxcoordinate, infoBox.childchartycoordinate, "");
+			}
+			else{
+				currentPage.loading = false;
+				var ChartId = sessionStorage.getItem('ChartId');
+				initchart(ajaxResp.Result.Row, currentPage.chartTitle, currentPage.selectedchartyype, currentPage.selectedxcoordinate, currentPage.selectedycoordinate, "");
+			}
 		}
 	});
 	return;
@@ -544,6 +560,12 @@ function initchart(griditems, chartTitle, charttype, xcoordinate, ycoordinate, I
 			series: [
 				{
 					name: 'Sales',
+					itemStyle: {
+						emphasis: {
+							barBorderColor: 'red',
+							color: 'green'
+						}
+					},
 					type: charttype,
 					radius: '55%',
 					center: ['50%', '60%'],
@@ -628,4 +650,33 @@ function initchart(griditems, chartTitle, charttype, xcoordinate, ycoordinate, I
 	}
 	// use configuration item and data specified to show chart
 	this.myChart.setOption(option);
+	this.myChart.on('click', function (params) {
+		if(infoBox.parentchartTitle!=null){
+			if(infoBox.parentchartTitle===chartTitle){
+		if(infoBox.parentchartinput!=null)	
+		{			
+		infoBox.parentchartfieldvalue=encodeURIComponent(params.name);
+		infoBox.IsInteraction=1;
+		var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;	
+		var JSON=currentPage.editor.interactionDetails;
+		for (var index = 0; index < JSON.length; ++index) {			
+			 var interaction = JSON[index];			
+			 if(interaction.parentChartId === infoBox.parentchartId && interaction.childchartId === infoBox.childchartId ){
+				infoBox.IsInteraction=2;
+				currentPage.editor.interactionDetails.splice(index, 1);			   
+			   break;
+
+			 }
+			 else{
+				infoBox.IsInteraction=1;
+			 }
+			}
+		currentPage.editor.interactionDetails.push({ "parentChartId": infoBox.parentchartId, "childchartId": infoBox.childchartId, "InteractionField": infoBox.parentchartinput,"childchartTitle": infoBox.childchartTitle,"childchartType": infoBox.childchartType,"childchartxcoordinate": infoBox.childchartxcoordinate,"childchartycoordinate": infoBox.childchartycoordinate,"InteractionFieldvalue": encodeURIComponent(params.name)});
+				
+			currentPage.editor.ApplyInteractions();		
+		}	
+	}
+	}	
+	
+	});
 }

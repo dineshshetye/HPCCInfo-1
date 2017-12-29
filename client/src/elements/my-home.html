@@ -18,6 +18,7 @@
 
 <link rel="import" href="dialog-button.html">
 <link rel="import" href="my-registration.html">
+<link rel="import" href="forgot-password.html">
 <link href="https://fonts.googleapis.com/css?family=Open+Sans: 300, 600" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700" rel="stylesheet">
 <style>
@@ -343,15 +344,12 @@
                 }
             }
         </style>
-        <iron-localstorage name="user-storage" value="{{storedUser}}"></iron-localstorage>
+        <iron-localstorage name="user-storage" value="{{user}}"></iron-localstorage>
         <app-location route="{{route}}"></app-location>
-        <!-- <iron-ajax id="ajaxgetUserByLogin" method="GET" handle-as="json" on-response="ajaxgetUserByLoginResponse">
-        </iron-ajax> -->
 
         <body>
             <div class="body-bg"></div>
             <div class="login-panel">
-
                 <div class="left-pane">
                     <h3 class="head">Login to HPCC Info</h3>
                     <template is="dom-if" if="[[loginError]]">
@@ -383,7 +381,12 @@
                     </div>
                     <div class="bottom-link">
                         <div class="col-row">
-                            <div class="col-6"><a href="#">Forgot Password?</a></div>
+                            <div class="col-6">
+                                <paper-button class="btnForgotPassword btn-small" on-tap="ForgotPassword">
+                                    <iron-label class="headerLabels">Forgot Password?</iron-label>
+                                </paper-button>
+
+                            </div>
                             <div class="col-6 text-right">
                                 <paper-button class="btnUserRegistration btn-small" on-tap="UserRegistration">
                                     <iron-label class="headerLabels">New User?</iron-label>
@@ -401,6 +404,7 @@
             </div>
         </body>
         <my-registration id="registration"></my-registration>
+        <forgot-password id="forgotPassword"></forgot-password>
         <paper-toast id="toast" class="fit-bottom"></paper-toast>
     </template>
 
@@ -411,7 +415,15 @@
                 return {
                     loginError: String,
                     storedUser: Object,
-                    signedIn: Boolean
+                    user: {
+                        type: Object,
+                        notify: true
+                    },
+                    signedIn: {
+                        type: Boolean,
+                        notify: true,
+                        value: false
+                    }
                 }
             }
             ready() {
@@ -419,80 +431,66 @@
                 this._initializeLoginEvents();
             }
             _initializeLoginEvents() {
-                /**
-                 * Fired when Implementation Partners Login form is submitted
-                 */
+                // * Fired when Implementation Partners Login form is submitted                 
                 console.log('Initialize CALLED!!!!!');
                 this.$.LoginForm.addEventListener('iron-form-submit', function (event) {
                     console.log("Implementation Partners ... iron-form-submit called......");
                 });
 
-                /**
-                 * Fired before Implementation Partners Login form is submitted.
-                 */
+                // * Fired before Implementation Partners Login form is submitted. 
+
                 this.$.LoginForm.addEventListener('iron-form-presubmit', function (event) {
                     console.log("Implementation Partners ... iron-form-presubmit called......");
                     this.request.body.password = btoa(this.request.body.password);
                     console.log(this.request.body.password);
-                    //this.request.body.companyTypeId = 2;
                 });
 
-                /**
-                 * Fired when successful Implementation Partners Login form response is recieved.
-                 */
+                // * Fired when successful Implementation Partners Login form response is recieved.               
                 this.$.LoginForm.addEventListener('iron-form-response', this.LoginFormResponse.bind(this));
 
-                /**
-                 * Fired when the there is an error in Implementation Partners Login form response.
-                 */
+                // * Fired when the there is an error in Implementation Partners Login form response.                
                 this.$.LoginForm.addEventListener('iron-form-error', this.LoginFormError.bind(this));
             }
             LoginFormResponse(e) {
                 if (e.detail.response.length === 0) {
                     console.log("No User Found");
                     this.loginError = 'No User Found';
-                } 
+                }
                 else {
                     this.loginError = '';
                     console.log("RESPONSE: ", e.detail.response);
 
                     let response = e.detail.response;
                     if (response.username) {
-                        debugger;
-                        var myApp = document.querySelector('my-app');
-                        myApp.user = {
+                        this.user = {
                             displayName: response.username,
                             email: response.Email,
-                           // emailVerified: true,
-                            
+                            dbauth:true,
                         };
-                        //storedUser=myApp.user;
-                        myApp.signedIn = true;
-
+                        this.signedIn = true;
                         this.set('route.path', '/info');
-
-                    } 
+                    }
                     else {
                         console.log("User Not Found");
                         this.$.toast.open();
                         this.set('route.path', '/');
                     }
-
                 }
-
             }
             LoginFormError(e) {
                 console.log("ERROR: ", e.detail);
                 this.loginError = 'No User Found';
             }
 
-
             signIn() {
-                //	Polymer.fire('sign-in', null, { bubbles: false });
                 this.dispatchEvent(new CustomEvent('sign-in', null, { bubbles: false }));
             }
             UserRegistration() {
                 var dialog = this.$.registration;
+                dialog.open();
+            }
+            ForgotPassword() {
+                var dialog = this.$.forgotPassword;
                 dialog.open();
             }
 
@@ -500,23 +498,6 @@
                 console.log(this.$.username.value);
                 console.log(this.$.password.value);
                 this.$.LoginForm.submit();
-            }
-
-
-
-            ajaxgetUserByLoginResponse() {
-                if (this.$.ajaxgetUserByLogin.lastResponse.length > 0) {
-                    this.$.username.value = '';
-                    this.$.password.value = '';
-                    this.$.username.invalid = false;
-                    this.$.password.invalid = false;
-                    this.set('route.path', '/info');
-                }
-                else {
-                    this.$.toast.text = "Invalid Username or Password";
-                    this.$.toast.open();
-                    this.set('route.path', '/');
-                }
             }
         }
         customElements.define(MyHome.is, MyHome);

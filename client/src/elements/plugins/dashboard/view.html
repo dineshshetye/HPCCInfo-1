@@ -1,7 +1,10 @@
 <link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../../bower_components/paper-progress/paper-progress.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../../shared-styles.html">
 <link rel="import" href="../../new-chart-dialog.html">
+<link rel="import" href="../../interchart-interaction-dialog.html">
 
 <dom-module id="common-dashboard-view">
     <template>
@@ -93,15 +96,32 @@
         <!-- <div>
             <vaadin-grid style="display:none" class="projectworksheet" name="worksheet" page-size="10">                    
         </div> -->
-        <div class="add-col">
+        <!-- <div class="add-col">
             <paper-button id="btnAddChart" on-tap="_addNewChart">
                 <iron-icon class="icnNewWorkbook" icon="add"></iron-icon>
                 <iron-label class="headerLabels">Add New Chart</iron-label>
             </paper-button>
         </div>
+        <div class="add-col">
+            <paper-button id="btnInteractions" on-tap="OpenInteractionPopup">
+                <iron-icon class="icnInteractions" icon="add"></iron-icon>
+                <iron-label class="headerLabels">Interactions</iron-label>
+            </paper-button>
+        </div> -->
+        <div class="add-col">
+            <paper-menu-button horizontal-align="right" id="dashboardMenu">
+                <paper-icon-button id="btnDashboardMenu" icon="apps" slot="dropdown-trigger"></paper-icon-button>
+                <paper-listbox id="dashboardmenu" slot="dropdown-content">
+                        <paper-item id="btnAddChart" on-tap="_addNewChart">Add New Chart</paper-item>
+                        <paper-item id="btnInteractions" on-tap="OpenInteractionPopup">Interactions</paper-item>
+                     </paper-listbox>
+            </paper-menu-button>
+        </div>
+
         <div id="divDashboard" class="divDashboard"></div>
         <paper-tooltip for="btnEditPlugin" offset="0">Edit Worksheet</paper-tooltip>
         <new-chart-dialog id="newchart"></new-chart-dialog>
+        <interchart-interaction-dialog id="interactiondialog"></interchart-interaction-dialog>
     </template>
     <script>
         class CommonDashboardView extends Polymer.Element {
@@ -132,6 +152,8 @@
             _addNewChart(e) {
                 var dialog = this.$.newchart;
                 var id = "";
+                var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
+                infoBox.IsInteraction=0;
                 dialog.open(id);
             }
             editChart(e) {
@@ -154,6 +176,10 @@
                 }
                 this.editor.chartDetails.splice(index, 1);
                 this.shadowRoot.querySelector('#divDashboard').removeChild(this.shadowRoot.querySelector("#" + divId));
+            }
+            OpenInteractionPopup() {
+                var dialog = this.$.interactiondialog; 
+                dialog.open();
             }
             setGeneralProperties(properties) {
 

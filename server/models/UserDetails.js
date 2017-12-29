@@ -1,8 +1,23 @@
 //reference of dbconnection.js
 var mysql_pool = require('../DBConnection');
 
+var nodemailer = require('nodemailer');
+var transporter = nodemailer.createTransport({
+	service: 'gmail',
+	port:587,
+	secure:false,
+	auth: {
+	user: 'polymerdemo2017@gmail.com',
+	pass: 'polymerdemo_2017'
+	}
+});
+
 // REST API calls for tbl_userdetails
 var UserDetails = {
+		sendMail: function (mailOptions, callback){
+			transporter.sendMail(mailOptions, callback);
+		},
+
 		addUser: function(userDetails, callback) {
 			return mysql_pool.query("Insert into User (FirstName,LastName,UserName,Password,Email,IsDeleted,CreatedDate,ModifiedDate)values(?,?,?,?,?, 0,?, ?)", 
 				[userDetails.fname,
@@ -12,12 +27,10 @@ var UserDetails = {
                     userDetails.emailid,
                     userDetails.dateupdated,
                     userDetails.datemodified], callback);
-        },
-        getUserByLogin: function(loginDetails, callback) {
-            if(loginDetails.includes('&')){
-                res = loginDetails.split("&");              
-            }
-			return mysql_pool.query("select * from User where UserName = ? and Password= ? and IsDeleted=0", [res[0],res[1]], callback);
+		},
+		
+        getUserByLogin: function(loginDetails,callback) {
+            return mysql_pool.query("select * from User where UserName = ? and IsDeleted=0", [loginDetails], callback);
         },
 
         checkLoginDetails: function(username, encrypted_pwd) {
@@ -32,9 +45,11 @@ var UserDetails = {
 					return resolve(result);
 				});
 			});
+		},
+		updatePassword: function(username, userDetails, callback) {
+	    	return  mysql_pool.query("update User set Password = ?,  ModifiedDate = ? where UserName = ?",
+	    		[userDetails.password, userDetails.dateupdated, username], callback);
 		}
-        
-
 };
 
 module.exports = UserDetails;
