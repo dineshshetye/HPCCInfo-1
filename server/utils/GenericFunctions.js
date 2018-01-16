@@ -44,7 +44,7 @@ var Util = {
       },
     
       isNumeric(num) {
-          return !isNaN(num)
+          return !isNaN(num);
       },
     
       /**

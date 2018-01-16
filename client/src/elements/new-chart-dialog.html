@@ -7,7 +7,7 @@
 <link rel="import" href="../../bower_components/iron-label/iron-label.html">
 <link rel="import" href="../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
 
-<link rel="import" href="../../bower_components/vaadin-valo-theme/vaadin-combo-box.html"> 
+<link rel="import" href="../../bower_components/vaadin-valo-theme/vaadin-combo-box.html">
 <link rel="import" href="shared-styles.html">
 <script src="../../echarts.js"></script>
 
@@ -84,7 +84,7 @@
 				this.selectedycoordinate = '';
 				this.inputTab = '';
 				//Style for vaadin-combobox				
-				this.$.xcoordinate.$.overlay.shadowRoot.querySelector('#dropdown').shadowRoot.querySelector('#overlay').shadowRoot.querySelector('#content').style.padding=0;
+				this.$.xcoordinate.$.overlay.shadowRoot.querySelector('#dropdown').shadowRoot.querySelector('#overlay').shadowRoot.querySelector('#content').style.padding = 0;
 			}
 			open(id) {
 				var pages = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#tabs");
@@ -114,10 +114,10 @@
 					this.$.xcoordinate.selectedItem = '';
 					this.$.ycoordinate.selectedItem = '';
 				}
-				else {				
+				else {
 					var chartId = 'Chart' + id.replace('edit', '');
 					sessionStorage.setItem('ChartId', chartId);
-					for (var i = 0; i <currentPage.editor.chartDetails.length; i++) {
+					for (var i = 0; i < currentPage.editor.chartDetails.length; i++) {
 						var chart = currentPage.editor.chartDetails[i];
 						if (chart.ChartId == chartId) {
 							this.$.TabTitle.value = chart.chartTitle;
@@ -129,29 +129,26 @@
 					}
 
 				}
-				if(infoBox.IsInteraction===2)	
-				{	
-					var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
-					var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
-					var JSON=currentPage.editor.interactionDetails;
-		            for (var index = 0; index < JSON.length; ++index) {			
-		        	var interaction = JSON[index];				
-			        var chartId = 'Chart' + id.replace('edit', '');				
-			 if(interaction.childchartId === chartId ){
-				infoBox.shadowRoot.querySelector('#messageinfo').open(id);
-				break;
-			 }
-			 else{
-				this.$.dialog.open();
-			 }
-			 
-			 
+				// if (infoBox.IsInteraction === 2) {
+				// 	var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
+				// 	var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
+				// 	var JSON = currentPage.editor.interactionDetails;
+				// 	for (var index = 0; index < JSON.length; ++index) {
+				// 		var interaction = JSON[index];
+				// 		var chartId = 'Chart' + id.replace('edit', '');
+				// 		if (interaction.childchartId === chartId) {
+				// 			infoBox.shadowRoot.querySelector('#messageinfo').open(id);
+				// 			break;
+				// 		}
+				// 		else {
+				// 			this.$.dialog.open();
+				// 		}
 
-			}	
-				}
-				else{
-				this.$.dialog.open();
-			 }
+				// 	}
+				// }
+				// else {
+				 	this.$.dialog.open();
+				// }
 			}
 			deSerialize(tabTtitle) {
 
@@ -188,7 +185,7 @@
 				}
 			}
 
-			_okHandler(e) {			
+			_okHandler(e) {
 				this.title = this.$.TabTitle.value;
 				var currentPage = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#pages").selectedItem;
 
@@ -213,7 +210,7 @@
 				this.inputTab = this.$.filterInputTab.value;
 
 				this.eclcode = QueryStr1;
-				currentPage.chartTitle=this.$.TabTitle.value;
+				currentPage.chartTitle = this.$.TabTitle.value;
 				currentPage.selectedchartyype = this.$.ChartType.selectedItem;
 				currentPage.selectedxcoordinate = this.$.xcoordinate.selectedItem;
 				currentPage.selectedycoordinate = this.$.ycoordinate.selectedItem;

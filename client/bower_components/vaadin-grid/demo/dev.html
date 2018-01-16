@@ -9,10 +9,14 @@
 
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
 
-    <link rel="import" href="../all-imports.html">
+    <link rel="import" href="../vaadin-grid.html">
     <link rel="import" href="../../paper-checkbox/paper-checkbox.html">
     <link rel="import" href="../../paper-input/paper-input.html">
-    <link rel="import" href="../demo/x-data-provider.html">
+    <link rel="import" href="../vaadin-grid-filter.html">
+    <link rel="import" href="../vaadin-grid-sorter.html">
+    <link rel="import" href="../vaadin-grid-column-group.html">
+    <link rel="import" href="x-data-provider.html">
+
 
     <style>
       body,
@@ -51,9 +55,6 @@
             <button>Howdy</button>
             <paper-input value="{{item.name.last}}"></paper-input>
           </template>
-
-          <vaadin-grid-selection-column auto-select frozen>
-          </vaadin-grid-selection-column>
 
           <vaadin-grid-column width="145px" flex-grow="0" frozen resizable>
             <template>
@@ -101,21 +102,19 @@
               <template class="footer">
                 TCF1
               </template>
-      </vaadin-grid-column>
+            </vaadin-grid-column>
 
             <vaadin-grid-column width="20%">
               <template>
                 <paper-input value="{{item.name.last}}"></paper-input>
               </template>
               <template class="header">
-                <vaadin-grid-sorter path="name.last">
-                  <vaadin-grid-filter path="name.last"></vaadin-grid-filter>
-                </vaadin-grid-sorter>
+                TC2
               </template>
               <template class="footer">
                 <vaadin-grid-filter path="name.last"></vaadin-grid-filter>
               </template>
-      </vaadin-grid-column>
+            </vaadin-grid-column>
 
             </vaadin-grid-column-group>
 
@@ -150,7 +149,7 @@
               </vaadin-grid-column>
               <vaadin-grid-column width="100px">
                 <template>
-                  <paper-checkbox checked="{{detailsOpened}}">Details</paper-checkbox>
+                  <paper-checkbox checked="{{expanded}}">Details</paper-checkbox>
                 </template>
                 <template class="header">
                   TC6
@@ -165,25 +164,20 @@
             </template>
           </vaadin-grid-column-group>
         </vaadin-grid>
-        <input>
       </template>
       <script>
-        window.addEventListener('WebComponentsReady', () => {
-          class XApp extends Polymer.Element {
-            static get is() {
-              return 'x-app';
+        document.addEventListener('WebComponentsReady', function() {
+          Polymer({
+            is: 'x-app',
+
+            properties: {
+              items: {
+                value: window.users.results
+              }
             }
-            static get properties() {
-              return {
-                items: {
-                  value: window.users.results
-                }
-              };
-            }
-          }
-          window.customElements.define(XApp.is, XApp);
+          });
         });
-    </script>
+      </script>
     </dom-module>
 
     <x-app></x-app>

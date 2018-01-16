@@ -35,12 +35,12 @@
     "vaadin-button": "^1.0.0",
     "web-component-tester": "^6.0.0"
   },
-  "version": "1.4.1",
-  "_release": "1.4.1",
+  "version": "1.6.0",
+  "_release": "1.6.0",
   "_resolution": {
     "type": "version",
-    "tag": "v1.4.1",
-    "commit": "a76a5201c2ccd2b48ed523afcb004908e8e0d843"
+    "tag": "v1.6.0",
+    "commit": "849739a3f06f1fd3d6fe3048e64e83edeeeb29f2"
   },
   "_source": "https://github.com/vaadin/vaadin-overlay.git",
   "_target": "^1.2.2",

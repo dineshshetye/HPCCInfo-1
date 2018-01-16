@@ -38,22 +38,41 @@
     			text-align: center;
 			}
 			.btn-dropdown {
+				position: relative;
 				--iron-icon: {
 					width:23px;
 				}
 			}
+			
 			paper-menu-button {
-				--iron-dropdown: {	
-					top:50px !important;
-				}
+        	--paper-menu-button-content: {
+          		overflow: visible;
+        	};
+      		}
+			paper-menu-button paper-listbox {
+				background: #f5f5f5;
+				padding: 0;
+				position: absolute;
+				top: 22px;
+				right: 8px;
+				min-width: 200px;
 			}
-			paper-menu-button {
-				--iron-dropdown: .dropdown-content {	
-					overflow:visible !important;
-				}
-			} 
+			
 			paper-menu-button paper-listbox paper-item {
 				font-size: 14px;
+				cursor: pointer;
+				padding: 10px 15px;
+				min-height: auto;
+				font-weight: bold;
+				color: #666;
+				border-bottom: 1px solid #dedede;
+			}
+			paper-menu-button paper-listbox paper-item:hover {
+				color: #fff;
+				background: #ee6439;
+			}
+			paper-menu-button paper-listbox paper-item:last-child {
+				border-bottom: 0;
 			}
 			
 		</style>
@@ -65,12 +84,11 @@
 				<paper-menu-button horizontal-align="right" id="profileMenu">
 					<paper-icon-button icon="arrow-drop-down" slot="dropdown-trigger" class="btn-dropdown"></paper-icon-button>
 					<paper-listbox id="profilemenu" slot="dropdown-content"> 
-						<paper-item>Profile</paper-item>
 						<paper-item hidden$="{{!user.dbauth}}" on-tap="_changePassword">Change Password</paper-item>
-						<paper-item>Sign Out</paper-item>
+						<paper-item on-tap="logout">Sign Out</paper-item>
 					</paper-listbox>
 				</paper-menu-button>
-				<paper-button raised class="signoutBtn" on-tap="logout">Sign-Out</paper-button>
+				<!-- <paper-button raised class="signoutBtn" on-tap="logout">Sign-Out</paper-button> -->
 			</div>
 		</template>
 		<template is="dom-if" if="{{!signedIn}}">

@@ -31,7 +31,7 @@ router.get('/:userName?', function (req, res, next) {
 				'</div>' +
 				'<div style="width:100%; height:35px;">&nbsp;</div>' +
 				'</div>' +
-				'</body>'
+				'</body>';
 
 
 			var mailOptions = {
@@ -96,8 +96,8 @@ router.post('/login', function (req, res) {
 
 router.put('/:userName', function (req, res, next) {
 	var crypted = req.params.userName;
-	var decipher = crypto.createDecipher('aes-256-ctr', 'd6F3Efeq')
-	var dec = decipher.update(crypted, 'hex', 'utf8')
+	var decipher = crypto.createDecipher('aes-256-ctr', 'd6F3Efeq');
+	var dec = decipher.update(crypted, 'hex', 'utf8');
 	dec += decipher.final('utf8');
 	UserDetails.updatePassword(dec, req.body, function (err, rows) {
 		if (err) {
@@ -132,7 +132,7 @@ router.put('/changePassword/:userName', function (req, res, next) {
 					}
 				});
 			}
-		})
+		});
 });
 
 

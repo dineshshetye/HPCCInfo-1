@@ -5,7 +5,7 @@
 <link rel="import" href="../../shared-styles.html">
 <link rel="import" href="../../new-chart-dialog.html">
 <link rel="import" href="../../interchart-interaction-dialog.html">
-
+<link rel="import" href="../../interchart-interactionedit-dialog.html">
 <dom-module id="common-dashboard-view">
     <template>
         <style>
@@ -113,7 +113,8 @@
                 <paper-icon-button id="btnDashboardMenu" icon="apps" slot="dropdown-trigger"></paper-icon-button>
                 <paper-listbox id="dashboardmenu" slot="dropdown-content">
                         <paper-item id="btnAddChart" on-tap="_addNewChart">Add New Chart</paper-item>
-                        <paper-item id="btnInteractions" on-tap="OpenInteractionPopup">Interactions</paper-item>
+                        <paper-item id="btnInteractions" on-tap="OpenInteractionPopup">Add Interactions</paper-item>
+                        <paper-item id="btnEditInteractions" on-tap="OpenEditInteractionPopup">Edit Interactions</paper-item>
                      </paper-listbox>
             </paper-menu-button>
         </div>
@@ -122,6 +123,7 @@
         <paper-tooltip for="btnEditPlugin" offset="0">Edit Worksheet</paper-tooltip>
         <new-chart-dialog id="newchart"></new-chart-dialog>
         <interchart-interaction-dialog id="interactiondialog"></interchart-interaction-dialog>
+        <interchart-interactionedit-dialog id="editinteractiondialog"></interchart-interactionedit-dialog>
     </template>
     <script>
         class CommonDashboardView extends Polymer.Element {
@@ -152,8 +154,8 @@
             _addNewChart(e) {
                 var dialog = this.$.newchart;
                 var id = "";
-                var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
-                infoBox.IsInteraction=0;
+                // var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
+                // infoBox.IsInteraction=0;
                 dialog.open(id);
             }
             editChart(e) {
@@ -167,6 +169,7 @@
                 var divId = 'divChart' + id.replace('delete', '');
                 var chartId = 'Chart' + id.replace('delete', '');
                 var index = 0;
+                var newindex = 0;
                 for (var i = 0; i < this.editor.chartDetails.length; i++) {
                     var chart = this.editor.chartDetails[i];
                     if (chart.ChartId == chartId) {
@@ -175,10 +178,22 @@
                     }
                 }
                 this.editor.chartDetails.splice(index, 1);
+                for (var i = 0; i < this.editor.interactionDetails.length; i++) {
+                    var interactionchart = this.editor.interactionDetails[i];
+                    if (interactionchart.ChartId === chartId) {
+                        newindex = i;
+                        break;
+                    }
+                }
+                this.editor.interactionDetails.splice(newindex, 1);
                 this.shadowRoot.querySelector('#divDashboard').removeChild(this.shadowRoot.querySelector("#" + divId));
             }
             OpenInteractionPopup() {
                 var dialog = this.$.interactiondialog; 
+                dialog.open();
+            }
+            OpenEditInteractionPopup() {
+                var dialog = this.$.editinteractiondialog; 
                 dialog.open();
             }
             setGeneralProperties(properties) {

@@ -28,7 +28,7 @@
     "wct.conf.js"
   ],
   "devDependencies": {
-    "web-component-tester": "^6.1.5",
+    "web-component-tester": "^6.0.0",
     "iron-test-helpers": "^v2.0.0",
     "paper-input": "^v2.0.0",
     "paper-checkbox": "^v2.0.0",
@@ -41,35 +41,41 @@
     "paper-button": "^v2.0.0",
     "iron-icon": "PolymerElements/iron-icon#^v2.0.0",
     "paper-styles": "PolymerElements/paper-styles#^v2.0.0",
-    "iron-component-page": "^3.0.0",
+    "iron-component-page": "^v2.0.0",
+    "elements-demo-resources": "v2.0.0",
     "iron-ajax": "PolymerElements/iron-ajax#^v2.0.0",
-    "app-localize-behavior": "^v2.0.0",
-    "iron-list": "^v2.0.4",
-    "vaadin-demo-helpers": "^1.0.0"
+    "app-localize-behavior": "^v2.0.0"
   },
   "dependencies": {
     "polymer": "^2.0.0",
     "iron-resizable-behavior": "PolymerElements/iron-resizable-behavior#^v2.0.0",
     "iron-scroll-target-behavior": "PolymerElements/iron-scroll-target-behavior#^v2.0.0",
     "iron-a11y-keys-behavior": "^v2.0.0",
-    "iron-a11y-announcer": "^v2.0.0",
-    "vaadin-themable-mixin": "^1.1.0",
-    "vaadin-checkbox": "^1.0.0",
-    "vaadin-text-field": "^1.0.0"
+    "iron-a11y-announcer": "^v2.0.0"
   },
-  "resolutions": {
-    "iron-doc-viewer": "^3.0.0"
+  "variants": {
+    "1.x": {
+      "dependencies": {
+        "polymer": "^1.7.0"
+      },
+      "devDependencies": {
+        "webcomponentsjs": "^0.7.24"
+      },
+      "resolutions": {
+        "polymer": "^1.7.0",
+        "webcomponentsjs": "^0.7.24"
+      }
+    }
   },
   "homepage": "https://github.com/vaadin/vaadin-grid",
-  "version": "4.0.0",
-  "_release": "4.0.0",
+  "version": "3.0.2",
+  "_release": "3.0.2",
   "_resolution": {
     "type": "version",
-    "tag": "4.0.0",
-    "commit": "bd39930b5d96b8f3deb6c634236ddf6dd0d210eb"
+    "tag": "v3.0.2",
+    "commit": "f299950110d1b67d36583063893ca924aef5efd9"
   },
   "_source": "https://github.com/vaadin/vaadin-grid.git",
-  "_target": "^4.0.0",
-  "_originalSource": "vaadin-grid",
-  "_direct": true
+  "_target": "3.0.2",
+  "_originalSource": "vaadin/vaadin-grid"
 }

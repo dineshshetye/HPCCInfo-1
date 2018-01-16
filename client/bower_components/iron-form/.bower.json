@@ -72,8 +72,7 @@
     "tag": "v2.0.1",
     "commit": "430bb2c9f82d08595dbe9479feb7ca1724582631"
   },
-  "_source": "https://github.com/polymerelements/iron-form.git",
+  "_source": "https://github.com/PolymerElements/iron-form.git",
   "_target": "^2.0.1",
-  "_originalSource": "polymerelements/iron-form",
-  "_direct": true
+  "_originalSource": "iron-form"
 }

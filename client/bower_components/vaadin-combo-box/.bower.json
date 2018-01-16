@@ -56,7 +56,6 @@
     "commit": "669ee3a419b8d1a5c6f251c61bbc6387c6e091b9"
   },
   "_source": "https://github.com/vaadin/vaadin-combo-box.git",
-  "_target": "^3.0.0",
-  "_originalSource": "vaadin/vaadin-combo-box",
-  "_direct": true
+  "_target": "3.0.0",
+  "_originalSource": "vaadin-combo-box"
 }

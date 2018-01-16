@@ -8,189 +8,113 @@ This program is available under Apache License Version 2.0, available at https:/
 <link rel="import" href="vaadin-grid-templatizer.html">
 
 <script>
-  window.Vaadin = window.Vaadin || {};
-  window.Vaadin.Grid = window.Vaadin.Grid || {};
+  window.vaadin = window.vaadin || {};
+  vaadin.elements = vaadin.elements || {};
+  vaadin.elements.grid = vaadin.elements.grid || {};
 
   /**
-   * @polymerMixin
-   * @memberof Vaadin.Grid
+   * @polymerBehavior vaadin.elements.grid.ColumnBaseBehavior
    */
-  Vaadin.Grid.ColumnBaseMixin = superClass => class ColumnBaseMixin extends superClass {
-    static get properties() {
-      return {
-        /**
-         * When set to true, the column is user-resizable.
-         * @default false
-         */
-        resizable: {
-          type: Boolean,
-          value: function() {
-            if (this.localName === 'vaadin-grid-column-group') {
-              return;
-            }
+  vaadin.elements.grid.ColumnBaseBehavior = {
+    properties: {
 
-            const parent = this.parentNode;
-            if (parent && parent.localName === 'vaadin-grid-column-group') {
-              return parent.resizable || false;
-            } else {
-              return false;
-            }
+      /**
+       * When set to true, the column is user-resizable.
+       * @default false
+       */
+      resizable: {
+        type: Boolean,
+        value: function() {
+          if (this.localName === 'vaadin-grid-column-group') {
+            return;
           }
-        },
 
-        /**
-         * @protected
-         */
-        headerTemplate: { /* Rename to _headerTemplate */
-          type: Object
-        },
+          var parent = Polymer.dom(this).parentNode;
+          if (parent && parent.localName === 'vaadin-grid-column-group') {
+            return parent.resizable || false;
+          } else {
+            return false;
+          }
+        }
+      },
 
-        /**
-         * @protected
-         */
-        footerTemplate: {
-          type: Object
-        },
+      /**
+       * @protected
+       */
+      headerTemplate: {
+        type: Object
+      },
 
-        /**
-         * When true, the column is frozen. When a column inside of a column group is frozen,
-         * all of the sibling columns inside the group will get frozen also.
-         */
-        frozen: {
-          type: Boolean,
-          value: false
-        },
+      /**
+       * @protected
+       */
+      footerTemplate: {
+        type: Object
+      },
 
-        /**
-         * When set to true, the cells for this column are hidden.
-         */
-        hidden: {
-          type: Boolean
-        },
+      /**
+       * When true, the column is frozen. When a column inside of a column group is frozen,
+       * all of the sibling columns inside the group will get frozen also.
+       */
+      frozen: {
+        type: Boolean,
+        notify: true,
+        value: false
+      },
 
-        _lastFrozen: {
-          type: Boolean,
-          value: false
-        },
+      /**
+       * When set to true, the cells for this column are hidden.
+       */
+      hidden: {
+        type: Boolean,
+        notify: true
+      },
 
-        _order: Number,
+      _lastFrozen: {
+        type: Boolean,
+        notify: true,
+        value: false
+      },
 
-        _reorderStatus: Boolean,
+      _order: Number,
 
-        _emptyCells: Array,
+      _reorderStatus: Boolean
+    },
 
-        _headerCell: Object,
+    observers: [
+      '_footerTemplateChanged(footerTemplate)',
+      '_headerTemplateChanged(headerTemplate)',
+      '_lastFrozenChanged(_lastFrozen)'
+    ],
 
-        _footerCell: Object,
-
-        _grid: Object
+    created: function() {
+      var handler = function(info) {
+        if (info.addedNodes.length >= 0) {
+          this.headerTemplate = this._prepareHeaderTemplate();
+          this.footerTemplate = this._prepareFooterTemplate();
+          this.template = this._prepareBodyTemplate();
+        }
       };
-    }
 
-    static get observers() {
-      return [
-        '_widthChanged(width, _headerCell, _footerCell, _cells.*)',
-        '_frozenChanged(frozen, _headerCell, _footerCell, _cells.*)',
-        '_flexGrowChanged(flexGrow, _headerCell, _footerCell, _cells.*)',
-        '_orderChanged(_order, _headerCell, _footerCell, _cells.*)',
-        '_lastFrozenChanged(_lastFrozen)',
-        '_stampBodyTemplate(template, _cells.*)',
-        '_stampHeaderTemplate(headerTemplate, _headerCell)',
-        '_stampFooterTemplate(footerTemplate, _footerCell)',
-        '_resizableChanged(resizable, _headerCell)',
-        '_reorderStatusChanged(_reorderStatus, _headerCell, _footerCell, _cells.*)',
-        '_hiddenChanged(hidden, _headerCell, _footerCell, _cells.*)'
-      ];
-    }
+      this._templateObserver = Polymer.Element ?
+        new Polymer.FlattenedNodesObserver(this, handler) : Polymer.dom(this).observeNodes(handler);
+    },
 
-    /** @private */
-    connectedCallback() {
-      super.connectedCallback();
-
-      this.template && (this.template.templatizer._grid = this._grid);
-      this.headerTemplate && (this.headerTemplate.templatizer._grid = this._grid);
-      this.footerTemplate && (this.footerTemplate.templatizer._grid = this._grid);
-
-      this._templateObserver.flush();
-      if (!this.template) {
-        // The observer might not have triggered if the tag is empty. Run manually.
-        this._templateObserver.callback();
-      }
-
-      requestAnimationFrame(() => {
-        this._allCells.forEach(cell => {
-          if (!cell._content.parentNode) {
-            this._grid && this._grid.appendChild(cell._content);
-          }
-        });
-      });
-    }
-
-    /** @private */
-    disconnectedCallback() {
-      super.disconnectedCallback();
-
-      requestAnimationFrame(() => {
-        if (!this.parentNode) {
-          this._allCells.forEach(cell => {
-            if (cell._content.parentNode) {
-              cell._content.parentNode.removeChild(cell._content);
-            }
-          });
-        }
-      });
-
-      this._gridValue = undefined;
-    }
-
-    get _grid() {
-      if (!this._gridValue) {
-
-        // Find <vaadin-grid>
-        var el = this;
-        while (el && el.localName !== 'vaadin-grid') {
-          el = el.assignedSlot ? el.assignedSlot.parentNode : el.parentNode;
-        }
-        this._gridValue = el || undefined;
-      }
-      return this._gridValue;
-    }
-
-    get _allCells() {
-      return []
-        .concat(this._cells || [])
-        .concat(this._emptyCells || [])
-        .concat(this._headerCell)
-        .concat(this._footerCell)
-        .filter(cell => cell);
-    }
-
-    constructor() {
-      super();
-
-      this._templateObserver = new Polymer.FlattenedNodesObserver(this, info => {
-        this.headerTemplate = this._prepareHeaderTemplate();
-        this.footerTemplate = this._prepareFooterTemplate();
-        this.template = this._prepareBodyTemplate();
-      });
-    }
-
-    _prepareHeaderTemplate() {
+    _prepareHeaderTemplate: function() {
       return this._prepareTemplatizer(this._findTemplate('template.header') || null, {});
-    }
+    },
 
-    _prepareFooterTemplate() {
+    _prepareFooterTemplate: function() {
       return this._prepareTemplatizer(this._findTemplate('template.footer') || null, {});
-    }
+    },
 
-    _prepareBodyTemplate() {
+    _prepareBodyTemplate: function() {
       return this._prepareTemplatizer(this._findTemplate('template:not(.header):not(.footer)' || null, {}));
-    }
+    },
 
-    _prepareTemplatizer(template, instanceProps) {
+    _prepareTemplatizer: function(template, instanceProps) {
       if (template && !template.templatizer) {
-        const templatizer = new Vaadin.Grid.Templatizer();
-        templatizer._grid = this._grid;
+        var templatizer = new vaadin.elements.grid.Templatizer();
         templatizer.dataHost = this.dataHost;
         templatizer._instanceProps = instanceProps || templatizer._instanceProps;
         templatizer.template = template;
@@ -198,58 +122,16 @@ This program is available under Apache License Version 2.0, available at https:/
       }
 
       return template;
-    }
+    },
 
-    _stampBodyTemplate(template, cells) {
-      if (!template || !this._cells) {
-        return;
-      }
-
-      this._cells.forEach(cell => {
-        if (cell._template !== template) {
-          cell._template = template;
-
-          cell._content.innerHTML = '';
-          const inst = template.templatizer.createInstance();
-          cell._content.appendChild(inst.root);
-          cell._instance = inst;
-
-          inst.index = cell.parentElement.index; // TODO: _index
-          inst.item = cell.parentElement._item;
-        }
-      });
-    }
-
-    _stampHeaderTemplate(headerTemplate, headerCell) {
-      if (!headerTemplate || !headerCell || headerCell._instance) {
-        return;
-      }
-
-      const inst = headerTemplate.templatizer.createInstance();
-      headerCell._content.appendChild(inst.root);
-      headerCell._instance = inst;
-      headerCell.parentElement.hidden = false;
-    }
-
-    _stampFooterTemplate(footerTemplate, footerCell) {
-      if (!footerTemplate || !footerCell || footerCell._instance) {
-        return;
-      }
-
-      const inst = footerTemplate.templatizer.createInstance();
-      footerCell._content.appendChild(inst.root);
-      footerCell._instance = inst;
-      footerCell.parentElement.hidden = false;
-    }
-
-    _selectFirstTemplate(selector) {
-      return Array.prototype.filter.call(Polymer.dom(this).querySelectorAll(selector), el => {
+    _selectFirstTemplate: function(selector) {
+      return Array.prototype.filter.call(Polymer.dom(this).querySelectorAll(selector), function(el) {
         return Polymer.dom(el).parentNode === this;
-      })[0];
-    }
+      }.bind(this))[0];
+    },
 
-    _findTemplate(selector) {
-      const template = this._selectFirstTemplate(selector);
+    _findTemplate: function(selector) {
+      var template = this._selectFirstTemplate(selector);
       if (template) {
         if (this.dataHost) {
           // set dataHost to the context where template has been defined
@@ -257,162 +139,144 @@ This program is available under Apache License Version 2.0, available at https:/
         }
       }
       return template;
+    },
+
+    _headerTemplateChanged: function(headerTemplate) {
+      this.fire('property-changed', {path: 'headerTemplate', value: headerTemplate});
+    },
+
+    _footerTemplateChanged: function(footerTemplate) {
+      this.fire('property-changed', {path: 'footerTemplate', value: footerTemplate});
+    },
+
+    _flexGrowChanged: function(flexGrow) {
+      this.fire('property-changed', {path: 'flexGrow', value: flexGrow});
+    },
+
+    _widthChanged: function(width) {
+      this.fire('property-changed', {path: 'width', value: width});
+    },
+
+    _lastFrozenChanged: function(lastFrozen) {
+      this.fire('property-changed', {path: 'lastFrozen', value: lastFrozen});
     }
+  };
 
-    _flexGrowChanged(flexGrow, headerCell, footerCell, cells) {
-      if (this.parentElement && this.parentElement._columnPropChanged) {
-        this.parentElement._columnPropChanged('flexGrow');
-      }
+  /**
+   * @polymerBehavior vaadin.elements.grid.ColumnBehaviorImpl
+   */
+  vaadin.elements.grid.ColumnBehaviorImpl = {
+    properties: {
+      /**
+       * Width of the cells for this column.
+       */
+      width: {
+        type: String,
+        value: '100px'
+      },
 
-      this._allCells.forEach(cell => cell.style.flexGrow = flexGrow);
-    }
+      /**
+       * Flex grow ratio for the cell widths. When set to 0, cell width is fixed.
+       */
+      flexGrow: {
+        type: Number,
+        value: 1
+      },
 
-    _orderChanged(order, headerCell, footerCell, cells) {
-      this._allCells.forEach(cell => cell.style.order = order);
-    }
+      /**
+       * @protected
+       */
+      template: {
+        type: Object
+      },
 
-    _widthChanged(width, headerCell, footerCell, cells) {
-      if (this.parentElement && this.parentElement._columnPropChanged) {
-        this.parentElement._columnPropChanged('width');
-      }
+    },
 
-      this._allCells.forEach(cell => cell.style.width = width);
-    }
+    observers: [
+      '_flexGrowChanged(flexGrow)',
+      '_widthChanged(width)',
+      '_templateChanged(template)',
+      '_frozenChanged(frozen, isAttached)',
+      '_hiddenChanged(hidden)',
+      '_orderChanged(_order)',
+      '_reorderStatusChanged(_reorderStatus)',
+      '_resizableChanged(resizable)'
+    ],
 
-    _frozenChanged(frozen, headerCell, footerCell, cells) {
-      if (this.parentElement && this.parentElement._columnPropChanged) {
-        this.parentElement._columnPropChanged('frozen', frozen);
-      }
-
-      this._allCells.forEach(cell => this._toggleAttribute('frozen', frozen, cell));
-
-      this._grid && this._grid._frozenCellsChanged && this._grid._frozenCellsChanged();
-    }
-
-    _lastFrozenChanged(lastFrozen) {
-      this._allCells.forEach(cell => this._toggleAttribute('last-frozen', lastFrozen, cell));
-
-      if (this.parentElement && this.parentElement._columnPropChanged) {
-        this.parentElement._lastFrozen = lastFrozen;
-      }
-    }
-
-    _toggleAttribute(name, on, element) {
-      if (on) {
-        element.setAttribute(name, '');
-      } else {
-        element.removeAttribute(name);
-      }
-    }
-
-    _reorderStatusChanged(reorderStatus, headerCell, footerCell, cells) {
-      this._allCells.forEach(cell => cell.setAttribute('reorder-status', reorderStatus));
-    }
-
-    _resizableChanged(resizable, headerCell) {
-      if (resizable === undefined || headerCell === undefined) {
+    _frozenChanged: function(frozen, isAttached) {
+      if (frozen === undefined || isAttached === undefined) {
         return;
       }
 
-      if (headerCell) {
-        [headerCell].concat(this._emptyCells).forEach(cell => {
-          if (cell) {
-            const existingHandle = cell.querySelector('[part~="resize-handle"]');
-            if (existingHandle) {
-              cell.removeChild(existingHandle);
-            }
-
-            if (resizable) {
-              const handle = document.createElement('div');
-              handle.setAttribute('part', 'resize-handle');
-              cell.appendChild(handle);
-            }
-          }
-        });
-      }
-    }
-
-    _hiddenChanged(hidden, headerCell, footerCell, cells) {
-      if (this.parentElement && this.parentElement._columnPropChanged) {
-        this.parentElement._columnPropChanged('hidden', hidden);
+      // since `frozen` is defined in ColumnBaseBehavior, this observer is triggered
+      // normally before the column is actually attached to the DOM.
+      // For events to bubble in Safari 9, element needs to be attached.
+      // Don’t propagate the default `false` value.
+      if (this._oldFrozen !== undefined || frozen !== false) {
+        this.fire('property-changed', {path: 'frozen', value: frozen});
       }
 
-      this._allCells.forEach(cell => this._toggleAttribute('hidden', hidden, cell));
+      this._oldFrozen = frozen;
+    },
 
-      if (hidden !== undefined && this._grid) {
-        this._grid._updateLastFrozen && this._grid._updateLastFrozen();
-        this._grid.notifyResize && this._grid.notifyResize();
+    _templateChanged: function(template) {
+      // body cell templatizer needs to be attached so that `item-changed` and
+      // `template-instance-changed` events propagate to grid.
+      if (template && template.templatizer) {
+        Polymer.dom(this.root).appendChild(template.templatizer);
       }
-    }
 
+      // don't bubble for optimisation
+      this.fire('property-changed', {path: 'template', value: template}, {bubbles: false});
+    },
+
+    _hiddenChanged: function(hidden) {
+      this.fire('property-changed', {path: 'hidden', value: hidden});
+    },
+
+    _orderChanged: function(order) {
+      this.fire('property-changed', {path: 'order', value: order});
+    },
+
+    _reorderStatusChanged: function(reorderStatus) {
+      this.fire('property-changed', {path: 'reorderStatus', value: reorderStatus});
+    },
+
+    _resizableChanged: function(resizable) {
+      this.fire('property-changed', {path: 'resizable', value: resizable});
+    },
   };
+
+  /**
+   * @polymerBehavior vaadin.elements.grid.ColumnBehavior
+   */
+  vaadin.elements.grid.ColumnBehavior = [
+    vaadin.elements.grid.ColumnBaseBehavior,
+    vaadin.elements.grid.ColumnBehaviorImpl
+  ];
 </script>
 
 <dom-module id="vaadin-grid-column">
   <script>
-  {
     /**
-     * A `<vaadin-grid-column>` is used to configure how a column in `<vaadin-grid>`
-     * should look like by using HTML templates.
+     * A `vaadin-grid-column` is used to configure how a column in `vaadin-grid` should look like by using HTML templates.
      * A column can have a template for each of the three table sections: header, body and footer.
      *
      * The `class` attribute is used to differentiate header and footer templates from the body template.
      *
      * #### Example:
-     * ```html
-     * <vaadin-grid-column>
-     *   <template class="header">I'm in the header</template>
-     *   <template>I'm in the body</template>
-     *   <template class="footer">I'm in the footer</template>
-     * </vaadin-grid-column>
-     * ```
      *
-     * @memberof Vaadin
-     * @mixes Vaadin.Grid.ColumnBaseMixin
+     *     <vaadin-grid-column>
+     *       <template class="header">I'm in the header</template>
+     *       <template>I'm in the body</template>
+     *       <template class="footer">I'm in the footer</template>
+     *     </vaadin-grid-column>
+     *
      */
-    class GridColumnElement extends Vaadin.Grid.ColumnBaseMixin(Polymer.Element) {
-      static get is() {
-        return 'vaadin-grid-column';
-      }
+    Polymer({
+      is: 'vaadin-grid-column',
 
-      static get properties() {
-        return {
-          /**
-           * Width of the cells for this column.
-           */
-          width: {
-            type: String,
-            value: '100px'
-          },
-
-          /**
-           * Flex grow ratio for the cell widths. When set to 0, cell width is fixed.
-           */
-          flexGrow: {
-            type: Number,
-            value: 1
-          },
-
-          /**
-           * @protected
-           */
-          template: {
-            type: Object
-          },
-
-          _cells: Array
-
-        };
-      }
-
-    }
-
-    customElements.define(GridColumnElement.is, GridColumnElement);
-    /**
-     * @namespace Vaadin
-     */
-    window.Vaadin = window.Vaadin || {};
-    Vaadin.GridColumnElement = GridColumnElement;
-  }
+      behaviors: [vaadin.elements.grid.ColumnBehavior]
+    });
   </script>
 </dom-module>

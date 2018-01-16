@@ -102,8 +102,7 @@ function getThorList(url, hpccuser, password) {
 	});
 }
 
-function loadGridwithEcl(QueryStr, recLimit) {
-
+function loadGridwithEcl(QueryStr, recLimit, extenderQueryStr = "") {
 	var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
 	var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
 
@@ -202,22 +201,68 @@ function loadGridwithEcl(QueryStr, recLimit) {
 			currentPage.loading = false;
 		}
 		else {
-			//	alert("infoBox.IsInteraction"+infoBox.IsInteraction);
-			if(infoBox.IsInteraction===1){	
-				currentPage.loading = false;
-			//	sessionStorage.setItem('ChartId',infoBox.childchartId);
-			infoBox.IsInteraction=2;
-			var childchartTitle="Filtered by "+infoBox.parentchartfieldvalue.replace(/%20/g, " ");
-				initchart(ajaxResp.Result.Row, childchartTitle, infoBox.childchartType, infoBox.childchartxcoordinate, infoBox.childchartycoordinate, infoBox.childchartId);
+			currentPage.loading = false;
+			var ChildChartIds = sessionStorage.getItem('ChildChartIds');
+			var ChildChartId = [];
+			if (ChildChartIds != "" && ChildChartIds != null)
+				ChildChartId = ChildChartIds.split(',');
+			if (ChildChartId.length > 0) {
+				for (var i = 0; i < ChildChartId.length; i++) {
+					sessionStorage.setItem('ChartId', ChildChartId[i]);
+					for (var j = 0; j < currentPage.editor.interactionDetails.length; j++) {
+						interaction = currentPage.editor.interactionDetails[j];
+						if (interaction.ChildChartId == ChildChartId[i]) {
+							currentPage.chartTitle = interaction.ChildChartTitle.replace(/ *\([^)]*\) */g, "") + " (Filtered by " + interaction.InteractionFieldvalue.replace(/%20/g, " ") + ")";;
+							currentPage.selectedchartyype = interaction.ChildChartType;
+							currentPage.selectedxcoordinate = interaction.childchartxcoordinate;
+							currentPage.selectedycoordinate = interaction.childchartycoordinate;
+
+							var chartDiv = document.createElement("div");
+							var chartId = ChildChartId[i];
+							var divColumnId = 'divColumn' + chartId.replace('Chart', '');
+							var divId = 'divChart' + chartId.replace('Chart', '');
+
+							if (currentPage.shadowRoot.querySelector("#" + chartId) != null)
+								currentPage.shadowRoot.querySelector('#' + divId).querySelector("#" + divColumnId).removeChild(currentPage.shadowRoot.querySelector("#" + chartId));
+							if (currentPage.shadowRoot.querySelector("#edit" + chartId.replace('Chart', '')) != null)
+								currentPage.shadowRoot.querySelector('#' + divId).querySelector("#" + divColumnId).removeChild(currentPage.shadowRoot.querySelector("#edit" + chartId.replace('Chart', '')));
+							if (currentPage.shadowRoot.querySelector("#delete" +  chartId.replace('Chart', '')) != null)
+								currentPage.shadowRoot.querySelector('#' + divId).querySelector("#" + divColumnId).removeChild(currentPage.shadowRoot.querySelector("#delete" +  chartId.replace('Chart', '')));
+
+							chartDiv.id = chartId;
+							chartDiv.classList.add('chartDiv');
+							chartDiv.style = "width:850px;height:400px;float:left;";
+							if ($(window).width() < 1600) { chartDiv.style = "width:650px;height:400px;float:left;" };
+							if ($(window).width() < 1400) { chartDiv.style = "width:555px;height:400px;float:left;" };
+							if ($(window).width() < 1200) { chartDiv.style = "width:460px;height:400px;float:left;" };
+							if ($(window).width() < 1024) { chartDiv.style = "width:830px;height:400px;float:left;" };
+							if ($(window).width() < 992) { chartDiv.style = "width:690px;height:400px;float:left;" };
+							if ($(window).width() < 768) { chartDiv.style = "width:550px;height:400px;float:left;" };
+							if ($(window).width() < 640) { chartDiv.style = "width:380px;height:400px;float:left;" };
+							Polymer.dom(currentPage.shadowRoot.querySelector('#' + divId).querySelector('#' + divColumnId)).appendChild(chartDiv);
+
+							var editButton = document.createElement("paper-icon-button");
+							editButton.classList.add('chartEdit');
+							editButton.id = "edit" + chartId.replace('Chart', '');
+							editButton.icon = "create"
+							editButton.addEventListener('tap', (e) => currentPage.editChart(e));
+							Polymer.dom(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId)).appendChild(editButton);
+
+							var deleteButton = document.createElement("paper-icon-button");
+							deleteButton.classList.add('chartEdit');
+							deleteButton.id = "delete" + chartId.replace('Chart', '');
+							deleteButton.icon = "delete"
+							deleteButton.addEventListener('tap', (e) => currentPage.deleteChart(e));
+							Polymer.dom(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId)).appendChild(deleteButton);
+
+							initchart(ajaxResp.Result.Row, currentPage.chartTitle, currentPage.selectedchartyype, currentPage.selectedxcoordinate, currentPage.selectedycoordinate, "");
+							break;
+						}
+					}
+				}
+				sessionStorage.setItem('ChildChartIds', "");
 			}
-			else if(infoBox.IsInteraction===2){	
-				currentPage.loading = false;
-				var childchartTitle="Filtered by "+infoBox.parentchartfieldvalue.replace(/%20/g, " ");
-				sessionStorage.setItem('ChartId',infoBox.childchartId);			
-				initchart(ajaxResp.Result.Row, childchartTitle, infoBox.childchartType, infoBox.childchartxcoordinate, infoBox.childchartycoordinate, "");
-			}
-			else{
-				currentPage.loading = false;
+			else {
 				var ChartId = sessionStorage.getItem('ChartId');
 				initchart(ajaxResp.Result.Row, currentPage.chartTitle, currentPage.selectedchartyype, currentPage.selectedxcoordinate, currentPage.selectedycoordinate, "");
 			}
@@ -415,108 +460,75 @@ function initchart(griditems, chartTitle, charttype, xcoordinate, ycoordinate, I
 		legendarray.push(groupName);
 	}
 	var graphId = sessionStorage.getItem("ChartId");
-	if (Id == "") {
-		if (graphId == "") {
-			var divChart = document.createElement("div");
-			var randomNumber = Math.random().toString(36).substr(2, 9);
-			var divId = 'divChart' + randomNumber;
-			divChart.id = divId;
-			divChart.classList.add('divChart');
-			Polymer.dom(currentPage.shadowRoot.querySelector('#divDashboard')).appendChild(divChart);
-
-			var divColumn = document.createElement("div");
-			var divColumnId = 'divColumn' + randomNumber;
-			divColumn.id = divColumnId;
-			divColumn.classList.add('divColumn');
-			Polymer.dom(currentPage.shadowRoot.querySelector('#' + divId)).appendChild(divColumn);
-
-
-
-			var chartDiv = document.createElement("div");
-			var chartId = 'Chart' + randomNumber;
-			chartDiv.id = chartId;
-			chartDiv.classList.add('chartDiv');
-			//chartDiv.style = "width:550px;height:400px;float:left;";
-			chartDiv.style = "width:850px;height:400px;float:left;";
-			if ($(window).width() < 1600){ chartDiv.style = "width:650px;height:400px;float:left;" };
-			if ($(window).width() < 1400){ chartDiv.style = "width:555px;height:400px;float:left;" };
-			if ($(window).width() < 1200){ chartDiv.style = "width:460px;height:400px;float:left;" };
-			if ($(window).width() < 1024){ chartDiv.style = "width:830px;height:400px;float:left;" };
-			if ($(window).width() < 992){ chartDiv.style = "width:690px;height:400px;float:left;" };
-			if ($(window).width() < 768){ chartDiv.style = "width:550px;height:400px;float:left;" };
-			if ($(window).width() < 640){ chartDiv.style = "width:380px;height:400px;float:left;" };
-			Polymer.dom(currentPage.shadowRoot.querySelector('#' + divId).querySelector('#' + divColumnId)).appendChild(chartDiv);
-
-			var editButton = document.createElement("paper-icon-button");
-			editButton.classList.add('chartEdit');
-			editButton.id = "edit" + randomNumber;
-			editButton.icon = "create"
-			editButton.addEventListener('tap', (e) => currentPage.editChart(e));
-			Polymer.dom(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId)).appendChild(editButton);
-
-			var deleteButton = document.createElement("paper-icon-button");
-			deleteButton.classList.add('chartEdit');
-			deleteButton.id = "delete" + randomNumber;
-			deleteButton.icon = "delete"
-			deleteButton.addEventListener('tap', (e) => currentPage.deleteChart(e));
-			Polymer.dom(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId)).appendChild(deleteButton);
-			currentPage.editor.chartDetails.push({ "ChartId": chartId, "ChartType": charttype, "xcoordinate": xcoordinate, "ycoordinate": ycoordinate, "chartTitle": chartTitle });
-			this.myChart = echarts.init(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId).querySelector("#" + chartId));
-		}
-		else {
-
-			var divId = 'divChart' + graphId.replace('Chart', '');
-			var divColumnId = 'divColumn' + graphId.replace('Chart', '');
-			for (var i = 0; i < currentPage.editor.chartDetails.length; i++) {
-				var chart = currentPage.editor.chartDetails[i];
-				if (chart.ChartId == graphId) {
-					chart.chartTitle = chartTitle;
-					chart.ChartType = charttype;
-					chart.xcoordinate = xcoordinate;
-					chart.ycoordinate = ycoordinate;
-					//this.inputTab = '';
-					break;
-				}
-			}
-			this.myChart = echarts.init(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId).querySelector("#" + graphId));
-		}
-	}
-	else {
-		Id = Id.replace('Chart', '');
+	//if (Id == "") {
+	if (graphId == "") {
 		var divChart = document.createElement("div");
-		var divId = 'divChart' + Id;
+		var randomNumber;
+		if (Id == "")
+			randomNumber = Math.random().toString(36).substr(2, 9);
+		else
+			randomNumber = Id.replace('Chart', '');
+		var divId = 'divChart' + randomNumber;
 		divChart.id = divId;
 		divChart.classList.add('divChart');
 		Polymer.dom(currentPage.shadowRoot.querySelector('#divDashboard')).appendChild(divChart);
 
 		var divColumn = document.createElement("div");
-		var divColumnId = 'divColumn' + Id;
+		var divColumnId = 'divColumn' + randomNumber;
 		divColumn.id = divColumnId;
 		divColumn.classList.add('divColumn');
 		Polymer.dom(currentPage.shadowRoot.querySelector('#' + divId)).appendChild(divColumn);
 
 		var chartDiv = document.createElement("div");
-		var chartId = 'Chart' + Id;
+		var chartId = 'Chart' + randomNumber;
 		chartDiv.id = chartId;
 		chartDiv.classList.add('chartDiv');
-		chartDiv.style = "width:550px;height:400px;float:left;";
+		//chartDiv.style = "width:550px;height:400px;float:left;";
+		chartDiv.style = "width:850px;height:400px;float:left;";
+		if ($(window).width() < 1600) { chartDiv.style = "width:650px;height:400px;float:left;" };
+		if ($(window).width() < 1400) { chartDiv.style = "width:555px;height:400px;float:left;" };
+		if ($(window).width() < 1200) { chartDiv.style = "width:460px;height:400px;float:left;" };
+		if ($(window).width() < 1024) { chartDiv.style = "width:830px;height:400px;float:left;" };
+		if ($(window).width() < 992) { chartDiv.style = "width:690px;height:400px;float:left;" };
+		if ($(window).width() < 768) { chartDiv.style = "width:550px;height:400px;float:left;" };
+		if ($(window).width() < 640) { chartDiv.style = "width:380px;height:400px;float:left;" };
 		Polymer.dom(currentPage.shadowRoot.querySelector('#' + divId).querySelector('#' + divColumnId)).appendChild(chartDiv);
 
 		var editButton = document.createElement("paper-icon-button");
 		editButton.classList.add('chartEdit');
-		editButton.id = "edit" + Id;
+		editButton.id = "edit" + randomNumber;
 		editButton.icon = "create"
 		editButton.addEventListener('tap', (e) => currentPage.editChart(e));
 		Polymer.dom(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId)).appendChild(editButton);
 
 		var deleteButton = document.createElement("paper-icon-button");
 		deleteButton.classList.add('chartEdit');
-		deleteButton.id = "delete" + Id;
+		deleteButton.id = "delete" + randomNumber;
 		deleteButton.icon = "delete"
 		deleteButton.addEventListener('tap', (e) => currentPage.deleteChart(e));
 		Polymer.dom(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId)).appendChild(deleteButton);
+		if (Id == "")
+			currentPage.editor.chartDetails.push({ "ChartId": chartId, "ChartType": charttype, "xcoordinate": xcoordinate, "ycoordinate": ycoordinate, "chartTitle": chartTitle });
 		this.myChart = echarts.init(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId).querySelector("#" + chartId));
 	}
+	else {
+
+		var divId = 'divChart' + graphId.replace('Chart', '');
+		var divColumnId = 'divColumn' + graphId.replace('Chart', '');
+		for (var i = 0; i < currentPage.editor.chartDetails.length; i++) {
+			var chart = currentPage.editor.chartDetails[i];
+			if (chart.ChartId == graphId) {
+				chart.chartTitle = chartTitle;
+				chart.ChartType = charttype;
+				chart.xcoordinate = xcoordinate;
+				chart.ycoordinate = ycoordinate;
+				//this.inputTab = '';
+				break;
+			}
+		}
+		this.myChart = echarts.init(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId).querySelector("#" + graphId));
+	}
+
 
 
 	//For echarts styling   http://echarts.baidu.com/echarts2/doc/example/bar.html
@@ -650,33 +662,38 @@ function initchart(griditems, chartTitle, charttype, xcoordinate, ycoordinate, I
 	}
 	// use configuration item and data specified to show chart
 	this.myChart.setOption(option);
-	this.myChart.on('click', function (params) {
-		if(infoBox.parentchartTitle!=null){
-			if(infoBox.parentchartTitle===chartTitle){
-		if(infoBox.parentchartinput!=null)	
-		{			
-		infoBox.parentchartfieldvalue=encodeURIComponent(params.name);
-		infoBox.IsInteraction=1;
-		var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;	
-		var JSON=currentPage.editor.interactionDetails;
-		for (var index = 0; index < JSON.length; ++index) {			
-			 var interaction = JSON[index];			
-			 if(interaction.parentChartId === infoBox.parentchartId && interaction.childchartId === infoBox.childchartId ){
-				infoBox.IsInteraction=2;
-				currentPage.editor.interactionDetails.splice(index, 1);			   
-			   break;
 
-			 }
-			 else{
-				infoBox.IsInteraction=1;
-			 }
+	this.myChart.on('click', function (params) {
+		var childCharts = "";
+		var interaction = "";
+		var parentChartId = event.currentTarget.offsetParent.id;
+		var parentchartfieldvalue = encodeURIComponent(params.name);
+		if (currentPage.editor.interactionDetails != null) {
+			for (var i = 0; i < currentPage.editor.interactionDetails.length; i++) {
+				interaction = currentPage.editor.interactionDetails[i];
+				if (interaction.ParentChartId == parentChartId) {
+					interaction.InteractionFieldvalue = parentchartfieldvalue;
+					childCharts = childCharts + interaction.ChildChartId;
+					if (i != currentPage.editor.interactionDetails.length - 1)
+						childCharts += ",";
+				}
 			}
-		currentPage.editor.interactionDetails.push({ "parentChartId": infoBox.parentchartId, "childchartId": infoBox.childchartId, "InteractionField": infoBox.parentchartinput,"childchartTitle": infoBox.childchartTitle,"childchartType": infoBox.childchartType,"childchartxcoordinate": infoBox.childchartxcoordinate,"childchartycoordinate": infoBox.childchartycoordinate,"InteractionFieldvalue": encodeURIComponent(params.name)});
-				
-			currentPage.editor.ApplyInteractions();		
-		}	
-	}
-	}	
-	
+			sessionStorage.setItem('ChildChartIds', childCharts);
+			ApplyInteractions(interaction);
+		}
 	});
+}
+function ApplyInteractions(interaction) {
+	var currentPage = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#pages").selectedItem;
+	currentPage.outputdsname = 'filterdsName' + '_' + Math.random().toString(36).substr(2, 4);
+	currentPage.editor.outputdsname = currentPage.outputdsname;
+	var filterformula = interaction.FilteringField + ' = \'' + interaction.InteractionFieldvalue.replace(/%20/g, " ") + '\'';
+	var QueryStr1 = currentPage.editor.inputeclcode + "\n" + currentPage.outputdsname + " := " +
+		currentPage.editor.inputdsname + "(" +
+		filterformula + ")" + " : PERSIST(\'" + currentPage.outputdsname + "_persist\', EXPIRE(1));";
+	currentPage.editor.expression = filterformula;
+	var QueryStr = QueryStr1 + "\n OUTPUT(" + currentPage.editor.outputdsname + ");";
+	currentPage.eclcode = QueryStr1;
+	currentPage.editor.eclcode = QueryStr1;
+	loadGridwithEcl(QueryStr, 10000);
 }

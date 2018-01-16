@@ -4,159 +4,124 @@ Copyright (c) 2017 Vaadin Ltd.
 This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
 -->
 
+<!--
+
+`vaadin-grid-selection-column` is a helper element for the `vaadin-grid` that provides default templates and functionality for the selection.
+With it the user can select rows using checkboxes displayed in a column.
+
+When the grid is configured with an array of items as the data provider, it provides the feature of selecting all the items by clicking on the checkbox in the header.
+
+-->
+
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="vaadin-grid-column.html">
-<link rel="import" href="../vaadin-checkbox/vaadin-checkbox.html">
 
 <dom-module id="vaadin-grid-selection-column">
   <template>
     <template class="header" id="defaultHeaderTemplate">
-      <vaadin-checkbox aria-label="Select All" hidden$="[[_selectAllHidden]]" on-checked-changed="_onSelectAllCheckedChanged"
-        checked="[[_isChecked(selectAll, _indeterminate)]]" indeterminate="[[_indeterminate]]">
-      </vaadin-checkbox>
+      <input aria-label="Select All" hidden$="[[_selectAllHidden]]" type="checkbox" on-click="_onSelectAll" checked="[[_isChecked(selectAll, _indeterminate)]]"
+        indeterminate="[[_indeterminate]]" />
     </template>
     <template id="defaultBodyTemplate">
-      <vaadin-checkbox aria-label="Select Row" checked="{{selected}}">
-      </vaadin-checkbox>
+      <input aria-label="Select Row" type="checkbox" checked="{{selected::change}}" />
     </template>
   </template>
-
   <script>
-  {
-    /**
-     * `<vaadin-grid-selection-column>` is a helper element for the `<vaadin-grid>`
-     * that provides default templates and functionality for item selection.
-     *
-     * #### Example:
-     * ```html
-     * <vaadin-grid items="[[items]]">
-     *  <vaadin-grid-selection-column frozen auto-select></vaadin-grid-selection-column>
-     *
-     *  <vaadin-grid-column>
-     *    ...
-     * ```
-     *
-     * By default the selection column displays `<vaadin-checkbox>` elements in the
-     * column cells. The checkboxes in the body rows toggle selection of the corresponding row items.
-     *
-     * When the grid data is provided as an array of [`items`](#/elements/vaadin-grid#property-items),
-     * the column header gets an additional checkbox that can be used for toggling
-     * selection for all the items at once.
-     *
-     * __The default content templates can also be overridden with custom ones.__
-     *
-     * @memberof Vaadin
-     * @mixes Vaadin.GridColumnElement
-     */
-    class GridSelectionColumnElement extends Vaadin.GridColumnElement {
+    Polymer({
+      is: 'vaadin-grid-selection-column',
 
-      static get is() {
-        return 'vaadin-grid-selection-column';
-      }
+      behaviors: [vaadin.elements.grid.ColumnBehavior],
 
-      static get properties() {
-        return {
-          /**
-           * Width of the cells for this column.
-           */
-          width: {
-            type: String,
-            value: '56px'
-          },
+      properties: {
+        /**
+         * Width of the cells for this column.
+         */
+        width: {
+          type: String,
+          value: '52px'
+        },
 
-          /**
-           * Flex grow ratio for the cell widths. When set to 0, cell width is fixed.
-           */
-          flexGrow: {
-            type: Number,
-            value: 0
-          },
+        /**
+         * Flex grow ratio for the cell widths. When set to 0, cell width is fixed.
+         */
+        flexGrow: {
+          type: Number,
+          value: 0
+        },
 
-          /**
-           * When true, all the items are selected.
-           */
-          selectAll: {
-            type: Boolean,
-            value: false,
-            notify: true
-          },
+        /**
+         * When true it selects all the items.
+         */
+        selectAll: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
 
-          /**
-           * When true, the active gets automatically selected.
-           */
-          autoSelect: {
-            type: Boolean,
-            value: false,
-          },
+        /**
+         * When true it adds the active item to selectedItems.
+         */
+        autoSelect: {
+          type: Boolean,
+          value: false,
+        },
 
-          /**
-          * @private
-          */
-          headerTemplate: Object,
+        /**
+        * @private
+        */
+        headerTemplate: Object,
 
-          /**
-          * @private
-          */
-          template: Object,
+        /**
+        * @private
+        */
+        template: Object,
 
-          _indeterminate: Boolean,
+        _grid: Object,
 
-          /*
-           * The previous state of activeItem. When activeItem turns to `null`,
-           * previousActiveItem will have an Object with just unselected activeItem
-           */
-          _previousActiveItem: Object,
+        _indeterminate: Boolean,
 
-          _selectAllHidden: Boolean
-        };
-      }
+        /*
+         * The previous state of activeItem. When activeItem turns to `null`,
+         * previousActiveItem will have an Object with just unselected activeItem
+         */
+        _previousActiveItem: Object,
 
-      static get observers() {
-        return [
-          '_onSelectAllChanged(selectAll)'
-        ];
-      }
+        _selectAllHidden: Boolean
+      },
 
-      _prepareHeaderTemplate() {
-        const headerTemplate = this._prepareTemplatizer(this._findTemplate('template.header') || this.$.defaultHeaderTemplate);
+      observers: [
+        '_onSelectAllChanged(selectAll, _grid)'
+      ],
+
+      _prepareHeaderTemplate: function() {
+        var headerTemplate = this._prepareTemplatizer(this._findTemplate('template.header') || this.$.defaultHeaderTemplate);
         // needed to override the dataHost correctly in case internal template is used.
         headerTemplate.templatizer.dataHost = headerTemplate === this.$.defaultHeaderTemplate ? this : this.dataHost;
 
         return headerTemplate;
-      }
+      },
 
-      _prepareBodyTemplate() {
-        const template = this._prepareTemplatizer(this._findTemplate('template:not(.header):not(.footer)') || this.$.defaultBodyTemplate);
+      _prepareBodyTemplate: function() {
+        var template = this._prepareTemplatizer(this._findTemplate('template:not(.header):not(.footer)') || this.$.defaultBodyTemplate);
         // needed to override the dataHost correctly in case internal template is used.
         template.templatizer.dataHost = template === this.$.defaultBodyTemplate ? this : this.dataHost;
 
         return template;
-      }
+      },
 
-      constructor() {
-        super();
-
-        this._boundOnActiveItemChanged = this._onActiveItemChanged.bind(this);
-        this._boundOnDataProviderChanged = this._onDataProviderChanged.bind(this);
-        this._boundOnSelectedItemsChanged = this._onSelectedItemsChanged.bind(this);
-      }
-
-      /** @private */
-      disconnectedCallback() {
-        super.disconnectedCallback();
-
+      detached: function() {
         if (this._grid) {
-          this._grid.removeEventListener('active-item-changed', this._boundOnActiveItemChanged);
-          this._grid.removeEventListener('data-provider-changed', this._boundOnDataProviderChanged);
-          this._grid.removeEventListener('filter-changed', this._boundOnSelectedItemsChanged);
-          this._grid.removeEventListener('selected-items-changed', this._boundOnSelectedItemsChanged);
+          this.unlisten(this._grid, 'active-item-changed', '_onActiveItemChanged');
+          this.unlisten(this._grid, 'data-provider-changed', '_onDataProviderChanged');
+          this.unlisten(this._grid, 'filter-changed', '_onSelectedItemsChanged');
+          this.unlisten(this._grid, 'selected-items-changed', '_onSelectedItemsChanged');
 
-          const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+          var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
           if (isSafari && window.ShadyDOM && this.parentElement) {
             // Detach might have beem caused by order change.
             // Shady on safari doesn't restore isAttached so we'll need to do it manually.
-            const parent = this.parentElement;
-            const nextSibling = this.nextElementSibling;
+            var parent = this.parentElement;
+            var nextSibling = this.nextElementSibling;
             parent.removeChild(this);
             if (nextSibling) {
               parent.insertBefore(this, nextSibling);
@@ -166,21 +131,27 @@ This program is available under Apache License Version 2.0, available at https:/
           }
 
         }
-      }
+      },
 
-      /** @private */
-      connectedCallback() {
-        super.connectedCallback();
+      attached: function() {
+        this._grid = this._findGrid(this);
         if (this._grid) {
-          this._grid.addEventListener('active-item-changed', this._boundOnActiveItemChanged);
-          this._grid.addEventListener('data-provider-changed', this._boundOnDataProviderChanged);
-          this._grid.addEventListener('filter-changed', this._boundOnSelectedItemsChanged);
-          this._grid.addEventListener('selected-items-changed', this._boundOnSelectedItemsChanged);
+          this.listen(this._grid, 'active-item-changed', '_onActiveItemChanged');
+          this.listen(this._grid, 'data-provider-changed', '_onDataProviderChanged');
+          this.listen(this._grid, 'filter-changed', '_onSelectedItemsChanged');
+          this.listen(this._grid, 'selected-items-changed', '_onSelectedItemsChanged');
         }
-      }
+      },
 
-      _onSelectAllChanged(selectAll) {
-        if (selectAll === undefined || !this._grid) {
+      _findGrid: function(elm) {
+        while (elm && elm.localName != 'vaadin-grid') {
+          elm = Polymer.dom(elm).parentNode;
+        }
+        return elm || undefined;
+      },
+
+      _onSelectAllChanged: function(selectAll, grid) {
+        if (selectAll === undefined || grid === undefined) {
           return;
         }
 
@@ -188,39 +159,39 @@ This program is available under Apache License Version 2.0, available at https:/
           return;
         }
 
-        this._grid.selectedItems = selectAll && Array.isArray(this._grid.items) ? this._grid._filter(this._grid.items) : [];
-      }
+        grid.selectedItems = selectAll && grid.items ? grid._filter(grid.items) : [];
+      },
 
       // Return true if array `a` contains all the items in `b`
       // We need this when sorting or to preserve selection after filtering.
-      _arrayContains(a, b) {
-        for (var i = 0; a && b && b[i] && a.indexOf(b[i]) >= 0; i++); // eslint-disable-line
+      _arrayContains: function(a, b) {
+        for (var i = 0; a && b && b[i] && a.indexOf(b[i]) >= 0; i++);
         return i == b.length;
-      }
+      },
 
-      _onSelectAllCheckedChanged(e) {
-        this.selectAll = this._indeterminate || e.target.checked;
-      }
+      _onSelectAll: function(e) {
+        this.selectAll = this._indeterminate || !this.selectAll;
+      },
 
       // iOS needs indeterminated + checked at the same time
-      _isChecked(selectAll, indeterminate) {
+      _isChecked: function(selectAll, indeterminate) {
         return indeterminate || selectAll;
-      }
+      },
 
-      _onActiveItemChanged(e) {
-        const activeItem = e.detail.value;
+      _onActiveItemChanged: function(e) {
+        var activeItem = e.detail.value;
         if (this.autoSelect) {
-          const item = activeItem || this._previousActiveItem;
+          var item = activeItem || this._previousActiveItem;
           if (item) {
             this._grid._toggleItem(item);
           }
         }
         this._previousActiveItem = activeItem;
-      }
+      },
 
-      _onSelectedItemsChanged(e) {
+      _onSelectedItemsChanged: function(e) {
         this._selectAllChangeLock = true;
-        if (Array.isArray(this._grid.items)) {
+        if (this._grid.items) {
           if (!this._grid.selectedItems.length) {
             this.selectAll = false;
             this._indeterminate = false;
@@ -233,20 +204,11 @@ This program is available under Apache License Version 2.0, available at https:/
           }
         }
         this._selectAllChangeLock = false;
+      },
+
+      _onDataProviderChanged: function(e) {
+        this._selectAllHidden = !this._grid.items;
       }
-
-      _onDataProviderChanged(e) {
-        this._selectAllHidden = !Array.isArray(this._grid.items);
-      }
-    }
-
-    customElements.define(GridSelectionColumnElement.is, GridSelectionColumnElement);
-
-    /**
-     * @namespace Vaadin
-     */
-    window.Vaadin = window.Vaadin || {};
-    Vaadin.GridSelectionColumnElement = GridSelectionColumnElement;
-  }
+    });
   </script>
 </dom-module>
