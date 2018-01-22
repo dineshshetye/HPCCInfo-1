@@ -53,6 +53,7 @@
             }
 
             openDashboardEditor() {
+                debugger;
                 var currentPage = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#pages").selectedItem;
                 var title = currentPage.editor.title;
                 this.$.label.value = title;
@@ -69,14 +70,25 @@
                 if (isEditChart == "true") {
                     var currentPage = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#pages").selectedItem;
                     currentPage.editor.title = this.$.label.value;
-                    document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#tabs").selectedItem.textContent= this.$.label.value;
+                    document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#tabs").selectedItem.textContent = this.$.label.value;
                 }
                 else {
                     this.dispatchEvent(new CustomEvent('complete', { bubbles: true, composed: true }));
                 }
             }
 
-            handleCancel(e) {
+            handleCancel(e) { 
+                debugger;
+                var currentPage = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#pages").selectedItem;
+                var infobox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box');
+                if (currentPage.id == "common-dashboard") {
+                    infobox.hidden = false;
+                    infobox.hideedit = true;
+                }
+                else {
+                    infobox.hidden = true;
+                    infobox.hideedit = false;
+                }                  
                 this.dispatchEvent(new CustomEvent('cancel', { bubbles: true, composed: true }));
             }
 

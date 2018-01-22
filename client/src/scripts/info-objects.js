@@ -216,46 +216,7 @@ function loadGridwithEcl(QueryStr, recLimit, extenderQueryStr = "") {
 							currentPage.selectedchartyype = interaction.ChildChartType;
 							currentPage.selectedxcoordinate = interaction.childchartxcoordinate;
 							currentPage.selectedycoordinate = interaction.childchartycoordinate;
-
-							var chartDiv = document.createElement("div");
-							var chartId = ChildChartId[i];
-							var divColumnId = 'divColumn' + chartId.replace('Chart', '');
-							var divId = 'divChart' + chartId.replace('Chart', '');
-
-							if (currentPage.shadowRoot.querySelector("#" + chartId) != null)
-								currentPage.shadowRoot.querySelector('#' + divId).querySelector("#" + divColumnId).removeChild(currentPage.shadowRoot.querySelector("#" + chartId));
-							if (currentPage.shadowRoot.querySelector("#edit" + chartId.replace('Chart', '')) != null)
-								currentPage.shadowRoot.querySelector('#' + divId).querySelector("#" + divColumnId).removeChild(currentPage.shadowRoot.querySelector("#edit" + chartId.replace('Chart', '')));
-							if (currentPage.shadowRoot.querySelector("#delete" +  chartId.replace('Chart', '')) != null)
-								currentPage.shadowRoot.querySelector('#' + divId).querySelector("#" + divColumnId).removeChild(currentPage.shadowRoot.querySelector("#delete" +  chartId.replace('Chart', '')));
-
-							chartDiv.id = chartId;
-							chartDiv.classList.add('chartDiv');
-							chartDiv.style = "width:850px;height:400px;float:left;";
-							if ($(window).width() < 1600) { chartDiv.style = "width:650px;height:400px;float:left;" };
-							if ($(window).width() < 1400) { chartDiv.style = "width:555px;height:400px;float:left;" };
-							if ($(window).width() < 1200) { chartDiv.style = "width:460px;height:400px;float:left;" };
-							if ($(window).width() < 1024) { chartDiv.style = "width:830px;height:400px;float:left;" };
-							if ($(window).width() < 992) { chartDiv.style = "width:690px;height:400px;float:left;" };
-							if ($(window).width() < 768) { chartDiv.style = "width:550px;height:400px;float:left;" };
-							if ($(window).width() < 640) { chartDiv.style = "width:380px;height:400px;float:left;" };
-							Polymer.dom(currentPage.shadowRoot.querySelector('#' + divId).querySelector('#' + divColumnId)).appendChild(chartDiv);
-
-							var editButton = document.createElement("paper-icon-button");
-							editButton.classList.add('chartEdit');
-							editButton.id = "edit" + chartId.replace('Chart', '');
-							editButton.icon = "create"
-							editButton.addEventListener('tap', (e) => currentPage.editChart(e));
-							Polymer.dom(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId)).appendChild(editButton);
-
-							var deleteButton = document.createElement("paper-icon-button");
-							deleteButton.classList.add('chartEdit');
-							deleteButton.id = "delete" + chartId.replace('Chart', '');
-							deleteButton.icon = "delete"
-							deleteButton.addEventListener('tap', (e) => currentPage.deleteChart(e));
-							Polymer.dom(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId)).appendChild(deleteButton);
-
-							initchart(ajaxResp.Result.Row, currentPage.chartTitle, currentPage.selectedchartyype, currentPage.selectedxcoordinate, currentPage.selectedycoordinate, "");
+							initchart(ajaxResp.Result.Row, currentPage.chartTitle, currentPage.selectedchartyype, currentPage.selectedxcoordinate, currentPage.selectedycoordinate, ChildChartId[i]);
 							break;
 						}
 					}
@@ -263,7 +224,7 @@ function loadGridwithEcl(QueryStr, recLimit, extenderQueryStr = "") {
 				sessionStorage.setItem('ChildChartIds', "");
 			}
 			else {
-				var ChartId = sessionStorage.getItem('ChartId');
+				//var ChartId = sessionStorage.getItem('ChartId');
 				initchart(ajaxResp.Result.Row, currentPage.chartTitle, currentPage.selectedchartyype, currentPage.selectedxcoordinate, currentPage.selectedycoordinate, "");
 			}
 		}
@@ -460,7 +421,6 @@ function initchart(griditems, chartTitle, charttype, xcoordinate, ycoordinate, I
 		legendarray.push(groupName);
 	}
 	var graphId = sessionStorage.getItem("ChartId");
-	//if (Id == "") {
 	if (graphId == "") {
 		var divChart = document.createElement("div");
 		var randomNumber;
@@ -477,13 +437,14 @@ function initchart(griditems, chartTitle, charttype, xcoordinate, ycoordinate, I
 		var divColumnId = 'divColumn' + randomNumber;
 		divColumn.id = divColumnId;
 		divColumn.classList.add('divColumn');
+		divColumn.style = "height:400px;";
+
 		Polymer.dom(currentPage.shadowRoot.querySelector('#' + divId)).appendChild(divColumn);
 
 		var chartDiv = document.createElement("div");
 		var chartId = 'Chart' + randomNumber;
 		chartDiv.id = chartId;
 		chartDiv.classList.add('chartDiv');
-		//chartDiv.style = "width:550px;height:400px;float:left;";
 		chartDiv.style = "width:850px;height:400px;float:left;";
 		if ($(window).width() < 1600) { chartDiv.style = "width:650px;height:400px;float:left;" };
 		if ($(window).width() < 1400) { chartDiv.style = "width:555px;height:400px;float:left;" };
@@ -512,20 +473,78 @@ function initchart(griditems, chartTitle, charttype, xcoordinate, ycoordinate, I
 		this.myChart = echarts.init(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId).querySelector("#" + chartId));
 	}
 	else {
-
-		var divId = 'divChart' + graphId.replace('Chart', '');
-		var divColumnId = 'divColumn' + graphId.replace('Chart', '');
-		for (var i = 0; i < currentPage.editor.chartDetails.length; i++) {
-			var chart = currentPage.editor.chartDetails[i];
-			if (chart.ChartId == graphId) {
-				chart.chartTitle = chartTitle;
-				chart.ChartType = charttype;
-				chart.xcoordinate = xcoordinate;
-				chart.ycoordinate = ycoordinate;
-				//this.inputTab = '';
-				break;
+		if (Id == "") {
+			var divId = 'divChart' + graphId.replace('Chart', '');
+			var divColumnId = 'divColumn' + graphId.replace('Chart', '');
+			for (var i = 0; i < currentPage.editor.chartDetails.length; i++) {
+				var chart = currentPage.editor.chartDetails[i];
+				if (chart.ChartId == graphId) {
+					chart.chartTitle = chartTitle;
+					chart.ChartType = charttype;
+					chart.xcoordinate = xcoordinate;
+					chart.ycoordinate = ycoordinate;
+					break;
+				}
 			}
 		}
+		else {
+			var divId = 'divChart' + graphId.replace('Chart', '');;
+			var divColumnId = 'divColumn' + graphId.replace('Chart', '');;
+			if (currentPage.shadowRoot.querySelector("#" + divId) == null) {
+				var divChart = document.createElement("div");
+				divChart.id = divId;
+				divChart.classList.add('divChart');
+				Polymer.dom(currentPage.shadowRoot.querySelector('#divDashboard')).appendChild(divChart);
+
+				var divColumn = document.createElement("div");
+
+				divColumn.id = divColumnId;
+				divColumn.classList.add('divColumn');
+				divColumn.style = "height:400px;";
+
+				Polymer.dom(currentPage.shadowRoot.querySelector('#' + divId)).appendChild(divColumn);
+			}
+
+
+
+			var chartDiv = document.createElement("div");
+			var divId = 'divChart' + graphId.replace('Chart', '');
+
+			if (currentPage.shadowRoot.querySelector("#" + graphId) != null)
+				currentPage.shadowRoot.querySelector('#' + divId).querySelector("#" + divColumnId).removeChild(currentPage.shadowRoot.querySelector("#" + graphId));
+			if (currentPage.shadowRoot.querySelector("#edit" + graphId.replace('Chart', '')) != null)
+				currentPage.shadowRoot.querySelector('#' + divId).querySelector("#" + divColumnId).removeChild(currentPage.shadowRoot.querySelector("#edit" + graphId.replace('Chart', '')));
+			if (currentPage.shadowRoot.querySelector("#delete" + graphId.replace('Chart', '')) != null)
+				currentPage.shadowRoot.querySelector('#' + divId).querySelector("#" + divColumnId).removeChild(currentPage.shadowRoot.querySelector("#delete" + graphId.replace('Chart', '')));
+
+			chartDiv.id = graphId;
+			chartDiv.classList.add('chartDiv');
+			chartDiv.style = "width:850px;height:400px;float:left;";
+			if ($(window).width() < 1600) { chartDiv.style = "width:650px;height:400px;float:left;" };
+			if ($(window).width() < 1400) { chartDiv.style = "width:555px;height:400px;float:left;" };
+			if ($(window).width() < 1200) { chartDiv.style = "width:460px;height:400px;float:left;" };
+			if ($(window).width() < 1024) { chartDiv.style = "width:830px;height:400px;float:left;" };
+			if ($(window).width() < 992) { chartDiv.style = "width:690px;height:400px;float:left;" };
+			if ($(window).width() < 768) { chartDiv.style = "width:550px;height:400px;float:left;" };
+			if ($(window).width() < 640) { chartDiv.style = "width:380px;height:400px;float:left;" };
+			Polymer.dom(currentPage.shadowRoot.querySelector('#' + divId).querySelector('#' + divColumnId)).appendChild(chartDiv);
+
+			var editButton = document.createElement("paper-icon-button");
+			editButton.classList.add('chartEdit');
+			editButton.id = "edit" + graphId.replace('Chart', '');
+			editButton.icon = "create"
+			editButton.addEventListener('tap', (e) => currentPage.editChart(e));
+			Polymer.dom(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId)).appendChild(editButton);
+
+			var deleteButton = document.createElement("paper-icon-button");
+			deleteButton.classList.add('chartEdit');
+			deleteButton.id = "delete" + graphId.replace('Chart', '');
+			deleteButton.icon = "delete"
+			deleteButton.addEventListener('tap', (e) => currentPage.deleteChart(e));
+			Polymer.dom(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId)).appendChild(deleteButton);
+
+		}
+
 		this.myChart = echarts.init(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId).querySelector("#" + graphId));
 	}
 
@@ -666,12 +685,16 @@ function initchart(griditems, chartTitle, charttype, xcoordinate, ycoordinate, I
 	this.myChart.on('click', function (params) {
 		var childCharts = "";
 		var interaction = "";
+		var interactionstatus = false;
 		var parentChartId = event.currentTarget.offsetParent.id;
 		var parentchartfieldvalue = encodeURIComponent(params.name);
-		if (currentPage.editor.interactionDetails != null) {
+		var parentChartInteraction=""
+		if (currentPage.editor.interactionDetails != null && currentPage.editor.interactionDetails.length > 0) {
 			for (var i = 0; i < currentPage.editor.interactionDetails.length; i++) {
 				interaction = currentPage.editor.interactionDetails[i];
 				if (interaction.ParentChartId == parentChartId) {
+					parentChartInteraction=interaction;
+					interactionstatus = true;
 					interaction.InteractionFieldvalue = parentchartfieldvalue;
 					childCharts = childCharts + interaction.ChildChartId;
 					if (i != currentPage.editor.interactionDetails.length - 1)
@@ -679,7 +702,8 @@ function initchart(griditems, chartTitle, charttype, xcoordinate, ycoordinate, I
 				}
 			}
 			sessionStorage.setItem('ChildChartIds', childCharts);
-			ApplyInteractions(interaction);
+			if (interactionstatus)
+				ApplyInteractions(parentChartInteraction);
 		}
 	});
 }

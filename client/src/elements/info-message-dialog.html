@@ -34,7 +34,7 @@
         <paper-dialog id="dialog" modal>
             <div class="container">
                 <iron-label>
-                    <div class="head">Filtered by</div>
+                    <div class="head"  id="divTitle"></div>
                   <div class="text">An Interaction is applied to this chart.If you continue with edit you will lost the interaction and you need to set the interaction again.</div>
                 </iron-label>
               
@@ -63,18 +63,20 @@
             ready() {
                 super.ready();
             }
-            open(id) {
+            open(id,title) {
                 this.ChartId=id;
+                this.$.divTitle.innerHTML=title;
                 this.$.dialog.open();
             }
             handleOk(e) {
                 var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
-                infoBox.IsInteraction=0;
-                var currentPage = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('info-box').shadowRoot.querySelector("#pages").selectedItem;
+                infoBox.editChartStatus=true;
+                var currentPage =infoBox.shadowRoot.querySelector("#pages").selectedItem;
                 currentPage.shadowRoot.querySelector('#newchart').open(this.ChartId);              
             }
             handleCancel(e) {
-                infoBox.IsInteraction=2;
+                var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
+                infoBox.editChartStatus=false;
                 this.dispatchEvent(new CustomEvent('cancel', { bubbles: true, composed: true }));
             }
 

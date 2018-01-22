@@ -76,11 +76,8 @@
 				this.$.ParentChartInput.value="";
 				this.$.childchartTitle.value="";
 
-
 				var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
 				var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
-				//	alert("currentPage.id"+currentPage.id);
-				//	if (currentPage.id == "common-dashboard") {
 				var ChartsList = "";
 				if (currentPage.editor != undefined) {
 					if (currentPage.editor.chartDetails.length > 1) {
@@ -95,11 +92,9 @@
 						this.$.toast.text = "Interaction can apply only if dashboard have more than 1 chart";
 						this.$.toast.open();
 					}
-
-				}
-				//}				
-
+				}	
 			}
+
 			AddInteractions(e) {
 				var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
 				var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
@@ -131,7 +126,7 @@
 							}
 						}
 						
-						currentPage.shadowRoot.querySelector("#" +  chart.ChartId).innerHTML = "";						
+						currentPage.shadowRoot.querySelector("#divColumn" +  chart.ChartId.replace('Chart', '')).innerHTML = "";						
 						currentPage.editor.interactionDetails.push({ "InteractionTitle": interactionTitle, "ParentChartId":parentChartId, "ParentChartTitle": parentChartTitle, "FilteringField": filteringField, "ChildChartId":childChartId,"ChildChartTitle":childChartTitle,"InteractionFieldvalue":'',"ChildChartType":childChartType,"childchartxcoordinate":childChartxcoordinate,"childchartycoordinate":childchartycoordinate});
 						this.$.toast.text = "Interactions Added Successfully.";
 						this.$.toast.open();

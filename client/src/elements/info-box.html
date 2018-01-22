@@ -253,6 +253,10 @@
                     filteredcharttitle: {
                         type: String,
                         value: null
+                    },
+                    editChartStatus: {
+                        type: Boolean,
+                        value: false
                     }
 
                 }
@@ -271,18 +275,18 @@
             }
 
             handleTabTap(e) {
-                if (e.detail.item.id == "common-dashboard") {
-                    this.hidden = false;
-                    this.hideedit = true;
-                    if (e.detail.item.editor != undefined) {
-                        e.detail.item.editor.loadChart();
-                    }
-                }
-                else {
-                    this.hidden = true;
-                    this.hideedit = false;
-                }
                 if (e.detail.item.editor != undefined) {
+                    if (e.detail.item.id == "common-dashboard") {
+                        this.hidden = false;
+                        this.hideedit = true;
+                        if (e.detail.item.editor != undefined) {
+                            e.detail.item.editor.loadChart();
+                        }
+                    }
+                    else {
+                        this.hidden = true;
+                        this.hideedit = false;
+                    }
                     if (e.detail.item.shadowRoot.querySelector('.projectworksheet') != null) {
                         if (e.detail.item.shadowRoot.querySelector('.projectworksheet').items.length === 0) {
                             e.detail.item.editor.loadgrid();
@@ -418,8 +422,6 @@
                         that.shadowRoot.querySelector('#btnEditPlugin').fire('click');
                     }, 2000, this);
                 }
-
-
             }
 
 
@@ -481,6 +483,7 @@
                 this.$.plugininfo.open();
             }
             _pluginEditDashboardHandler(e) {
+                this.$.plugininfo.plugintitle = "DashBoard"
                 this.shadowRoot.querySelector('#plugininfo').openDashboardEditor(e);
             }
             // This handler is called when the user adds a new plugin.
