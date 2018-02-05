@@ -359,12 +359,12 @@
                         <form method="post" action="/userDetails/login">
                             <div class="form-field">
                                 <paper-input no-label-float class="input-control username" id="username" name="username" placeholder="Username" auto-validate
-                                    required error-message="Please enter username">
+                                    required error-message="Username cannot be empty">
                                 </paper-input>
                             </div>
 
                             <div class="form-field">
-                                <paper-input no-label-float class="input-control password" id="password" name="password" placeholder="Password" type="password"
+                                <paper-input no-label-float class="input-control password" id="password" name="password" placeholder="Password" auto-validate type="password"
                                     required error-message="Password cannot be empty">
                                 </paper-input>
                             </div>
@@ -450,6 +450,7 @@
 
                 // * Fired when the there is an error in Implementation Partners Login form response.                
                 this.$.LoginForm.addEventListener('iron-form-error', this.LoginFormError.bind(this));
+                
             }
             LoginFormResponse(e) {
                 if (e.detail.response.length === 0) {
@@ -459,7 +460,7 @@
                 else {
                     this.loginError = '';
                     console.log("RESPONSE: ", e.detail.response);
-
+                    
                     let response = e.detail.response;
                     if (response.username) {
                         this.user = {
@@ -467,8 +468,13 @@
                             email: response.Email,
                             dbauth:true,
                         };
-                        this.signedIn = true;
+                        this.signedIn = true;   
+                        this.$.username.value="";
+                        this.$.password.value="";
+                        this.$.username.invalid = false;
+                        this.$.password.invalid = false;                     
                         this.set('route.path', '/info');
+                        
                     }
                     else {
                         console.log("User Not Found");
@@ -497,7 +503,7 @@
             UserLogin() {
                 console.log(this.$.username.value);
                 console.log(this.$.password.value);
-                this.$.LoginForm.submit();
+                this.$.LoginForm.submit(); 
             }
         }
         customElements.define(MyHome.is, MyHome);

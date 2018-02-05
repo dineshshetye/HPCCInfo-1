@@ -45,7 +45,8 @@
                 <paper-input id='cluster_name' label="Cluster Name" value="[[clustername]]" 
                              required auto-validate error-message="Please enter cluster name"></paper-input>
                 <paper-input id='cluster_address' on-change = "disableClusternames" label="Cluster Address" value="[[clusteraddress]]" 
-                                 required auto-validate error-message="Please enter cluster address"></paper-input>
+                                 required auto-validate pattern="^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+                                 invalid="{{invalid}}" error-message="Please enter cluster address"></paper-input>
                 <paper-input id='port' label="Port" value="[[port]]"  on-change = "disableClusternames"  allowed-pattern="[0-9]" 
                                  required auto-validate error-message="Please enter a valid port number"></paper-input>
                 <paper-input id='username' label="Username"  on-change = "disableClusternames"  value="[[username]]" 
@@ -224,14 +225,80 @@
             }
 
             validate() {
-                const isValidWorksheettitle = this.$.worksheettitle.validate();
-                const isValidClusterName = this.$.cluster_name.validate();
-                const isValidClusterAddress = this.$.cluster_address.validate();
-                const isValidPort = this.$.port.validate();
-                const isValidUsername = this.$.username.validate();
-                const isValidPassword = this.$.password.validate();
-                const isValidclusterid = this.$.clusternames.validate() || this.$.clusternames.disabled === true;
+                var Worksheettitle=this.$.worksheettitle.value.trim();
+                var ClusterName=this.$.cluster_name.value.trim();
+                var ClusterAddress=this.$.cluster_address.value.trim();
+                var Port=this.$.port.value.trim();
+                var Username=this.$.username.value.trim();
+                var Password=this.$.password.value.trim();
+                var clusterid=this.$.clusternames.value.trim();
 
+
+                var isValidWorksheettitle;
+                var isValidClusterName ;
+                var isValidClusterAddress ;
+                var isValidPort ;
+                var isValidUsername;
+                var isValidPassword ;
+                var isValidclusterid;
+
+
+                if (Worksheettitle === undefined || Worksheettitle === null || Worksheettitle === '') {
+                    isValidWorksheettitle = false;
+                    this.$.worksheettitle.invalid = true;
+                }
+                else {
+                    isValidWorksheettitle = true;
+                    this.$.worksheettitle.invalid = false;
+                }
+                if (ClusterName === undefined || ClusterName === null || ClusterName === '') {
+                    isValidClusterName = false;
+                    this.$.cluster_name.invalid = true;
+                }
+                else {
+                    isValidClusterName = true;
+                    this.$.cluster_name.invalid = false;
+                }
+                if (ClusterAddress === undefined || ClusterAddress === null || ClusterAddress === '') {
+                    isValidClusterAddress = false;
+                    this.$.cluster_address.invalid = true;
+                }
+                else {
+                    isValidClusterAddress = true;
+                    this.$.cluster_address.invalid = false;
+                }
+                if (Port === undefined || Port === null || Port === '') {
+                    isValidPort = false;
+                    this.$.port.invalid = true;
+                }
+                else {
+                    isValidPort = true;
+                    this.$.port.invalid = false;
+                }
+                if (Username === undefined || Username === null || Username === '') {
+                    isValidUsername = false;
+                    this.$.username.invalid = true;
+                }
+                else {
+                    isValidUsername = true;
+                    this.$.username.invalid = false;
+                }
+                if (Password === undefined || Password === null || Password === '') {
+                    isValidPassword = false;
+                    this.$.password.invalid = true;
+                }
+                else {
+                    isValidPassword = true;
+                    this.$.password.invalid = false;
+                }
+                if (clusterid === undefined || clusterid === null || clusterid === '' || this.$.clusternames.disabled === true) {
+                    isValidclusterid = false;
+                    this.$.clusternames.invalid = true;
+                }
+                else {
+                    isValidclusterid = true;
+                    this.$.clusternames.invalid = false;
+                }
                 if(isValidWorksheettitle && isValidClusterName && isValidClusterAddress 
                     && isValidPort && isValidUsername && isValidPassword && isValidclusterid) {
                     console.log('returning true');
