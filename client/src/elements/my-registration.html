@@ -230,8 +230,9 @@
                     </div>
                     <div class="form-field">
                         <label>Email Address</label>
-
-                        <paper-input no-label-float id='email_id' class="input-line" placeholder="Email Id" required auto-validate error-message="Please enter Email Id"></paper-input>
+                        <paper-input no-label-float id='email_id'  pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$"
+                        invalid="{{invalid}}"
+                        error-message="Invalid Email Id" class="input-line" placeholder="Email Id" required auto-validate error-message="Please enter Email Id" ></paper-input>
                     </div>
                     <div class="form-field">
                         <label>Username</label>
@@ -324,12 +325,12 @@
             }
 
             Register() {
-                var firstname = this.$.first_name.value;
-                var lastname = this.$.last_name.value;
-                var emailid = this.$.email_id.value;
-                var uname = this.$.username.value;
-                var pwd = this.$.password.value;
-                var repwd = this.$.re_password.value;
+                var firstname = this.$.first_name.value.trim();
+                var lastname = this.$.last_name.value.trim();
+                var emailid = this.$.email_id.value.trim();
+                var uname = this.$.username.value.trim();
+                var pwd = this.$.password.value.trim();
+                var repwd = this.$.re_password.value.trim();
                 var firstnamestatus;
                 var lastnamestatus;
                 var emailidstatus;
@@ -339,39 +340,59 @@
                 var that = this;
                 if (firstname === undefined || firstname === null || firstname === '') {
                     firstnamestatus = false;
+                    this.$.first_name.invalid = true;
                 }
                 else {
                     firstnamestatus = true;
+                    this.$.first_name.invalid = false;
                 }
                 if (lastname === undefined || lastname === null || lastname === '') {
                     lastnamestatus = false;
+                    this.$.last_name.invalid = true;
                 }
                 else {
                     lastnamestatus = true;
+                    this.$.last_name.invalid = false;
                 }
                 if (emailid === undefined || emailid === null || emailid === '') {
                     emailidstatus = false;
+                    this.$.email_id.invalid = true;
                 }
                 else {
-                    emailidstatus = true;
+                    var invalid = this.$.email_id.invalid;
+                    if(!invalid){
+                        emailidstatus = true;
+                    this.$.email_id.invalid = false;
+                    } 
+                    else
+                    {
+                        emailidstatus = false;
+                    this.$.email_id.invalid = true;
+                    } 
                 }
                 if (uname === undefined || uname === null || uname === '') {
                     unamestatus = false;
+                    this.$.username.invalid = true;
                 }
                 else {
                     unamestatus = true;
+                    this.$.username.invalid = false;
                 }
                 if (pwd === undefined || pwd === null || pwd === '') {
                     pwdstatus = false;
+                    this.$.password.invalid = true;
                 }
                 else {
                     pwdstatus = true;
+                    this.$.password.invalid = false;
                 }
                 if (repwd === undefined || repwd === null || repwd === '') {
                     repwdstatus = false;
+                    this.$.re_password.invalid = true;
                 }
                 else {
                     repwdstatus = true;
+                    this.$.re_password.invalid = false;
                 }
                 if (firstnamestatus === true && lastnamestatus === true && emailidstatus === true && unamestatus === true && pwdstatus === true && repwdstatus === true) {
                     if (pwd === repwd) {
@@ -396,14 +417,9 @@
                         this.$.dialog.close();
                     }
                     else {
-                        this.$.toast.text = "Password Mismatch";
-                        this.$.toast.open();
+                        this.$.re_password.invalid = true;
                     }
 
-                }
-                else {
-                    this.$.toast.text = "Fill all fields";
-                    this.$.toast.open();
                 }
 
             }

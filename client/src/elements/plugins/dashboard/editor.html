@@ -241,18 +241,21 @@
 								if (currentPage.editor.interactionDetails != null && currentPage.editor.interactionDetails.length > 0) {
 									for (var j = 0; j < currentPage.editor.interactionDetails.length; j++) {
 										interaction = currentPage.editor.interactionDetails[j];
-										var isParentchart = 0;
+										//var isParentchart = 0;
+										var isChildChart=0;
 										if (interaction.ParentChartId == chart.ChartId) {
 											if (parentCharts != "")
 												parentCharts += ",";
 											parentCharts = parentCharts + interaction.ParentChartId;
-											isParentchart = 1;
+											//isParentchart = 1;
+											break;
+										}
+										else if(interaction.ChildChartId == chart.ChartId){
+											isChildChart = 1;
 											break;
 										}
 									}
-									if (isParentchart == 1)
-										initchart(infoBox.griddata, chart.chartTitle, chart.ChartType, chart.xcoordinate, chart.ycoordinate, chart.ChartId);
-									else {
+									if (isChildChart == 1){
 										var divId = 'divChart' + chart.ChartId.replace('Chart', '');;
 										var divColumnId = 'divColumn' + chart.ChartId.replace('Chart', '');;
 										if (currentPage.shadowRoot.querySelector("#" + divId) == null) {
@@ -307,6 +310,10 @@
 										deleteButton.icon = "delete"
 										deleteButton.addEventListener('tap', (e) => currentPage.deleteChart(e));
 										Polymer.dom(currentPage.shadowRoot.querySelector("#" + divId).querySelector('#' + divColumnId)).appendChild(deleteButton);
+										
+									}
+									else  {
+										initchart(infoBox.griddata, chart.chartTitle, chart.ChartType, chart.xcoordinate, chart.ycoordinate, chart.ChartId);
 									}
 								}
 								else
