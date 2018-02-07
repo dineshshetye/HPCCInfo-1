@@ -19,7 +19,7 @@ var UserDetails = {
 		},
 
 		addUser: function(userDetails, callback) {
-			return mysql_pool.query("Insert into User (FirstName,LastName,UserName,Password,Email,IsDeleted,CreatedDate,ModifiedDate)values(?,?,?,?,?, 0,?, ?)", 
+			return mysql_pool.query("Insert into user (FirstName,LastName,UserName,Password,Email,IsDeleted,CreatedDate,ModifiedDate)values(?,?,?,?,?, 0,?, ?)", 
 				[userDetails.fname,
                     userDetails.lname,
                     userDetails.uname,
@@ -30,13 +30,13 @@ var UserDetails = {
 		},
 		
         getUserByLogin: function(loginDetails,callback) {
-            return mysql_pool.query("select * from User where UserName = ? and IsDeleted=0", [loginDetails], callback);
+            return mysql_pool.query("select * from user where UserName = ? and IsDeleted=0", [loginDetails], callback);
         },
 
         checkLoginDetails: function(username, encrypted_pwd) {
 			return new Promise( (resolve, reject) => {
 				mysql_pool.query(" SELECT username,Email FROM " +
-								 " User WHERE UserName = ? AND Password = ? AND IsDeleted = 0",
+								 " user WHERE UserName = ? AND Password = ? AND IsDeleted = 0",
 						 		 [ username, encrypted_pwd ], (error, result) => {
 					if(error) {
 						return reject(error);
@@ -47,7 +47,7 @@ var UserDetails = {
 			});
 		},
 		updatePassword: function(username, userDetails, callback) {
-	    	return  mysql_pool.query("update User set Password = ?,  ModifiedDate = ? where UserName = ?",
+	    	return  mysql_pool.query("update user set Password = ?,  ModifiedDate = ? where UserName = ?",
 	    		[userDetails.password, userDetails.dateupdated, username], callback);
 		}
 };
