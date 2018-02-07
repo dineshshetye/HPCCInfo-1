@@ -127,6 +127,8 @@
 				}
 				var infoBox = document.querySelector('my-app').shadowRoot.querySelector("hpcc-info-app").shadowRoot.querySelector("#infobox");
 				infoBox.clearWorkBook();
+				this.storedUser = null;
+				localStorage.clear();
 				this.set('route.path', '/');
 			}
 			_changePassword(){
