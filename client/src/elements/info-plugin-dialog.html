@@ -50,6 +50,7 @@
                 super.ready();
             }
             open() {
+                console.log("open");
                 this.$.label.value = '';
                 sessionStorage.setItem('isEditChart', "false");
                 this.$.label.invalid = false;
