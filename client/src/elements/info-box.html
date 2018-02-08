@@ -29,6 +29,10 @@
 <link rel="import" href="plugins/sample/view.html">
 <link rel="import" href="export-project-dialog.html">
 
+<!-- Needed for paper-listbox -->
+ <!-- Ensure Web Animations polyfill is loaded since neon-animation 2.0 doesn't import it -->
+ <link rel="import" href="../../bower_components/neon-animation/web-animations.html">
+
 <dom-module id="info-box">
     <template>
         <style>
