@@ -21,7 +21,10 @@
         
               --vaadin-grid-header-cell: {
                 border-bottom: 1px solid #d4d4d4;
-                background-image: linear-gradient(to bottom,#fafafa 2%, #efefef 98%);            
+                background-image: linear-gradient(to bottom,#ececec 2%, #d6d6d6 98%);
+                font-weight: bold;
+                color: #333;
+                font-size: 15px;           
                 text-transform:capitalize;
 
               };
@@ -51,6 +54,7 @@
         
               --vaadin-grid-body-cell: {
                 transition: opacity 0.2s;
+                border-bottom: 1px solid var(--divider-color, rgba(0, 0, 0, 0.08)); /* added */
               };
         
               --vaadin-grid-loading-body-cell: {
