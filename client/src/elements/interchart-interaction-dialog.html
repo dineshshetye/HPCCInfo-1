@@ -64,17 +64,38 @@
 						this.$.dialog.querySelector("#ParentChartInput").items = chart.xcoordinate.split(",");
 					}
 					else {
-						ChildChartsList += (ChildChartsList === "" ? "" : ",") + chart.chartTitle;
+						var isInteractionApplied = 0;
+						for (var j = 0; j < currentPage.editor.interactionDetails.length; j++) {
+							var interaction = currentPage.editor.interactionDetails[j];
+							if (interaction.ChildChartId == chart.ChartId || interaction.ParentChartId == chart.ChartId) {
+								isInteractionApplied = 1;
+								break;
+							}
+						}
+						if (isInteractionApplied == 0)
+							ChildChartsList += (ChildChartsList === "" ? "" : ",") + chart.chartTitle;
 					}
 				}
-				this.$.dialog.querySelector("#childchartTitle").items = ChildChartsList.split(",");
+				var ChildCharts = ChildChartsList.split(",");
+				if (ChildCharts.length == 1 && ChildCharts[0]=="") {
+					this.$.dialog.querySelector("#childchartTitle").items =ChildChartsList.split(",");
+					this.$.toast.text = "No charts remaining to apply interaction";
+					this.$.toast.open();
+				}
+				else {
+					this.$.dialog.querySelector("#childchartTitle").items = ChildChartsList.split(",");
+				}
 				this.$.dialog.querySelector("#ChildChartInput").items = currentPage.editor.displayFields.split(",");
 			}
 			open() {
-				this.$.interactiontitle.value="";
-				this.$.parentchartTitle.value="";
-				this.$.ParentChartInput.value="";
-				this.$.childchartTitle.value="";
+				this.$.interactiontitle.value = "";
+				this.$.parentchartTitle.value = "";
+				this.$.ParentChartInput.value = "";
+				this.$.childchartTitle.value = "";
+				this.$.ChildChartInput.value = "";
+
+				this.$.interactiontitle.invalid = false;
+
 
 				var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
 				var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
@@ -83,16 +104,33 @@
 					if (currentPage.editor.chartDetails.length > 1) {
 						for (var i = 0; i < currentPage.editor.chartDetails.length; i++) {
 							var chart = currentPage.editor.chartDetails[i];
-							ChartsList += (ChartsList === "" ? "" : ",") + chart.chartTitle;
+							var ischildChart = 0;
+							for (var j = 0; j < currentPage.editor.interactionDetails.length; j++) {
+								var interaction = currentPage.editor.interactionDetails[j];
+								if (interaction.ChildChartId == chart.ChartId) {
+									ischildChart = 1;
+									break;
+								}
+							}
+							if (ischildChart == 0)
+								ChartsList += (ChartsList === "" ? "" : ",") + chart.chartTitle;
 						}
-						this.$.dialog.querySelector("#parentchartTitle").items = ChartsList.split(",");
-						this.$.dialog.open();
+						var ParentchartList = ChartsList.split(",");
+						if (ParentchartList.length <= 1) {
+							this.$.toast.text = "No charts remaining to apply interaction";
+							this.$.toast.open();
+						}
+						else {
+							this.$.dialog.querySelector("#parentchartTitle").items = ChartsList.split(",");
+							this.$.dialog.open();
+						}
 					}
 					else {
 						this.$.toast.text = "Interaction can apply only if dashboard have more than 1 chart";
 						this.$.toast.open();
 					}
-				}	
+
+				}
 			}
 
 			AddInteractions(e) {
@@ -100,10 +138,10 @@
 				var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
 				if (this.$.ParentChartInput.selectedItem != null && this.$.parentchartTitle.selectedItem != null && this.$.childchartTitle.selectedItem != null && this.$.ChildChartInput.selectedItem != null) {
 					if (this.$.ParentChartInput.selectedItem === this.$.ChildChartInput.selectedItem) {
-						var interactionTitle=this.$.interactiontitle.value;
+						var interactionTitle = this.$.interactiontitle.value;
 						var parentChartId;
 						var parentChartTitle;
-						var filteringField=this.$.ParentChartInput.selectedItem;
+						var filteringField = this.$.ParentChartInput.selectedItem;
 						var childChartId;
 						var childChartTitle;
 						var childChartType;
@@ -114,20 +152,24 @@
 							var chart = currentPage.editor.chartDetails[i];
 							if (chart.chartTitle === this.$.parentchartTitle.selectedItem) {
 								parentChartId = chart.ChartId;
-								parentChartTitle=chart.chartTitle;
+								parentChartTitle = chart.chartTitle;
+								break;
 							}
+
+						}
+						for (var i = 0; i < currentPage.editor.chartDetails.length; i++) {
+							var chart = currentPage.editor.chartDetails[i];
 							if (chart.chartTitle === this.$.childchartTitle.selectedItem) {
 								childChartId = chart.ChartId;
 								childChartTitle = chart.chartTitle;
-								childChartType= chart.ChartType;
+								childChartType = chart.ChartType;
 								childChartxcoordinate = chart.xcoordinate;
 								childchartycoordinate = chart.ycoordinate;
 								break;
 							}
 						}
-						
-						currentPage.shadowRoot.querySelector("#divColumn" +  chart.ChartId.replace('Chart', '')).innerHTML = "";						
-						currentPage.editor.interactionDetails.push({ "InteractionTitle": interactionTitle, "ParentChartId":parentChartId, "ParentChartTitle": parentChartTitle, "FilteringField": filteringField, "ChildChartId":childChartId,"ChildChartTitle":childChartTitle,"InteractionFieldvalue":'',"ChildChartType":childChartType,"childchartxcoordinate":childChartxcoordinate,"childchartycoordinate":childchartycoordinate});
+						currentPage.shadowRoot.querySelector("#divColumn" + chart.ChartId.replace('Chart', '')).innerHTML = "";
+						currentPage.editor.interactionDetails.push({ "InteractionTitle": interactionTitle, "ParentChartId": parentChartId, "ParentChartTitle": parentChartTitle, "FilteringField": filteringField, "ChildChartId": childChartId, "ChildChartTitle": childChartTitle, "InteractionFieldvalue": '', "ChildChartType": childChartType, "childchartxcoordinate": childChartxcoordinate, "childchartycoordinate": childchartycoordinate });
 						this.$.toast.text = "Interactions Added Successfully.";
 						this.$.toast.open();
 					}

@@ -27,7 +27,7 @@
       </iron-label>
       <paper-dialog-scrollable>
         <!-- User cannot enter title value beginning with a number -->
-        <paper-input id='TabTitle' label="Title" required auto-validate allowed-pattern="^[a-zA-Z](.*[a-zA-Z0-9 ])?$" error-message="Title is Required"></paper-input>
+        <paper-input id='TabTitle' label="Title" required auto-validate error-message="Title is Required"></paper-input>
         <paper-input id='scope' on-change="_loadFilesOnScopeChange" label="File Scope"></paper-input>
         <vaadin-combo-box id='subfilesgrid' class='subfilesgrid' required label="File" items='[]'></vaadin-combo-box>
         <paper-input id='filteroutputlimit' allowed-pattern="[\d]" label="Output Limit" value="10000"></paper-input>

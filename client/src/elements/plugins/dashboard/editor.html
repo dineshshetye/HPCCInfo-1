@@ -22,12 +22,12 @@
 		<paper-dialog id="dialog" modal>
 			<iron-label>
 				<div class="headerDiv">
-					<span>Select Input Dataset</span>
+					<span>Add New Chart</span>
 				</div>
 			</iron-label>
 			<paper-dialog-scrollable>
 				<!-- User cannot enter title value beginning with a number -->
-				<paper-input id='ChartTitle' label="Title" required allowed-pattern="^[A-Za-z0-9]+" error-message="Title is Required"></paper-input>
+				<paper-input id='ChartTitle' label="Chart Title" required error-message="Title is Required"></paper-input>
 				<paper-input id='dashboardoutputlimit' allowed-pattern="[\d]" label="Output Limit" value="10000"></paper-input>
 				<vaadin-combo-box id='dashboardInputTab' on-value-changed='changeInput' required label="Input Dataset"></vaadin-combo-box>
 				<vaadin-combo-box id='ChartType' required label="Chart Type" items='["bar", "pie","line"]'></vaadin-combo-box>
