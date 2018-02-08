@@ -280,7 +280,7 @@
 
             handleTabTap(e) {
                 if (e.detail.item.editor != undefined) {
-                    if (e.detail.item.id == "common-dashboard") {
+                    if (e.detail.item.id.includes("common-dashboard")) {
                         this.hidden = false;
                         this.hideedit = true;
                         if (e.detail.item.editor != undefined) {
@@ -364,7 +364,6 @@
             }
 
             addTab(id, label, pluginId, reload = false) {
-
                 if (pluginId === "common-input") {
                     this.shadowRoot.querySelector('#export-project-dialog').disabled = true;
 
