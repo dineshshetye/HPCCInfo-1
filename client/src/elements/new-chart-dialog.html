@@ -22,12 +22,12 @@
 		<paper-dialog id="dialog" modal>
 			<iron-label>
 				<div class="headerDiv">
-					<span>Select Input Dataset</span>
+					<span>{{heading}}</span>
 				</div>
 			</iron-label>
 			<paper-dialog-scrollable>
 				<!-- User cannot enter title value beginning with a number -->
-				<paper-input id='TabTitle' label="Title" required  error-message="Title is Required"></paper-input>
+				<paper-input id='TabTitle' label="Chart Title" required  error-message="Title is Required"></paper-input>
 				<paper-input id='filteroutputlimit' allowed-pattern="[\d]" label="Output Limit" value="10000"></paper-input>
 				<vaadin-combo-box id='filterInputTab' on-value-changed='changeInput' required label="Input Dataset"></vaadin-combo-box>
 
@@ -47,7 +47,6 @@
 			static get is() { return 'new-chart-dialog'; }
 			static get properties() {
 				return {
-
 					inputeclcode: String,
 					outputdsname: String,
 					inputdsname: String,
@@ -61,7 +60,8 @@
 					selectedchartyype: String,
 					selectedxcoordinate: String,
 					selectedycoordinate: String,
-					inputTab: String
+					inputTab: String,
+					heading :String
 				}
 			}
 			constructor() {
@@ -75,7 +75,7 @@
 				this.eclcode = '';
 				this.inputeclcode = '';
 				this.$.TabTitle.value = '';
-
+				this.heading="Add New Chart";
 				this.inputdsname = '';
 				this.outputdsname = '';
 				this.expression = '';
@@ -110,10 +110,12 @@
 					this.$.ChartType.selectedItem = '';
 					this.$.xcoordinate.selectedItem = '';
 					this.$.ycoordinate.selectedItem = '';
+					this.heading="Add New Chart";
 				}
 				else {
 					var chartId = 'Chart' + id.replace('edit', '');
 					sessionStorage.setItem('ChartId', chartId);
+					this.heading="Edit Chart";
 					for (var i = 0; i < currentPage.editor.chartDetails.length; i++) {
 						var chart = currentPage.editor.chartDetails[i];
 						if (chart.ChartId == chartId) {
