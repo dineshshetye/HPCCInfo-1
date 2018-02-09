@@ -209,8 +209,6 @@
             <info-box id="infobox"></info-box>
         </template>
         <app-drawer-layout>
-
-
             <app-drawer id="drawer" slot="drawer">
                 <div class="listbx_div" role="listbox">
                     <section class="main">
@@ -304,7 +302,6 @@
             }
             ready() {
                 super.ready();
-                this.$.drawer.open();
                 Polymer.Async.microTask.run(function () {
                     if (this.user === null || this.user === undefined) {
                         this.set('route.path', '/');
@@ -349,6 +346,7 @@
                             //Initialize projecttitle handler for inline editing of projecttitle
                             //editProjectTitleHandler();
 
+                            this.$.drawer.open();
                         } catch (e2) {
                             console.log("Error occurred");
                         }
