@@ -301,14 +301,20 @@
 			}
 
 			addSortFunction(e) {
-				var splitstrs = this.$.sortbyfieldsvalue.value.split(',');
-				for (var cnt = 0; cnt < splitstrs.length; cnt++) {
-					if (splitstrs[cnt].trim().substring(1) === this.$.sortfields.value.substring(1)) {
-						return;
-					}
+				if(this.$.sortbyfieldsvalue.value != undefined)
+				{
+					var splitstrs = this.$.sortbyfieldsvalue.value.split(',');
+					for (var cnt = 0; cnt < splitstrs.length; cnt++) {
+						if (splitstrs[cnt].trim().substring(1) === this.$.sortfields.value.substring(1)) {
+							return;
+						}
+					}	
+					this.$.sortbyfieldsvalue.value = this.$.sortbyfieldsvalue.value + (this.$.sortbyfieldsvalue.value.length > 0 ? " ," : "") + this.$.sortfields.value;
 				}
-
-				this.$.sortbyfieldsvalue.value = this.$.sortbyfieldsvalue.value + (this.$.sortbyfieldsvalue.value.length > 0 ? " ," : "") + this.$.sortfields.value;
+				else
+				{
+					this.$.sortbyfieldsvalue.value =  this.$.sortfields.value;
+				}				
 			}
 			orFunction(e) {
 				this.$.filterformulas.value = this.$.filterformulas.value + (this.$.filterformulas.value.length > 0 ? " OR " : "") + this.$.field.value + ' ' + this.$.operation.value + ' ' + this.$.formulavalue.value;
