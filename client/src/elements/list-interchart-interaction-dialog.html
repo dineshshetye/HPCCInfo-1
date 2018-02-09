@@ -262,11 +262,13 @@
                         }
                     }
                     currentPage.editor.interactionDetails.splice(index, 1);
+                    sessionStorage.setItem('ChartId', ChildChartId);
                     for (var i = 0; i < currentPage.editor.chartDetails.length; i++) {
                         var chart = currentPage.editor.chartDetails[i];
                         if (chart.ChartId === ChildChartId) {
                             chart.chartTitle = chart.chartTitle.replace(/ *\([^)]*\) */g, "");
                             initchart(infoBox.griddata, chart.chartTitle, chart.ChartType, chart.xcoordinate, chart.ycoordinate, chart.ChartId);
+                            break;
                         }
                     }
                     this.$.toast.text = "Interactions Deleted Successfully.";
