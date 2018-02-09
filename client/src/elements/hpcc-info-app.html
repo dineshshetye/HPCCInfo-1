@@ -303,6 +303,7 @@
             }
             ready() {
                 super.ready();
+                this.$.drawer.open();
                 Polymer.Async.microTask.run(function () {
                     if (this.user === null || this.user === undefined) {
                         this.set('route.path', '/');
