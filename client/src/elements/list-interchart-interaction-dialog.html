@@ -152,7 +152,7 @@
                     </span>
                 </div>
             </iron-label>
-            <vaadin-grid class="interactionlistclass"  id="interactionslist" items="[[currentPage.editor.interactionDetails]]" active-item="{{activeItem}}">
+            <vaadin-grid class="interactionlistclass"  id="interactionslist" active-item="{{activeItem}}">
                 <vaadin-grid-column>
                     <template class="header">Interaction Chart Title</template>
                     <template>[[item.InteractionTitle]]</template>
@@ -208,12 +208,13 @@
                 super();
             }
             ready() {
-                super.ready();
+                super.ready();              
             }
             _activeItemChanged(item) {
                 this.$.interactionslist.selectedItems = item ? [item] : [];
             }
             open() {
+                this.$.interactionslist.items = [];
                 var infoBox = document.querySelector('my-app').shadowRoot.querySelector('hpcc-info-app').shadowRoot.querySelector('#infobox');
                 var currentPage = infoBox.shadowRoot.querySelector('#pages').selectedItem;
                 if (currentPage.editor != undefined) {
