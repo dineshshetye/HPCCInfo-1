@@ -38,6 +38,7 @@
 <dom-module id="hpcc-info-app">
     <template>
         <iron-localstorage name="user-storage" value="{{user}}"></iron-localstorage>
+        <iron-localstorage name="userSigned-storage" value="{{signedIn}}"></iron-localstorage>
       
         <iron-ajax id="ajaxRetrieveAllProjects" method="GET" handle-as="json" on-response="ajaxRetrieveAllProjectsResponse">
         </iron-ajax>
@@ -208,8 +209,6 @@
             <info-box id="infobox"></info-box>
         </template>
         <app-drawer-layout>
-
-
             <app-drawer id="drawer" slot="drawer">
                 <div class="listbx_div" role="listbox">
                     <section class="main">
@@ -347,6 +346,7 @@
                             //Initialize projecttitle handler for inline editing of projecttitle
                             //editProjectTitleHandler();
 
+                            this.$.drawer.open();
                         } catch (e2) {
                             console.log("Error occurred");
                         }

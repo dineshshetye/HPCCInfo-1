@@ -345,6 +345,7 @@
             }
         </style>
         <iron-localstorage name="user-storage" value="{{user}}"></iron-localstorage>
+        <iron-localstorage name="userSigned-storage" value="{{signedIn}}"></iron-localstorage>
         <app-location route="{{route}}"></app-location>
 
         <body>
@@ -453,6 +454,7 @@
                 
             }
             LoginFormResponse(e) {
+                debugger;
                 if (e.detail.response.length === 0) {
                     console.log("No User Found");
                     this.loginError = 'No User Found';
@@ -473,8 +475,7 @@
                         this.$.password.value="";
                         this.$.username.invalid = false;
                         this.$.password.invalid = false;                     
-                        this.set('route.path', '/info');
-                        
+                        this.set('route.path', '/info');                        
                     }
                     else {
                         console.log("User Not Found");
