@@ -38,6 +38,7 @@
 <dom-module id="hpcc-info-app">
     <template>
         <iron-localstorage name="user-storage" value="{{user}}"></iron-localstorage>
+        <iron-localstorage name="userSigned-storage" value="{{signedIn}}"></iron-localstorage>
       
         <iron-ajax id="ajaxRetrieveAllProjects" method="GET" handle-as="json" on-response="ajaxRetrieveAllProjectsResponse">
         </iron-ajax>
@@ -189,6 +190,11 @@
                 margin: 0;
                 padding: 15px 20px;
             }
+            @media (max-width: 640px) {
+            .main-text {
+                font-size: 15px;
+            }
+            }
         </style>
 
         <app-location route="{{route}}"></app-location>
@@ -298,6 +304,7 @@
             }
             ready() {
                 super.ready();
+                this.$.drawer.open();
                 Polymer.Async.microTask.run(function () {
                     if (this.user === null || this.user === undefined) {
                         this.set('route.path', '/');
